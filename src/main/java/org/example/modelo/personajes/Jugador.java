@@ -34,7 +34,7 @@ public class Jugador {
         }
     }
 
-    /**GESTION DE PowerUps**/
+    /**GESTION DE PowerUp**/
     public void agregarPoder(PowerUp p){
         this.poderes.add(p);
     }
