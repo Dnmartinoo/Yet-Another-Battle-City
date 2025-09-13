@@ -5,7 +5,7 @@ public class Enemigos {
 
     public Enemigos(TipoPersonajes enemigo){
         if (!enemigo.esEnemigo())
-            throw new IllegalArgumentException("Tipo no enemigo: " + tipo);
+            throw new IllegalArgumentException("Tipo no enemigo: " + enemigo);
         this.enemigo = enemigo;
     }
 
@@ -19,9 +19,9 @@ public class Enemigos {
         return enemigo.obtenerVida();
     }
     public boolean estaVivo() {
-        return vida > 0;
+        return Vida() > 0;
     }
     public void recibirImpacto() {
-        if (estaVivo()) vida--;
+        if (estaVivo()) enemigo.reducirVida();
     }
 }

@@ -26,6 +26,8 @@ public enum TipoPersonajes {
         return cadencia;
     }
 
+    public void reducirVida() {vida--;}
+
     public boolean esJugador() { return this == JUGADOR; }
     public boolean esEnemigo() { return this != JUGADOR; }
 
