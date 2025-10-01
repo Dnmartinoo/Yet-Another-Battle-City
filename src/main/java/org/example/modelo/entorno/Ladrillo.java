@@ -17,6 +17,11 @@ public class Ladrillo implements Bloque{
     }
 
     public boolean estaDestruido() {
-        return destruido;
+        return destruido = hp == 0;
+    }
+
+    public int recibirImpacto(){
+        hp --;
+        return hp;
     }
 }
