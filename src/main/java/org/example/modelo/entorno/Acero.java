@@ -1,19 +1,28 @@
 package org.example.modelo.entorno;
 
+import javax.xml.transform.Result;
+
 public class Acero implements Bloque {
-    public boolean bloqueaMovimiento() {
+    @Override public boolean bloqueaMovimiento() {
         return true;
     }
 
-    public boolean bloqueaProyectiles() {
+    @Override public boolean bloqueaProyectiles() {
         return true;
     }
 
-    public boolean esDestruible() {
+    @Override public boolean esDestruible() {
         return false;
     }
 
-    public boolean estaDestruido() {
+    @Override public boolean estaDestruido() {
         return false;
     }
+
+    @Override
+    public ResultadoImpacto recibirImpacto(int dano) {
+        return ResultadoImpacto.balaSeDetiene();
+    }
+
+
 }

@@ -1,64 +1,96 @@
 package org.example.modelo.personajes;
 
-import org.example.modelo.Poderes;
-import org.example.modelo.powerup.ComandoPowerUp;
-import org.example.modelo.powerup.PowerUp;
-import org.example.modelo.powerup.ComandoPowerUp;
+import org.example.modelo.fisica.*;
+import org.example.modelo.powerup.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Jugador {
-    private final org.example.modelo.personajes.TipoPersonajes jugador = TipoPersonajes.JUGADOR;
-    private int vida;
-    private List<PowerUp> poderes = new ArrayList<>();
-    private boolean esInvulnerable = false;
+public class Jugador extends Tanque {
+    public Jugador(TipoPersonaje tipo, Vector posicion) {
+        super(tipo, posicion);
+    }
+    private final List<PowerUp> poderes = new ArrayList<>();
+
+    private static boolean invulnerable = false;
+    private static long invulnerableHasta = 0L;
     private boolean disparoPotenciado = false;
 
-
-    public Jugador(){
-        this.vida = jugador.obtenerVida();
+    public Jugador(Vector posicion) {
+        super(TipoPersonaje.JUGADOR, posicion);
     }
 
-    public int obtenerVida() {
-        return this.vida;
-    }
 
-    public boolean estaVivo() {
-        return this.vida > 0;
-    }
 
-    public void recibirDisparo() {
-        if (!esInvulnerable) {
-            this.vida--;
+
+    @Override public void recibirImpacto(int dano) {
+        if(invulnerable || !estaVivo()) {
+            return;
         }
+        super.recibirImpacto(dano);
     }
 
-    /**GESTION DE PowerUp**/
-    public void agregarPoder(PowerUp p){
-        this.poderes.add(p);
-    }
-    public void eliminarPoder(PowerUp p){
-        this.poderes.remove(p);
+    public void morir() {
+        invulnerable = false;
+        disparoPotenciado = false;
+        poderes.clear();
+        vidaActual = tipo.vidaBase();
     }
 
-    public ComandoPowerUp aplicarPowerUp(PowerUp p){
+    // POWER UPS
+
+    public void agregarPoder(PowerUp p) {
+        poderes.add(p);
+    }
+
+    public void eliminarPoder(PowerUp p) {
+        poderes.remove(p);
+    }
+
+    public ComandoPowerUp aplicarPowerUp(PowerUp p) {
         return p.aplicar(this);
     }
 
-    public void setInvulnerable(boolean invulnerable){
-        this.esInvulnerable = invulnerable;
+    // INVULNERABILIDAD
+
+    public static void activarInvulnerabilidadPor(long duracionMs, long ahoraMs) {
+        invulnerable = true;
+        invulnerableHasta = Math.max(invulnerableHasta, ahoraMs + duracionMs);
     }
 
-    public boolean isInvulnerable(){
-        return esInvulnerable;
+    public void setInvulnerableHasta(long instanteMs) {
+        invulnerable = true;
+        invulnerableHasta = instanteMs;
     }
 
-    public void setDisparoPotenciado(boolean encendido){
-        this.disparoPotenciado = encendido;
+    public void actualizarEstado(long ahoraMs) {
+        if(invulnerable && ahoraMs >= invulnerableHasta) {
+            invulnerable = false;
+        }
+    }
+
+    public void setInvulnerable(boolean v) {
+        invulnerable = v;
+    }
+
+    public boolean esInvulnerable() {
+        return invulnerable;
+    }
+
+    public long getInvulnerableHasta() {
+        return invulnerableHasta;
+    }
+
+    // DISPARO POTENCIADO
+
+    public void setDisparoPotenciado(boolean v) {
+        disparoPotenciado = v;
     }
 
     public boolean tieneDisparoPotenciado() {
         return disparoPotenciado;
     }
+
+
+
 }

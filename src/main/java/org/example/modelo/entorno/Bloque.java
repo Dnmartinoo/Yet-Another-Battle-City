@@ -11,4 +11,6 @@ public interface Bloque {
 
     default boolean ocutlaVision() { return false; }
 
+    ResultadoImpacto recibirImpacto(int dano);
+
 }
