@@ -1,19 +1,24 @@
 package org.example.modelo.entorno;
 
 public class Agua implements Bloque{
-    public boolean bloqueaMovimiento() {
+    @Override public boolean bloqueaMovimiento() {
         return true;
     }
 
-    public boolean bloqueaProyectiles() {
+    @Override public boolean bloqueaProyectiles() {
         return false;
     }
 
-    public boolean esDestruible() {
+    @Override public boolean esDestruible() {
         return false;
     }
 
-    public boolean estaDestruido() {
+    @Override public boolean estaDestruido() {
         return false;
+    }
+
+    @Override
+    public ResultadoImpacto recibirImpacto(int dano) {
+        return ResultadoImpacto.balaAtraviesa();
     }
 }
