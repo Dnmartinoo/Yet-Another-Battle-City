@@ -35,9 +35,7 @@ public class Interfaz {
         stage.close();
     }
 
-    // =========================
-    // Carga el nivel desde XML
-    // =========================
+
     private Nivel crearNivelDesdeXml(int cantJugadores) {
         boolean coop = (cantJugadores == 2);
 
@@ -49,7 +47,6 @@ public class Interfaz {
             }
 
             XmlNivelLoader loader = (xsd != null) ? new XmlNivelLoader(xsd) : new XmlNivelLoader();
-            // crea el Nivel listo (mundo + spawner + jugadores/bloques/enemigos) y respeta 1P/2P
             return loader.crearNivelDesdeXml(xml, coop);
 
         } catch (Exception e) {

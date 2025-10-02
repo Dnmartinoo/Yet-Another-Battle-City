@@ -1,25 +1,43 @@
-package org.example.modelo.fisica;
+// modelo/mundo/MundoFisico.java
+package org.example.modelo.mundo;
 
+import org.example.modelo.entorno.Bloque;
+import org.example.modelo.fisica.Rectangulo;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class MundoFisico {
 
-    public void actualizar(double dt,
-                           List<? extends Cuerpo> tanques,
-                           List<? extends Cuerpo> balas,
-                           List<? extends Cuerpo> bloques,
-                           Colisiones.AplicarDano aplicarDano,
-                           Colisiones.MarcadorDestruccion marcarDestruir,
-                           Predicate<Cuerpo> esSolidoBloque) {
-        tanques.forEach(t -> t.integrar(dt));
-        balas.forEach(b -> b.integrar(dt));
+    private final int TILE; // tamaño en px
+    private final int anchoTiles, altoTiles;
+    private final Bloque[][] grid; // [y][x]
 
-        Colisiones.solidosVsSolidos(tanques, bloques.stream().filter(esSolidoBloque).toList());
-        Colisiones.balasVsBalas(balas, marcarDestruir);
-        Colisiones.balasVsTanques(balas, tanques, aplicarDano, marcarDestruir);
-
-
-
+    public MundoFisico(int tile, int anchoTiles, int altoTiles, Bloque[][] grid) {
+        this.TILE = tile;
+        this.anchoTiles = anchoTiles;
+        this.altoTiles = altoTiles;
+        this.grid = grid;
     }
+
+    public List<Bloque> bloquesEn(Rectangulo area) {
+        int x0 = Math.max(0, (int)Math.floor(area.x() / TILE));
+        int y0 = Math.max(0, (int)Math.floor(area.y() / TILE));
+        int x1 = Math.min(anchoTiles - 1, (int)Math.floor((area.x() + area.w()) / TILE));
+        int y1 = Math.min(altoTiles - 1, (int)Math.floor((area.y() + area.h()) / TILE));
+
+
+        List<Bloque> res = new ArrayList<>();
+        for (int y = y0; y <= y1; y++) {
+            for (int x = x0; x <= x1; x++) {
+                Bloque b = grid[y][x];
+                if (b != null && !b.estaDestruido()) {
+                    res.add(b);
+                }
+            }
+        }
+        return res;
+    }
+
+    public int tileSize(){ return TILE; }
 }

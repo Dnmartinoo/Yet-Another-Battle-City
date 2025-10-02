@@ -1,16 +1,12 @@
 package org.example.modelo.entorno;
 
-public interface Bloque {
+import org.example.modelo.fisica.Cuerpo;
+
+public interface Bloque extends Cuerpo {
     boolean bloqueaMovimiento();
-
     boolean bloqueaProyectiles();
-
     boolean esDestruible();
-
     boolean estaDestruido();
-
-    default boolean ocutlaVision() { return false; }
-
     ResultadoImpacto recibirImpacto(int dano);
-
+    default boolean ocultaVisual() { return false; }
 }

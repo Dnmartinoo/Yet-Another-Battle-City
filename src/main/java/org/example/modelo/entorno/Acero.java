@@ -1,28 +1,35 @@
 package org.example.modelo.entorno;
 
-import javax.xml.transform.Result;
+import org.example.modelo.fisica.Rectangulo;
+import org.example.modelo.fisica.Vector;
 
-public class Acero implements Bloque {
-    @Override public boolean bloqueaMovimiento() {
-        return true;
+public class Acero extends BloqueBase {
+    private Vector posicion;
+    private Rectangulo hitbox;
+
+    public Acero(Vector posicion, int tileSize) {
+        this.posicion = posicion;
+        this.hitbox = new Rectangulo(posicion.x(), posicion.y(), tileSize, tileSize);
     }
 
-    @Override public boolean bloqueaProyectiles() {
-        return true;
+    @Override
+    public Vector posicion() { return posicion; }
+
+    @Override
+    public void setPosicion(Vector nuevaPosicion) {
+        this.posicion = nuevaPosicion;
+        this.hitbox = new Rectangulo(nuevaPosicion.x(), nuevaPosicion.y(), hitbox.w(), hitbox.h());
     }
 
-    @Override public boolean esDestruible() {
-        return false;
-    }
+    @Override
+    public Rectangulo hitbox() { return hitbox; }
 
-    @Override public boolean estaDestruido() {
-        return false;
-    }
+    @Override public boolean bloqueaMovimiento() { return true; }
+    @Override public boolean bloqueaProyectiles() { return true; }
+    @Override public boolean esDestruible() { return false; }
 
     @Override
     public ResultadoImpacto recibirImpacto(int dano) {
         return ResultadoImpacto.balaSeDetiene();
     }
-
-
 }

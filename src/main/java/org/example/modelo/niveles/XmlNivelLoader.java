@@ -4,9 +4,7 @@ import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.juego.Nivel;
 import org.example.modelo.juego.NivelData;
 import org.example.modelo.juego.Spawner;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,12 +19,8 @@ public class XmlNivelLoader {
 
     private final Schema schema; // puede ser null
 
-    /** Loader sin validación XSD */
-    public XmlNivelLoader() {
-        this.schema = null;
-    }
+    public XmlNivelLoader() { this.schema = null; }
 
-    /** Loader con validación XSD (opcional) */
     public XmlNivelLoader(InputStream xsd) {
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -36,7 +30,6 @@ public class XmlNivelLoader {
         }
     }
 
-    /** Carga solo los datos del nivel (no crea el mundo). */
     public NivelData cargar(InputStream xml) {
         try {
             var dbf = DocumentBuilderFactory.newInstance();
@@ -46,64 +39,71 @@ public class XmlNivelLoader {
             Document doc = dbf.newDocumentBuilder().parse(xml);
             doc.getDocumentElement().normalize();
 
-            Element raiz = doc.getDocumentElement(); // <nivel>
+            Element root = doc.getDocumentElement(); // <levelConfig>
 
-            // Atributos del nivel
-            int ancho  = parseIntAttr(raiz, "ancho", 800);
-            int alto   = parseIntAttr(raiz, "alto", 600);
-            boolean coopXml = parseBoolAttr(raiz, "coop", false); // lo podés pisar desde la vista
+            NodeList levelNL = root.getElementsByTagName("level");
+            if (levelNL.getLength() == 0) {
+                throw new IllegalArgumentException("No se encontró <level> dentro de <levelConfig>");
+            }
+            Element eLevel = (Element) levelNL.item(0);
 
-            // Spawner
-            Rect zonaSpawn = leerSpawner(raiz);
+            int ancho = parseIntAttr(eLevel, "width", 800);
+            int alto  = parseIntAttr(eLevel, "height", 600);
+            boolean coopXml = false;
 
-            // Jugadores
+            // Players
             Pos p1 = new Pos(100, 500);
             Pos p2 = new Pos(200, 500);
-            NodeList jugadores = raiz.getElementsByTagName("jugadores");
-            if (jugadores.getLength() > 0) {
-                Element eJugadores = (Element) jugadores.item(0);
-                NodeList lista = eJugadores.getElementsByTagName("jugador");
+            NodeList playersNL = eLevel.getElementsByTagName("players");
+            if (playersNL.getLength() > 0) {
+                Element ePlayers = (Element) playersNL.item(0);
+                NodeList lista = ePlayers.getElementsByTagName("player");
                 for (int i = 0; i < lista.getLength(); i++) {
-                    Element j = (Element) lista.item(i);
-                    int id = parseIntAttr(j, "id", 1);
-                    double x = parseDoubleAttr(j, "x", (id == 1) ? 100 : 200);
-                    double y = parseDoubleAttr(j, "y", 500);
-                    if (id == 1) p1 = new Pos(x, y);
-                    else if (id == 2) p2 = new Pos(x, y);
+                    Element p = (Element) lista.item(i);
+                    String id = p.getAttribute("id");
+                    double x = parseDoubleAttr(p, "x", 0);
+                    double y = parseDoubleAttr(p, "y", 0);
+                    if (id != null && id.endsWith("1")) p1 = new Pos(x, y);
+                    else if (id != null && id.endsWith("2")) p2 = new Pos(x, y);
                 }
             }
 
-            // Bloques
-            List<BloqueParse> bloques = new ArrayList<>();
-            NodeList bloquesNL = raiz.getElementsByTagName("bloques");
-            if (bloquesNL.getLength() > 0) {
-                Element eBloques = (Element) bloquesNL.item(0);
-                NodeList lista = eBloques.getElementsByTagName("bloque");
-                for (int i = 0; i < lista.getLength(); i++) {
-                    Element b = (Element) lista.item(i);
-                    String tipo = b.getAttribute("tipo"); // LADRILLO/ACERO/AGUA/BOSQUE/BASE...
-                    double x = parseDoubleAttr(b, "x", 0);
-                    double y = parseDoubleAttr(b, "y", 0);
-                    bloques.add(new BloqueParse(tipo, x, y));
-                }
-            }
-
-            // Enemigos
+            // Enemies
             List<EnemigoParse> enemigos = new ArrayList<>();
-            NodeList enemigosNL = raiz.getElementsByTagName("enemigos");
-            if (enemigosNL.getLength() > 0) {
-                Element eEnemigos = (Element) enemigosNL.item(0);
-                NodeList lista = eEnemigos.getElementsByTagName("enemigo");
+            NodeList enemiesNL = eLevel.getElementsByTagName("enemies");
+            if (enemiesNL.getLength() > 0) {
+                Element eEnemies = (Element) enemiesNL.item(0);
+                NodeList lista = eEnemies.getElementsByTagName("enemy");
                 for (int i = 0; i < lista.getLength(); i++) {
                     Element e = (Element) lista.item(i);
-                    String tipo = e.getAttribute("tipo"); // BASICO/RAPIDO/POTENTE/BLINDADO
+                    String tipoEn = e.getAttribute("type"); // fastEnemy / regularEnemy / heavyEnemy / powerfulEnemy
                     double x = parseDoubleAttr(e, "x", 0);
                     double y = parseDoubleAttr(e, "y", 0);
-                    enemigos.add(new EnemigoParse(tipo, x, y));
+                    // FIX: usar tipoEn directamente (Spawner.mapTipo ya lo entiende)
+                    enemigos.add(new EnemigoParse(tipoEn, x, y));
                 }
             }
 
-            // Mapear a tu NivelData
+            // Static objects
+            List<BloqueParse> bloques = new ArrayList<>();
+            NodeList staticsNL = eLevel.getElementsByTagName("staticObjects");
+            if (staticsNL.getLength() > 0) {
+                Element eStatics = (Element) staticsNL.item(0);
+                NodeList lista = eStatics.getElementsByTagName("staticObject");
+                for (int i = 0; i < lista.getLength(); i++) {
+                    Element b = (Element) lista.item(i);
+                    String tipoEn = b.getAttribute("type");
+                    String tipoEs = mapBlockType(tipoEn);
+                    double x = parseDoubleAttr(b, "x", 0);
+                    double y = parseDoubleAttr(b, "y", 0);
+                    bloques.add(new BloqueParse(tipoEs, x, y));
+                }
+            }
+
+            // Spawner por defecto
+            Rect zonaSpawn = new Rect(390, 0, 20, 20);
+
+            // Mapear a NivelData
             NivelData data = new NivelData(coopXml);
             data.setAncho(ancho);
             data.setAlto(alto);
@@ -116,30 +116,34 @@ public class XmlNivelLoader {
             return data;
 
         } catch (Exception e) {
-            throw new RuntimeException("Error al cargar/parsear XML de nivel", e);
+            throw new RuntimeException("Error al cargar/parsear XML de nivel (levelConfig/level)", e);
         }
     }
 
-    /**
-     * NUEVO: construye un Nivel completo a partir del XML.
-     * @param xml stream del XML (usar getResourceAsStream)
-     * @param coopOverride true para 2 jugadores, false para 1 (pisará lo que diga el XML)
-     */
     public Nivel crearNivelDesdeXml(InputStream xml, boolean coopOverride) {
-        NivelData data = cargar(xml);          // parsea el XML
-        data.setCoop(coopOverride);            // fuerza 1P/2P según el menú
-
-        // Mundo y spawner con datos del XML
+        NivelData data = cargar(xml);
+        data.setCoop(coopOverride);
         Rectangulo mundo = new Rectangulo(0, 0, data.ancho(), data.alto());
-        Rectangulo zonaSpawn = new Rectangulo(data.spawnX(), data.spawnY(), data.spawnW(), data.spawnH());
+        // FIX: tu Spawner actual no acepta Rectangulo en el ctor
         Spawner spawner = new Spawner();
-
         Nivel nivel = new Nivel(mundo, spawner);
-        nivel.crearMundo(data);                // instancia jugadores/bloques/enemigos
+        spawner.cargarPendientes(data.enemigos());
+        nivel.crearMundo(data);
         return nivel;
     }
 
-    // ---- helpers ----
+    private static String mapBlockType(String en) {
+        if (en == null) return "LADRILLO";
+        return switch (en) {
+            case "brickBlock"  -> "LADRILLO";
+            case "steelBlock"  -> "ACERO";
+            case "waterBlock"  -> "AGUA";
+            case "forestBlock" -> "BOSQUE";
+            case "baseBlock"   -> "BASE";
+            default -> "LADRILLO";
+        };
+    }
+
     private static int parseIntAttr(Element e, String name, int def) {
         String v = e.getAttribute(name);
         return (v == null || v.isBlank()) ? def : Integer.parseInt(v.trim());
@@ -148,22 +152,6 @@ public class XmlNivelLoader {
     private static double parseDoubleAttr(Element e, String name, double def) {
         String v = e.getAttribute(name);
         return (v == null || v.isBlank()) ? def : Double.parseDouble(v.trim());
-    }
-
-    private static boolean parseBoolAttr(Element e, String name, boolean def) {
-        String v = e.getAttribute(name);
-        return (v == null || v.isBlank()) ? def : Boolean.parseBoolean(v.trim());
-    }
-
-    private static Rect leerSpawner(Element raiz) {
-        NodeList sp = raiz.getElementsByTagName("spawner");
-        if (sp.getLength() == 0) return new Rect(390, 0, 20, 20); // default
-        Element s = (Element) sp.item(0);
-        double x = parseDoubleAttr(s, "x", 390);
-        double y = parseDoubleAttr(s, "y", 0);
-        double w = parseDoubleAttr(s, "w", 20);
-        double h = parseDoubleAttr(s, "h", 20);
-        return new Rect(x, y, w, h);
     }
 
     // structs internas
