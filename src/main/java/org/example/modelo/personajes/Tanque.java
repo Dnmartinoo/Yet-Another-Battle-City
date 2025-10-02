@@ -4,7 +4,7 @@ import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.fisica.utils.ColisionUtils;
-import org.example.modelo.mundo.MundoFisico;
+import org.example.modelo.fisica.MundoFisico;
 
 public abstract class Tanque implements Cuerpo {
     // --- Estado base que Jugador/Enemigo esperan ---

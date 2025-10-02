@@ -4,7 +4,7 @@ package org.example.modelo.fisica.utils;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.entorno.Bloque;
-import org.example.modelo.mundo.MundoFisico;
+import org.example.modelo.fisica.MundoFisico;
 
 public final class ColisionUtils {
 

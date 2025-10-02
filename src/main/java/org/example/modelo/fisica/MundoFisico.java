@@ -1,5 +1,5 @@
 // modelo/mundo/MundoFisico.java
-package org.example.modelo.mundo;
+package org.example.modelo.fisica;
 
 import org.example.modelo.entorno.Bloque;
 import org.example.modelo.fisica.Rectangulo;

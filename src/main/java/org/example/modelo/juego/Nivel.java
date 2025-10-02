@@ -1,20 +1,21 @@
 package org.example.modelo.juego;
 
 import org.example.modelo.entorno.*;
-import org.example.modelo.fisica.Vector;
+import org.example.modelo.fisica.MundoFisico;
 import org.example.modelo.personajes.*;
 import org.example.modelo.fisica.Rectangulo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Nivel {
+public class Nivel{
     private final List<Bloque> bloques = new ArrayList<>();
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Jugador> jugadores = new ArrayList<>(2);
     private Base base;
     private final Spawner spawner;
     private boolean victoria = false, derrota = false;
+    private MundoFisico mundo;
 
     public java.util.List<Jugador> jugadores() { return java.util.List.copyOf(jugadores); }
     public java.util.List<Enemigo> enemigos()  { return java.util.List.copyOf(enemigos); }
@@ -23,6 +24,8 @@ public class Nivel {
 
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
         this.spawner = spawner;
+
+
     }
 
     public void crearMundo(NivelData data) {
@@ -59,6 +62,18 @@ public class Nivel {
         // Enemigos
         enemigos.clear();
         spawner.cargarPendientes(data.enemigos());
+
+        int anchoTiles = data.ancho() / BloqueFactory.TILE;
+        int altoTiles  = data.alto() / BloqueFactory.TILE;
+        Bloque[][] grid = new Bloque[altoTiles][anchoTiles];
+        for (Bloque b : bloques) {
+            int x = (int)(b.posicion().x() / BloqueFactory.TILE);
+            int y = (int)(b.posicion().y() / BloqueFactory.TILE);
+            if (x >= 0 && x < anchoTiles && y >= 0 && y < altoTiles) {
+                grid[y][x] = b;
+            }
+        }
+        this.mundo = new MundoFisico(BloqueFactory.TILE, anchoTiles, altoTiles, grid);
     }
 
 
@@ -78,7 +93,7 @@ public class Nivel {
             j.actualizarEstado(ahoraMs);
         }
         for (Enemigo e : enemigos) {
-            e.actualizarIA(ahoraMs);
+            e.actualizarIA(ahoraMs, this.mundo);
         }
 
         // Spawnear (rate-limit adentro del Spawner)
@@ -127,4 +142,7 @@ public class Nivel {
     public void iniciar() {
         // hook si necesitás algo al inicio del nivel
     }
+
+
+
 }
