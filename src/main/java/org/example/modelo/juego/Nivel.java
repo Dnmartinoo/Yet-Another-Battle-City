@@ -139,24 +139,17 @@ public class Nivel {
 
         double dt = calcularDt(ahoraMs);
 
-
+        // --- Inputs de disparo (estado) ---
         if (!jugadores.isEmpty() && inJ1 != null && inJ1.disparar()) jugadores.get(0).disparar();
         if (jugadores.size() > 1 && inJ2 != null && inJ2.disparar()) jugadores.get(1).disparar();
 
-
+        // --- Estado de jugadores ---
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
 
-
+        // --- IA de enemigos ---
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
 
-
-        List<Enemigo> nuevos = spawner.talVezSpawnear(ahoraMs);
-        if (!nuevos.isEmpty()) {
-            enemigos.addAll(nuevos);
-            for (var e : nuevos) proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
-        }
-
-
+        // --- Disparos: jugadores con cooldown individual ---
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -167,7 +160,7 @@ public class Nivel {
             j.consumirDisparoPendiente();
         }
 
-
+        // --- Disparos: enemigos con cooldown por instancia ---
         for (Enemigo e : enemigos) {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
@@ -176,19 +169,43 @@ public class Nivel {
             }
         }
 
-
+        // --- Balas: movimiento + colisiones (remueve enemigos muertos) ---
         actualizarBalas(dt);
+
+        // --- Spawn ENEMIGOS desp. de limpiar muertos: llenar hasta el máximo concurrente ---
+        int vivosActuales = enemigos.size();
+        List<Enemigo> nuevos = spawner.spawnearHastaCompletar(
+                vivosActuales,
+                ahoraMs,
+                JuegoConfig.MAX_ENEMIGOS_CONCURRENTES
+        );
+        if (!nuevos.isEmpty()) {
+            enemigos.addAll(nuevos);
+            for (var e : nuevos) {
+                proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
+            }
+        }
+
+        // --- Condiciones de derrota ---
         if (todosJugadoresAgotados()) {
             derrota = true;
+            // si usás sonidos:
+            try { ManagerSonido.play("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
         }
 
         if (base != null && base.estaDestruido()) {
             derrota = true;
-            ManagerSonido.play("derrota");
-            ManagerSonido.stopMusica();
+            try { ManagerSonido.play("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
         }
-        if (enemigos.isEmpty() && spawner.yaTermino()) victoria = true;
+
+        // --- Condición de victoria ---
+        if (enemigos.isEmpty() && spawner.yaTermino()) {
+            victoria = true;
+            // si querés sonido:
+            try { ManagerSonido.play("victoria"); } catch (Throwable __) {}
+        }
     }
+
 
     private double calcularDt(long ahoraMs) {
         if (lastMs == 0L) { lastMs = ahoraMs; return 0.0; }

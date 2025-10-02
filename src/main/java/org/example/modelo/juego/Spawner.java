@@ -1,3 +1,4 @@
+// src/main/java/org/example/modelo/juego/Spawner.java
 package org.example.modelo.juego;
 
 import org.example.modelo.fisica.Vector;
@@ -9,68 +10,64 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-public class Spawner {
-    private final int maxEn60s = 10;
-    private final long ventanaMs = 60_000;
-    private final Deque<Long> tiemposSpawn = new ArrayDeque<>();
-    private boolean termino = false;
+public final class Spawner {
 
-    // cola con lo que vino del XML
     private final Deque<NivelData.EnemigoDato> pendientes = new ArrayDeque<>();
+    private long nextSpawnMs = 0L;
 
     public Spawner() {}
 
-    /** Carga la cola de enemigos a emitir (desde el XML). */
     public void cargarPendientes(List<NivelData.EnemigoDato> lista) {
         pendientes.clear();
         if (lista != null) pendientes.addAll(lista);
-        termino = pendientes.isEmpty();
+        nextSpawnMs = 0L;
     }
 
-    /** Intenta spawnear respetando el rate-limit. */
-    public List<Enemigo> talVezSpawnear(long ahoraMs) {
-        limpiarVentana(ahoraMs);
-        if (termino) return List.of();
-        if (tiemposSpawn.size() >= maxEn60s) return List.of();
-        if (pendientes.isEmpty()) { termino = true; return List.of(); }
-
-        var ed = pendientes.pollFirst();
-        tiemposSpawn.addLast(ahoraMs);
-
-        TipoPersonaje tipo = mapTipo(ed.tipo);   // mapea string del XML a tu enum
-        Vector pos = new Vector(ed.x, ed.y);
-        Enemigo nuevo = new Enemigo(tipo, pos);
-
-        if (pendientes.isEmpty()) termino = true;
-        var out = new ArrayList<Enemigo>(1);
-        out.add(nuevo);
-        return out;
+    public boolean yaTermino() {
+        return pendientes.isEmpty();
     }
-    public int cantidadPendiente(){
+
+    public int cantidadPendiente() {
         return pendientes.size();
     }
 
-    private void limpiarVentana(long ahoraMs) {
-        while (!tiemposSpawn.isEmpty() && ahoraMs - tiemposSpawn.peekFirst() > ventanaMs) {
-            tiemposSpawn.removeFirst();
-        }
+    public void cancelarPendientes() {
+        pendientes.clear();
+        nextSpawnMs = 0L;
     }
 
-    public void cancelarPendientes() { termino = true; pendientes.clear(); }
-    public boolean yaTermino() { return termino; }
+    public List<Enemigo> spawnearHastaCompletar(int vivosActuales, long ahoraMs, int maxConcurrentes) {
+        List<Enemigo> res = new ArrayList<>();
+        while ((vivosActuales + res.size()) < maxConcurrentes && !pendientes.isEmpty()) {
+            if (ahoraMs < nextSpawnMs) break; // cooldown activo
+            var dato = pendientes.pollFirst();
+            res.add(crearEnemigoDesdeDato(dato));
+            nextSpawnMs = ahoraMs + JuegoConfig.ENEMY_SPAWN_INTERVAL_MS;
+        }
+        return res;
+    }
 
-    private TipoPersonaje mapTipo(String s) {
+    public List<Enemigo> talVezSpawnear(long ahoraMs) {
+        if (pendientes.isEmpty()) return List.of();
+        if (ahoraMs < nextSpawnMs) return List.of();
+        var d = pendientes.pollFirst();
+        nextSpawnMs = ahoraMs + JuegoConfig.ENEMY_SPAWN_INTERVAL_MS;
+        return List.of(crearEnemigoDesdeDato(d));
+    }
+
+    private static Enemigo crearEnemigoDesdeDato(NivelData.EnemigoDato d) {
+        TipoPersonaje tipo = mapTipo(d.tipo);
+        return new Enemigo(tipo, new Vector(d.x, d.y));
+    }
+
+    private static TipoPersonaje mapTipo(String s) {
         if (s == null) return TipoPersonaje.regularEnemy;
         return switch (s) {
             case "fastEnemy"     -> TipoPersonaje.fastEnemy;
             case "powerfulEnemy" -> TipoPersonaje.powerfulEnemy;
             case "heavyEnemy"    -> TipoPersonaje.heavyEnemy;
             case "regularEnemy"  -> TipoPersonaje.regularEnemy;
-            // tolerancia por si llega en ES/mayúsculas
-            case "RAPIDO"        -> TipoPersonaje.fastEnemy;
-            case "POTENTE"       -> TipoPersonaje.powerfulEnemy;
-            case "BLINDADO"      -> TipoPersonaje.heavyEnemy;
-            case "BASICO"        -> TipoPersonaje.regularEnemy;
+
             default              -> TipoPersonaje.regularEnemy;
         };
     }

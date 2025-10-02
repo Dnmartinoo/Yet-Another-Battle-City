@@ -49,9 +49,9 @@ public class Interfaz {
         MotorJuego motor = new MotorJuego();
 
         var rutas = List.of(
+                "/niveles/Level1.xml",
                 "/niveles/Level0.xml",
-                "/niveles/Level2.xml",
-                "/niveles/Level1.xml"
+                "/niveles/Level2.xml"
         );
 
         XmlNivelLoader loader;

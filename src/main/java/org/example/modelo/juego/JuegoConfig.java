@@ -81,7 +81,12 @@ public final class JuegoConfig {
     public static final long VICTORY_SCREEN_MS = 2000; // 2s
     public static final long DEFEAT_SCREEN_MS  = 2000; // 2s
 
-    public static final long PLAYER_ANIM_FRAME_MS = 200; // por ejemplo
+    public static final long PLAYER_ANIM_FRAME_MS = 200;
+
+
+    // Spawn de enemigos:
+    public static final int    MAX_ENEMIGOS_CONCURRENTES = 6;
+    public static final long   ENEMY_SPAWN_INTERVAL_MS   = 1600L;
 
     public static final double ROTACION_FIJA = 0.0;
 }
