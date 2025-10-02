@@ -4,6 +4,8 @@ import javafx.stage.Stage;
 import org.example.modelo.juego.MotorJuego;
 import org.example.modelo.juego.Nivel;
 import org.example.modelo.niveles.XmlNivelLoader;
+import javafx.scene.image.Image;
+
 
 public class Interfaz {
     private final Stage stage;
@@ -11,20 +13,22 @@ public class Interfaz {
 
     public Interfaz(Stage stage) {
         this.stage = stage;
+        this.stage.getIcons().add(new Image("/sprites/logo.png"));
     }
 
+
     public void comenzar() {
-        mostrarMenu();
+     mostrarMenu();
     }
+
 
     void mostrarMenu() {
         MenuPrincipal menu = new MenuPrincipal(stage, this::iniciarJuego, this::salir);
         menu.mostrarMenu();
     }
-
     void iniciarJuego(int cantJugadores) {
         MotorJuego motor = new MotorJuego();
-        Nivel nivel = crearNivelDesdeXml(cantJugadores); // << usa el loader
+        Nivel nivel = crearNivelDesdeXml(cantJugadores);
         motor.cargarNivel(nivel);
 
         this.controlador = new ControladorJuego(stage, this::mostrarMenu);
