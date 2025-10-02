@@ -1,15 +1,13 @@
-// modelo/mundo/MundoFisico.java
 package org.example.modelo.fisica;
 
 import org.example.modelo.entorno.Bloque;
-import org.example.modelo.fisica.Rectangulo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MundoFisico {
 
-    private final int TILE; // tamaño en px
+    private final int TILE;
     private final int anchoTiles, altoTiles;
     private final Bloque[][] grid; // [y][x]
 
@@ -25,6 +23,7 @@ public class MundoFisico {
         int y0 = Math.max(0, (int)Math.floor(area.y() / TILE));
         int x1 = Math.min(anchoTiles - 1, (int)Math.floor((area.x() + area.w() - 0.0001) / TILE));
         int y1 = Math.min(altoTiles - 1, (int)Math.floor((area.y() + area.h() - 0.0001) / TILE));
+
 
         List<Bloque> res = new ArrayList<>();
         for (int y = y0; y <= y1; y++) {

@@ -28,14 +28,11 @@ public class Nivel {
 
     private boolean victoria = false, derrota = false;
 
-    // Cooldowns individuales
     private final Map<Enemigo, Long> proximoDisparoEnemigoMs = new IdentityHashMap<>();
     private final Map<Jugador, Long> proximoDisparoJugadorMs = new IdentityHashMap<>();
 
-    // Timing
     private long lastMs = 0L;
 
-    // --- Consultas inmutables para la vista/modelo externo ---
     public List<Jugador> jugadores()  { return List.copyOf(jugadores); }
     public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
@@ -64,7 +61,6 @@ public class Nivel {
         this.spawner = spawner;
         this.limites = rectangulo;
     }
-
 
     public void crearMundo(NivelData data) {
         bloques.clear();
@@ -188,9 +184,6 @@ public class Nivel {
         return dt;
     }
 
-    // =========================================================
-    // Balas
-    // =========================================================
     private void actualizarBalas(double dt) {
 
         for (var b : proyectiles) {
@@ -222,6 +215,7 @@ public class Nivel {
 
             if (bala.equipo() == Equipo.JUGADOR) {
                 for (var e : enemigos) {
+                    if (!e.estaVivo()) continue;
                     if (e.hitbox().intersecta(hb)) {
                         e.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
                         bala.destruir();
@@ -262,6 +256,12 @@ public class Nivel {
 
 
         enemigos.removeIf(e -> !e.estaVivo());
+        {
+            var it = enemigos.iterator();
+            while (it.hasNext()) {
+                if (!it.next().estaVivo()) it.remove();
+            }
+        }
 
 
         if (mundo != null) {
@@ -307,9 +307,6 @@ public class Nivel {
         return new Vector(ox, oy);
     }
 
-    // =========================================================
-    // Utilidades del nivel (colisiones de movimiento, etc.)
-    // =========================================================
     public boolean colisionaConBloqueSolido(Rectangulo area) {
         for (var b : mundo.bloquesEn(area)) {
             if (!b.bloqueaMovimiento()) continue;

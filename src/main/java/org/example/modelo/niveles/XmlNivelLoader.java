@@ -51,7 +51,6 @@ public class XmlNivelLoader {
             int alto  = parseIntAttr(eLevel, "height", 600);
             boolean coopXml = false;
 
-            // Players
             Pos p1 = new Pos(100, 500);
             Pos p2 = new Pos(200, 500);
             NodeList playersNL = eLevel.getElementsByTagName("players");
@@ -68,7 +67,6 @@ public class XmlNivelLoader {
                 }
             }
 
-            // Enemies
             List<EnemigoParse> enemigos = new ArrayList<>();
             NodeList enemiesNL = eLevel.getElementsByTagName("enemies");
             if (enemiesNL.getLength() > 0) {
@@ -84,7 +82,6 @@ public class XmlNivelLoader {
                 }
             }
 
-            // Static objects
             List<BloqueParse> bloques = new ArrayList<>();
             NodeList staticsNL = eLevel.getElementsByTagName("staticObjects");
             if (staticsNL.getLength() > 0) {
@@ -100,10 +97,8 @@ public class XmlNivelLoader {
                 }
             }
 
-            // Spawner por defecto
             Rect zonaSpawn = new Rect(390, 0, 20, 20);
 
-            // Mapear a NivelData
             NivelData data = new NivelData(coopXml);
             data.setAncho(ancho);
             data.setAlto(alto);
@@ -154,7 +149,27 @@ public class XmlNivelLoader {
         return (v == null || v.isBlank()) ? def : Double.parseDouble(v.trim());
     }
 
-    // structs internas
+    public NivelData cargar(String resourcePath) {
+        try (InputStream in = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream(resourcePath)) {
+            if (in == null) {
+                throw new IllegalArgumentException("Recurso no encontrado en classpath: " + resourcePath);
+            }
+            return cargar(in); // reutilizamos tu método existente
+        } catch (Exception e) {
+            throw new RuntimeException("Error al cargar recurso XML: " + resourcePath, e);
+        }
+    }
+
+    public java.util.List<NivelData> cargarLista(java.util.List<String> rutas) {
+        java.util.ArrayList<NivelData> res = new java.util.ArrayList<>();
+        for (String r : rutas) {
+            res.add(cargar(r));
+        }
+        return java.util.List.copyOf(res);
+    }
+
     private static final class Pos  { final double x, y; Pos(double x, double y){ this.x=x; this.y=y; } }
     private static final class Rect { final double x, y, w, h; Rect(double x, double y, double w, double h){ this.x=x; this.y=y; this.w=w; this.h=h; } }
     private static final class BloqueParse  { final String tipo; final double x, y; BloqueParse(String t, double x, double y){ this.tipo=t; this.x=x; this.y=y; } }

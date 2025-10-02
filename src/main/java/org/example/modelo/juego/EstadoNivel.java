@@ -1,4 +1,3 @@
-// src/main/java/org/example/modelo/juego/EstadoNivel.java
 package org.example.modelo.juego;
 
 import java.util.List;
@@ -19,22 +18,21 @@ public record EstadoNivel(
         return enemigosVivos + enemigosPendientes;
     }
 
-    // Fábrica de un EstadoNivel vacío (fallback seguro)
     public static EstadoNivel empty() {
         return new EstadoNivel(
-                false,   // victoria
-                false,   // derrota
-                true,    // vacio
-                0,       // cantJugadores
-                0,       // enemigosVivos
-                0,       // enemigosPendientes
-                1,       // nivelNumero
-                0,       // vidasP1
-                0,       // vidasP2
-                List.of()// entidades
+                false,
+                false,
+                true,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                List.of()
         );
     }
 
-    // (opcional) constante reuseable
+    // Constante reusable
     public static final EstadoNivel EMPTY = empty();
 }
