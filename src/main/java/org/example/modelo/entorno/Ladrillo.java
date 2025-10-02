@@ -4,24 +4,31 @@ public class Ladrillo implements Bloque{
     private int hp = 3;
     private boolean destruido = false;
 
-    public boolean bloqueaMovimiento() {
+    @Override public boolean bloqueaMovimiento() {
         return !destruido;
     }
 
-    public boolean bloqueaProyectiles() {
+    @Override public boolean bloqueaProyectiles() {
         return !destruido;
     }
 
-    public boolean esDestruible() {
+    @Override public boolean esDestruible() {
         return true;
     }
 
-    public boolean estaDestruido() {
-        return destruido = hp == 0;
+    @Override public boolean estaDestruido() {
+        return destruido;
     }
 
-    public int recibirImpacto(){
-        hp --;
-        return hp;
+    @Override
+    public ResultadoImpacto recibirImpacto(int dano) {
+        if (destruido) return ResultadoImpacto.balaAtraviesa();
+        hp -= dano;
+
+        if (hp <= 0) {
+            destruido = true;
+            return ResultadoImpacto.bloqueDestruido(true);
+        }
+        return ResultadoImpacto.balaSeDetiene();
     }
 }
