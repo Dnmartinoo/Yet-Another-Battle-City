@@ -11,6 +11,8 @@ import org.example.modelo.personajes.Jugador;
 
 import java.util.*;
 
+import static org.example.modelo.juego.JuegoConfig.ROTACION_FIJA;
+
 public class Nivel {
 
     // --- Estado principal ---
@@ -63,11 +65,8 @@ public class Nivel {
         this.limites = rectangulo;
     }
 
-    // =========================================================
-    // Creación del mundo
-    // =========================================================
+
     public void crearMundo(NivelData data) {
-        // Limpiar todo
         bloques.clear();
         jugadores.clear();
         enemigos.clear();
@@ -79,14 +78,22 @@ public class Nivel {
 
         this.limites = new Rectangulo(0, 0, data.ancho(), data.alto());
 
-        // Bloques (y posible Base) – sin instanceof
         Bloque baseRef = null;
         for (var bd : data.bloques()) {
-            Bloque b = BloqueFactory.crear(bd.tipo, bd.x, bd.y);
+
+            int gridX = (int)Math.floor(bd.x / BloqueFactory.TILE);
+            int gridY = (int)Math.floor(bd.y / BloqueFactory.TILE);
+
+            double bx = gridX * BloqueFactory.TILE;
+            double by = gridY * BloqueFactory.TILE;
+
+            Bloque b = BloqueFactory.crear(bd.tipo, bx, by);
             bloques.add(b);
-            if (b.esBase()) baseRef = b; // polimorfismo
+
+            if (b.esBase()) baseRef = b;
         }
-        // Fallback Base
+
+
         if (baseRef == null) {
             double bx = (data.ancho() - BloqueFactory.TILE) / 2.0;
             double by = data.alto() - BloqueFactory.TILE - 20.0;
@@ -95,29 +102,31 @@ public class Nivel {
         }
         this.base = baseRef;
 
-        // Jugadores
+
         jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1));
         if (data.coop()) {
-            jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y()),2));
+            jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y()), 2));
         }
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
-        // Enemigos por spawner
+
         spawner.cargarPendientes(data.enemigos());
 
-        // Mundo físico (grid) – sin instanceof (Bloque extiende Cuerpo)
+
         int anchoTiles = data.ancho() / BloqueFactory.TILE;
         int altoTiles  = data.alto() / BloqueFactory.TILE;
         Bloque[][] grid = new Bloque[altoTiles][anchoTiles];
+
         for (Bloque b : bloques) {
-            int x = (int)(b.posicion().x() / BloqueFactory.TILE);
-            int y = (int)(b.posicion().y() / BloqueFactory.TILE);
-            if (x >= 0 && x < anchoTiles && y >= 0 && y < altoTiles) {
-                grid[y][x] = b;
+            int gx = (int)(b.posicion().x() / BloqueFactory.TILE);
+            int gy = (int)(b.posicion().y() / BloqueFactory.TILE);
+            if (gx >= 0 && gx < anchoTiles && gy >= 0 && gy < altoTiles) {
+                grid[gy][gx] = b;
             }
         }
         this.mundo = new MundoFisico(BloqueFactory.TILE, anchoTiles, altoTiles, grid);
     }
+
 
     // =========================================================
     // Tick principal
@@ -127,24 +136,24 @@ public class Nivel {
 
         double dt = calcularDt(ahoraMs);
 
-        // Input de disparo (estado)
+
         if (!jugadores.isEmpty() && inJ1 != null && inJ1.disparar()) jugadores.get(0).disparar();
         if (jugadores.size() > 1 && inJ2 != null && inJ2.disparar()) jugadores.get(1).disparar();
 
-        // Estado de jugadores
+
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
 
-        // IA de enemigos
+
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
 
-        // Spawns de enemigos (y cooldown inicial)
+
         List<Enemigo> nuevos = spawner.talVezSpawnear(ahoraMs);
         if (!nuevos.isEmpty()) {
             enemigos.addAll(nuevos);
             for (var e : nuevos) proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
         }
 
-        // Disparos: jugadores con cooldown
+
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -155,7 +164,7 @@ public class Nivel {
             j.consumirDisparoPendiente();
         }
 
-        // Disparos: enemigos con cooldown por instancia
+
         for (Enemigo e : enemigos) {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
@@ -164,10 +173,10 @@ public class Nivel {
             }
         }
 
-        // Balas
+
         actualizarBalas(dt);
 
-        // Condiciones de fin
+
         if (base != null && base.estaDestruido()) derrota = true;
         if (enemigos.isEmpty() && spawner.yaTermino()) victoria = true;
     }
@@ -183,13 +192,13 @@ public class Nivel {
     // Balas
     // =========================================================
     private void actualizarBalas(double dt) {
-        // 1) Mover
+
         for (var b : proyectiles) {
             if (!b.vivo()) continue;
             b.setPosicion(b.posicion().mas(b.velocidad().por(dt)));
         }
 
-        // 2) Bala vs Bloque  (sin instanceof)
+
         for (var bala : proyectiles) {
             if (!bala.vivo()) continue;
             var hb = bala.hitbox();
@@ -199,14 +208,14 @@ public class Nivel {
                 if (!bl.hitbox().intersecta(hb)) continue;
 
                 ResultadoImpacto ri = bl.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
-                if (ri.detener()) { // detener == !atraviesa
+                if (ri.detener()) {
                     bala.destruir();
                     break;
                 }
             }
         }
 
-        // 3) Bala vs Tanque
+
         for (var bala : proyectiles) {
             if (!bala.vivo()) continue;
             var hb = bala.hitbox();
@@ -219,7 +228,7 @@ public class Nivel {
                         break;
                     }
                 }
-            } else { // ENEMIGO
+            } else {
                 for (var j : jugadores) {
                     if (j.hitbox().intersecta(hb)) {
                         j.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
@@ -230,7 +239,7 @@ public class Nivel {
             }
         }
 
-        // 4) Bala vs Bala
+
         for (int i = 0; i < proyectiles.size(); i++) {
             var a = proyectiles.get(i);
             if (!a.vivo()) continue;
@@ -244,17 +253,17 @@ public class Nivel {
             }
         }
 
-        // 5) Limpiar: destruidas / fuera de límites
+
         proyectiles.removeIf(p ->
                 !p.vivo() ||
                         p.posicion().x() < limites.x() - 32 || p.posicion().x() > limites.x() + limites.w() + 32 ||
                         p.posicion().y() < limites.y() - 32 || p.posicion().y() > limites.y() + limites.h() + 32
         );
 
-        // 6) Eliminar enemigos muertos
+
         enemigos.removeIf(e -> !e.estaVivo());
 
-        // 7) Quitar bloques destruidos y actualizar grid (sin instanceof)
+
         if (mundo != null) {
             List<Bloque> destruidos = new ArrayList<>();
             for (var b : bloques) {
@@ -266,8 +275,6 @@ public class Nivel {
                 for (var b : destruidos) {
                     int tx = (int)(b.posicion().x() / BloqueFactory.TILE);
                     int ty = (int)(b.posicion().y() / BloqueFactory.TILE);
-                    // Necesita existir este método en MundoFisico:
-                    // public void setBloque(int fila, int col, Bloque b)
                     mundo.setBloque(ty, tx, null);
                 }
                 bloques.removeAll(destruidos);
@@ -276,15 +283,13 @@ public class Nivel {
     }
 
     private void spawnBalaJugador(Jugador j) {
-        Vector dir = j.velocidad().esCero() ? JuegoConfig.PLAYER_DEFAULT_FACING
-                : j.velocidad().normalizado();
+        Vector dir = j.velocidad().esCero() ? j.ultimaDireccion() : j.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(j, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
         proyectiles.add(new Proyectil(origen, dir, JuegoConfig.PLAYER_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.JUGADOR));
     }
 
     private void spawnBalaEnemigo(Enemigo e) {
-        Vector dir = e.velocidad().esCero() ? JuegoConfig.ENEMY_DEFAULT_FACING
-                : e.velocidad().normalizado();
+        Vector dir = e.velocidad().esCero() ? e.ultimaDireccion() : e.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(e, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
         proyectiles.add(new Proyectil(origen, dir, JuegoConfig.ENEMY_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.ENEMIGO));
     }
@@ -313,9 +318,8 @@ public class Nivel {
         return false;
     }
 
-    // =========================================================
-    // API pública
-    // =========================================================
+
+
     public void eliminarTodosLosEnemigos() {
         enemigos.clear();
         proximoDisparoEnemigoMs.clear();
@@ -326,12 +330,12 @@ public class Nivel {
         return victoria || derrota;
     }
 
-    // en src/main/java/org/example/modelo/juego/Nivel.java
+
 
     public EstadoNivel estado() {
         List<EstadoEntidad> entidades = new ArrayList<>();
 
-        // BLOQUES
+
         for (var bloque : bloques()) {
             var hb = bloque.hitbox();
             var id = ((Spriteeable) bloque).spriteId();
@@ -339,11 +343,13 @@ public class Nivel {
                     id,
                     hb.x(), hb.y(),
                     hb.w(), hb.h(),
-                    false
+                    false,
+                    ROTACION_FIJA
+
             ));
         }
 
-        // PROYECTILES
+
         for (var proyectil : proyectiles()) {
             var hb = proyectil.hitbox();
             var id = ((Spriteeable) proyectil).spriteId();
@@ -351,11 +357,12 @@ public class Nivel {
                     id,
                     hb.x(), hb.y(),
                     hb.w(), hb.h(),
-                    false
+                    false,
+                    ROTACION_FIJA
             ));
         }
 
-        // ENEMIGOS
+
         for (var enemigo : enemigos()) {
             var hb = enemigo.hitbox();
             var id = ((Spriteeable) enemigo).spriteId();
@@ -363,11 +370,12 @@ public class Nivel {
                     id,
                     hb.x(), hb.y(),
                     hb.w(), hb.h(),
-                    false
+                    false,
+                    enemigo.rotacion()
             ));
         }
 
-        // JUGADORES
+
         for (var jugador : jugadores()) {
             var hb = jugador.hitbox();
             var id = ((Spriteeable) jugador).spriteId();
@@ -376,18 +384,19 @@ public class Nivel {
                     id,
                     hb.x(), hb.y(),
                     hb.w(), hb.h(),
-                    casco
+                    casco,
+                    jugador.rotacion()
             ));
         }
 
-        // ===== HUD data =====
+
         int cantJug = jugadores.size();
         int vP1 = (cantJug >= 1) ? jugadores.get(0).vidasRestantes() : 0;
         int vP2 = (cantJug >= 2) ? jugadores.get(1).vidasRestantes() : 0;
 
-        int vivos = enemigosVivos();            // ya lo tenés
-        int pend  = enemigosPendientes();       // usa spawner.cantidadPendiente()
-        int nivelNro = numeroDeNivel();         // guardado en Nivel
+        int vivos = enemigosVivos();
+        int pend  = enemigosPendientes();
+        int nivelNro = numeroDeNivel();
 
         return new EstadoNivel(
                 victoria,
@@ -404,5 +413,5 @@ public class Nivel {
     }
 
 
-    public void iniciar() { /* hook opcional */ }
+    public void iniciar() {}
 }

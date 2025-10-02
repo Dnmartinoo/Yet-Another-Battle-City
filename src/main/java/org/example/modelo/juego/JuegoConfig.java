@@ -72,5 +72,6 @@ public final class JuegoConfig {
 
     public static final long PLAYER_ANIM_FRAME_MS = 200; // por ejemplo
 
+    public static final double ROTACION_FIJA = 0.0;
 }
 

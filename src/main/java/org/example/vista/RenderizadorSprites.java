@@ -33,16 +33,29 @@ public final class RenderizadorSprites implements RenderizadorEstado {
             String spriteId = entidad.spriteId();
             if (spriteId == null) continue;
 
-            g.drawImage(
-                    ManagerSprites.get(spriteId),
-                    entidad.x(),
-                    entidad.y(),
-                    entidad.ancho(),
-                    entidad.alto()
-            );
+            if (entidad.rotacion() != 0.0) {
+                g.save();
+                g.translate(entidad.x() + entidad.ancho() / 2.0, entidad.y() + entidad.alto() / 2.0);
+                g.rotate(entidad.rotacion());
+                g.drawImage(
+                        ManagerSprites.get(spriteId),
+                        -entidad.ancho() / 2,
+                        -entidad.ancho() / 2,
+                        entidad.ancho(),
+                        entidad.alto()
+                );
+                g.restore();
+            } else {
+                g.drawImage(
+                        ManagerSprites.get(spriteId),
+                        entidad.x(),
+                        entidad.y(),
+                        entidad.ancho(),
+                        entidad.alto()
+                );
+            }
 
             if (entidad.cascoActivo()) {
-                // Corregido: ancho/alto en el orden correcto
                 g.drawImage(
                         ManagerSprites.get("invulnerable"),
                         entidad.x(),

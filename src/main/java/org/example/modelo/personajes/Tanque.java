@@ -7,44 +7,43 @@ import org.example.modelo.fisica.utils.ColisionUtils;
 import org.example.modelo.fisica.MundoFisico;
 
 public abstract class Tanque implements Cuerpo {
-    // --- Estado base que Jugador/Enemigo esperan ---
-    protected TipoPersonaje tipo;       // <- Jugador lo usa (tipo.vidaBase(), tipo.obtenerVelocidad())
-    protected int vidaActual;           // <- Jugador lo usa (morir() lo resetea)
+    protected TipoPersonaje tipo;
+    protected int vidaActual;
     protected Vector posicion;
-    protected Rectangulo hitboxLocal;   // relativo al (0,0)
-    protected double velocidadEscalar;  // px/s (magnitud base del tipo)
-    protected Vector velocidadActual = Vector.CERO; // <- Jugador usa setVelocidad(...)
+    protected Rectangulo hitboxLocal;
+    protected double velocidadEscalar;
+    protected Vector velocidadActual = Vector.CERO;
+    protected double ultimaRotacion = 0.0;
+    protected Vector ultimaDireccion = new Vector(0, -1);
 
-    // Defaults seguros
+
     protected static final int DEFAULT_TILE = 20;
     protected static final double DEFAULT_SPEED = 60.0;
 
 
     protected int frameAnimacion = 0;
-    protected long ultimoCambioAnim = 0;
-    protected long intervaloAnim = 200; // ms
 
-    // 1) Ctor completo
+
+
     public Tanque(Vector posicion, Rectangulo hitboxLocal, double velocidadEscalar, TipoPersonaje tipo) {
         this.posicion = posicion;
         this.hitboxLocal = hitboxLocal;
         this.velocidadEscalar = velocidadEscalar;
         this.tipo = tipo;
-        this.vidaActual = (tipo != null) ? tipo.vidaBase() : 1; // fallback
+        this.vidaActual = (tipo != null) ? tipo.vidaBase() : 1;
     }
 
-    // 2) Ctor compat con TipoPersonaje (el que usás en Jugador/Enemigo)
+
     public Tanque(TipoPersonaje tipo, Vector posicion) {
         this(
                 posicion,
                 new Rectangulo(0, 0, DEFAULT_TILE, DEFAULT_TILE),
-                // si tu TipoPersonaje no tiene velocidadBase(), podés mapear a DEFAULT_SPEED
                 (tieneVelBase(tipo) ? tipo.obtenerVelocidad() : DEFAULT_SPEED),
                 tipo
         );
     }
 
-    // 3) Ctor sin tipo (por si alguna clase vieja lo usa)
+
     public Tanque(Vector posicion) {
         this(posicion, new Rectangulo(0, 0, DEFAULT_TILE, DEFAULT_TILE), DEFAULT_SPEED, null);
     }
@@ -53,32 +52,35 @@ public abstract class Tanque implements Cuerpo {
         try { t.obtenerVelocidad(); return true; } catch (Throwable __) { return false; }
     }
 
-    // --- Cuerpo ---
+
     @Override public Vector posicion() { return posicion; }
     @Override public void setPosicion(Vector nuevaPosicion) { this.posicion = nuevaPosicion; }
     @Override public Rectangulo hitbox() { return hitboxLocal.trasladado(posicion); }
     @Override public boolean solido() { return true; }
 
-    // velocidad() del Cuerpo -> la velocidad INSTANTÁNEA (vector), no la escalar base
+
     @Override public Vector velocidad() { return velocidadActual; }
 
-    // Setter que Jugador invoca desde Control.moverXxx()
+
     public void setVelocidad(Vector v) {
         this.velocidadActual = v;
+        if (!v.esCero()) {
+            ultimaDireccion = v.normalizado();
+        }
     }
 
-    // Vida / daño que Jugador espera
+
     public boolean estaVivo() { return vidaActual > 0; }
 
     public void recibirImpacto(int dano) {
         vidaActual = Math.max(0, vidaActual - Math.max(0, dano));
     }
 
-    // Movimiento con resolución por ejes (colisión con bloques)
+
     public void mover(Vector delta, MundoFisico mundo) {
         if (delta.x() == 0 && delta.y() == 0) return;
 
-        // Eje X
+
         if (delta.x() != 0) {
             double nx = posicion.x() + delta.x();
             Rectangulo hX = hitboxLocal.trasladado(new Vector(nx - posicion.x(), 0));
@@ -88,7 +90,7 @@ public abstract class Tanque implements Cuerpo {
             posicion = new Vector(nx, posicion.y());
         }
 
-        // Eje Y
+
         if (delta.y() != 0) {
             double ny = posicion.y() + delta.y();
             Rectangulo hY = hitboxLocal.trasladado(new Vector(0, ny - posicion.y()));
@@ -99,16 +101,22 @@ public abstract class Tanque implements Cuerpo {
         }
     }
 
-
-
-    public void actualizarAnimacion(long ahoraMs) {
-        if (estaMoviendose()) {
-            if (ahoraMs - ultimoCambioAnim > intervaloAnim) {
-                frameAnimacion = (frameAnimacion + 1) % 2;
-                ultimoCambioAnim = ahoraMs;
-            }
+    public double rotacion() {
+        if (velocidadActual.x() > 0) {
+            ultimaRotacion = 90;
+        } else if (velocidadActual.x() < 0) {
+            ultimaRotacion = 270;
+        } else if (velocidadActual.y() > 0) {
+            ultimaRotacion = 180;
+        } else if (velocidadActual.y() < 0) {
+            ultimaRotacion = 0;
         }
+        return ultimaRotacion;
     }
 
-    public boolean estaMoviendose() { return velocidadActual.x() != 0 || velocidadActual.y() != 0; }
+    public Vector ultimaDireccion() {
+        return ultimaDireccion;
+    }
+
+
 }

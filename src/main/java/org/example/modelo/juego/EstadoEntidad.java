@@ -6,5 +6,6 @@ public record EstadoEntidad(
         double y,
         double ancho,
         double alto,
-        boolean cascoActivo
+        boolean cascoActivo,
+        double rotacion
 ) {}

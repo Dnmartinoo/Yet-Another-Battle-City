@@ -23,9 +23,8 @@ public class MundoFisico {
     public List<Bloque> bloquesEn(Rectangulo area) {
         int x0 = Math.max(0, (int)Math.floor(area.x() / TILE));
         int y0 = Math.max(0, (int)Math.floor(area.y() / TILE));
-        int x1 = Math.min(anchoTiles - 1, (int)Math.floor((area.x() + area.w()) / TILE));
-        int y1 = Math.min(altoTiles - 1, (int)Math.floor((area.y() + area.h()) / TILE));
-
+        int x1 = Math.min(anchoTiles - 1, (int)Math.floor((area.x() + area.w() - 0.0001) / TILE));
+        int y1 = Math.min(altoTiles - 1, (int)Math.floor((area.y() + area.h() - 0.0001) / TILE));
 
         List<Bloque> res = new ArrayList<>();
         for (int y = y0; y <= y1; y++) {

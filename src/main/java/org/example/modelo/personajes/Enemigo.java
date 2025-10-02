@@ -30,7 +30,7 @@ public class Enemigo extends Tanque implements Spriteeable {
         return direccionActual.por(velocidadEscalar);
     }
 
-    // ahora recibe MundoFisico
+
     public void actualizarIA(long ahoraMs, MundoFisico mundo) {
 
         if (ahoraMs >= tiempoConductaHasta || direccionActual == Vector.CERO) {
@@ -52,18 +52,19 @@ public class Enemigo extends Tanque implements Spriteeable {
 
 
         Vector delta = direccionActual.por(velocidadEscalar * 0.016);
+        setVelocidad(direccionActual.por(velocidadEscalar));
         mover(delta, mundo);
 
 
         if (ahoraMs >= cooldownDisparoHasta) {
             disparar();
-            cooldownDisparoHasta = ahoraMs + 2000; // 2s
+            cooldownDisparoHasta = ahoraMs + 2000;
         }
     }
 
     private Vector direccionAleatoria() {
         return switch (rng.nextInt(4)) {
-            case 0 -> new Vector(0, -1); // arriba
+            case 0 -> new Vector(0, -1);
             case 1 -> new Vector(0, +1);
             case 2 -> new Vector(-1, 0);
             default -> new Vector(+1, 0);
