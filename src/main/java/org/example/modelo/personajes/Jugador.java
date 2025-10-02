@@ -2,11 +2,12 @@ package org.example.modelo.personajes;
 
 import org.example.modelo.fisica.*;
 import org.example.modelo.powerup.*;
+import org.example.modelo.controlador.Control;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Jugador extends Tanque {
+public class Jugador extends Tanque implements Control{
     public Jugador(TipoPersonaje tipo, Vector posicion) {
         super(tipo, posicion);
     }
@@ -15,6 +16,7 @@ public class Jugador extends Tanque {
     private static boolean invulnerable = false;
     private static long invulnerableHasta = 0L;
     private boolean disparoPotenciado = false;
+    private boolean disparoPendiente = false;
 
     public Jugador(Vector posicion) {
         super(TipoPersonaje.JUGADOR, posicion);
@@ -92,5 +94,36 @@ public class Jugador extends Tanque {
     }
 
 
+    @Override public void moverArriba(){
+        setVelocidad(new Vector(0, -tipo.obtenerVelocidad()*50));
+    }
 
+    @Override public void moverAbajo(){
+        setVelocidad(new Vector(0, +tipo.obtenerVelocidad()*50));
+    }
+
+    @Override public void moverDerecha(){
+        setVelocidad(new Vector(-tipo.obtenerVelocidad()*50, 0 ));
+    }
+
+    @Override public void moverIzquierda(){
+        setVelocidad(new Vector(+tipo.obtenerVelocidad()*50, 0));
+    }
+
+    @Override public void detener() {
+        setVelocidad(Vector.CERO);
+    }
+
+    @Override
+    public void disparar() {
+        this.disparoPendiente = true;
+    }
+
+    public boolean hayDisparoPendiente() {
+        return disparoPendiente;
+    }
+
+    public void consumirDisparoPendiente() {
+        disparoPendiente = false;
+    }
 }
