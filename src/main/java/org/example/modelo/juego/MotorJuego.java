@@ -22,7 +22,7 @@ public class MotorJuego {
     }
 
     public EstadoNivel estado() {
-        return (nivelActual != null) ? nivelActual.estado() : EstadoNivel.vacio();
+        return (nivelActual != null) ? nivelActual.estado() : EstadoNivel.empty();
     }
 
     public Nivel nivel() { return nivelActual; }

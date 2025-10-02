@@ -16,6 +16,8 @@ public final class JuegoConfig {
     public static long PLAYER_SHOOT_COOLDOWN_MS = 180L;
     public static long ENEMY_SHOOT_COOLDOWN_MS = 2000L;
 
+    public static int VIDAS_INICIALES = 3;
+
     // =====================
     // FACING DEFAULT
     // =====================
@@ -67,5 +69,8 @@ public final class JuegoConfig {
     public static final String SPRITE_POWER_HELMET  = "power_helmet";
     public static final String SPRITE_POWER_STAR    = "power_star";
     public static final String SPRITE_POWER_SHOVEL  = "power_shovel";
+
+    public static final long PLAYER_ANIM_FRAME_MS = 200; // por ejemplo
+
 }
 

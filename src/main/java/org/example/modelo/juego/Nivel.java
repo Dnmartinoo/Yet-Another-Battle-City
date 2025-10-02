@@ -53,6 +53,10 @@ public class Nivel {
     public int vidasJugador1() {
         return jugadores().isEmpty() ? 0 : jugadores().get(0).vidasRestantes();
     }
+    public int vidasJugador2() {
+        return (jugadores().size() > 1) ? jugadores().get(1).vidasRestantes() : 0;
+    }
+
 
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
         this.spawner = spawner;
@@ -322,61 +326,83 @@ public class Nivel {
         return victoria || derrota;
     }
 
+    // en src/main/java/org/example/modelo/juego/Nivel.java
+
     public EstadoNivel estado() {
         List<EstadoEntidad> entidades = new ArrayList<>();
 
+        // BLOQUES
         for (var bloque : bloques()) {
-            var hitbox = bloque.hitbox();
+            var hb = bloque.hitbox();
             var id = ((Spriteeable) bloque).spriteId();
             entidades.add(new EstadoEntidad(
                     id,
-                    hitbox.x(), hitbox.y(),
-                    hitbox.w(), hitbox.h(),
+                    hb.x(), hb.y(),
+                    hb.w(), hb.h(),
                     false
             ));
         }
 
+        // PROYECTILES
         for (var proyectil : proyectiles()) {
-            var hitbox = proyectil.hitbox();
+            var hb = proyectil.hitbox();
             var id = ((Spriteeable) proyectil).spriteId();
             entidades.add(new EstadoEntidad(
                     id,
-                    hitbox.x(), hitbox.y(),
-                    hitbox.w(), hitbox.h(),
+                    hb.x(), hb.y(),
+                    hb.w(), hb.h(),
                     false
             ));
         }
 
+        // ENEMIGOS
         for (var enemigo : enemigos()) {
-            var hitbox = enemigo.hitbox();
+            var hb = enemigo.hitbox();
             var id = ((Spriteeable) enemigo).spriteId();
             entidades.add(new EstadoEntidad(
                     id,
-                    hitbox.x(), hitbox.y(),
-                    hitbox.w(), hitbox.h(),
+                    hb.x(), hb.y(),
+                    hb.w(), hb.h(),
                     false
             ));
         }
 
+        // JUGADORES
         for (var jugador : jugadores()) {
-            var hitbox = jugador.hitbox();
+            var hb = jugador.hitbox();
             var id = ((Spriteeable) jugador).spriteId();
             boolean casco = jugador.esInvulnerable();
             entidades.add(new EstadoEntidad(
                     id,
-                    hitbox.x(), hitbox.y(),
-                    hitbox.w(), hitbox.h(),
+                    hb.x(), hb.y(),
+                    hb.w(), hb.h(),
                     casco
             ));
         }
+
+        // ===== HUD data =====
+        int cantJug = jugadores.size();
+        int vP1 = (cantJug >= 1) ? jugadores.get(0).vidasRestantes() : 0;
+        int vP2 = (cantJug >= 2) ? jugadores.get(1).vidasRestantes() : 0;
+
+        int vivos = enemigosVivos();            // ya lo tenés
+        int pend  = enemigosPendientes();       // usa spawner.cantidadPendiente()
+        int nivelNro = numeroDeNivel();         // guardado en Nivel
+
         return new EstadoNivel(
                 victoria,
                 derrota,
-                jugadores.size(),
-                enemigos().size(),
+                false,
+                cantJug,
+                vivos,
+                pend,
+                nivelNro,
+                vP1,
+                vP2,
                 entidades
         );
     }
+
 
     public void iniciar() { /* hook opcional */ }
 }
