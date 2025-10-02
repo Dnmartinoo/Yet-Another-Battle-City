@@ -1,5 +1,6 @@
 package org.example.modelo.personajes;
 
+import org.example.audio.ManagerSonido;
 import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
@@ -73,7 +74,8 @@ public abstract class Tanque implements Cuerpo {
     public boolean estaVivo() { return vidaActual > 0; }
 
     public void recibirImpacto(int dano) {
-        vidaActual = Math.max(0, vidaActual - Math.max(0, dano));
+        vidaActual -= 1;
+        ManagerSonido.play("golpe");
     }
 
 

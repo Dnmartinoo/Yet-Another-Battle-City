@@ -1,7 +1,8 @@
-// src/main/java/org/example/vista/Interfaz.java
+
 package org.example.vista;
 
 import javafx.stage.Stage;
+import org.example.audio.ManagerSonido;
 import javafx.scene.image.Image;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.juego.MotorJuego;
@@ -23,9 +24,19 @@ public class Interfaz {
         this.stage.getIcons().add(new Image("/sprites/logo.png"));
     }
 
+
     public void comenzar() {
+        ManagerSonido.cargarEfecto("golpe", "/sounds/efectos/bang.wav");
+        ManagerSonido.cargarEfecto("derrota", "/sounds/efectos/explosion.wav");
+        //ManagerSonido.cargarEfecto("powerup", "/sounds/glass-cling.wav"); IMPLEMENTAR CUANDO ESTE POWERUPS
+        ManagerSonido.cargarEfecto("disparar", "/sounds/efectos/laser-gun.wav");
+        ManagerSonido.cargarEfecto("bloqueRoto", "/sounds/efectos/wood-impact.wav");
+
+        ManagerSonido.cargarMusica("/sounds/musica/tribe-drum-loop.wav");
+        ManagerSonido.playMusica();
         mostrarMenu();
     }
+
 
     void mostrarMenu() {
         MenuPrincipal menu = new MenuPrincipal(stage, this::iniciarJuego, this::salir);
@@ -76,5 +87,24 @@ public class Interfaz {
 
     void salir() {
         stage.close();
+    }
+
+
+    private Nivel crearNivelDesdeXml(int cantJugadores) {
+        boolean coop = (cantJugadores == 2);
+
+        try (var xml = getClass().getResourceAsStream("/niveles/Level0.xml");
+             var xsd = getClass().getResourceAsStream("/niveles/schema/levelConfig.xsd")) {
+
+            if (xml == null) {
+                throw new IllegalStateException("No encontré /niveles/Level0.xml en resources");
+            }
+
+            XmlNivelLoader loader = (xsd != null) ? new XmlNivelLoader(xsd) : new XmlNivelLoader();
+            return loader.crearNivelDesdeXml(xml, coop);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Falló la carga del nivel desde XML", e);
+        }
     }
 }

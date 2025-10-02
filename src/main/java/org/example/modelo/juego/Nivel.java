@@ -1,5 +1,6 @@
 package org.example.modelo.juego;
 
+import org.example.audio.ManagerSonido;
 import org.example.modelo.disparo.Equipo;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.*;
@@ -15,40 +16,42 @@ import static org.example.modelo.juego.JuegoConfig.ROTACION_FIJA;
 
 public class Nivel {
 
-    // --- Estado principal ---
     private final List<Bloque> bloques = new ArrayList<>();
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Jugador> jugadores = new ArrayList<>(2);
     private final List<Proyectil> proyectiles = new ArrayList<>();
     private final Spawner spawner;
 
-    private Bloque base;           // <- ahora es Bloque (polimórfico)
+    private Bloque base;
     private MundoFisico mundo;
     private Rectangulo limites;
 
     private boolean victoria = false, derrota = false;
 
+
     private final Map<Enemigo, Long> proximoDisparoEnemigoMs = new IdentityHashMap<>();
     private final Map<Jugador, Long> proximoDisparoJugadorMs = new IdentityHashMap<>();
 
+
     private long lastMs = 0L;
+
 
     public List<Jugador> jugadores()  { return List.copyOf(jugadores); }
     public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
     public List<Proyectil> proyectiles() { return List.copyOf(proyectiles); }
     public Bloque base()              { return base; }  // <- devuelve Bloque
-    // Número de nivel
+
     private int numeroDeNivel = 1;
     public void setNumeroDeNivel(int n) { this.numeroDeNivel = n; }
     public int numeroDeNivel() { return numeroDeNivel; }
 
-    // Enemigos vivos/pendientes/total
+
     public int enemigosVivos() { return enemigos().size(); }
     public int enemigosPendientes() { return spawner.cantidadPendiente(); }
     public int enemigosRestantesTotales() { return enemigosVivos() + enemigosPendientes(); }
 
-    // Vidas J1
+
     public int vidasJugador1() {
         return jugadores().isEmpty() ? 0 : jugadores().get(0).vidasRestantes();
     }
@@ -173,7 +176,11 @@ public class Nivel {
         actualizarBalas(dt);
 
 
-        if (base != null && base.estaDestruido()) derrota = true;
+        if (base != null && base.estaDestruido()) {
+            derrota = true;
+            ManagerSonido.play("derrota");
+            ManagerSonido.stopMusica();
+        }
         if (enemigos.isEmpty() && spawner.yaTermino()) victoria = true;
     }
 
@@ -203,6 +210,10 @@ public class Nivel {
                 ResultadoImpacto ri = bl.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
                 if (ri.detener()) {
                     bala.destruir();
+
+                    if (bl.estaDestruido() && bl.estaDestruido()) {
+                        ManagerSonido.play("bloqueRoto");
+                    }
                     break;
                 }
             }
@@ -286,12 +297,16 @@ public class Nivel {
         Vector dir = j.velocidad().esCero() ? j.ultimaDireccion() : j.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(j, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
         proyectiles.add(new Proyectil(origen, dir, JuegoConfig.PLAYER_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.JUGADOR));
+        ManagerSonido.play("disparar");
+
     }
 
     private void spawnBalaEnemigo(Enemigo e) {
         Vector dir = e.velocidad().esCero() ? e.ultimaDireccion() : e.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(e, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
         proyectiles.add(new Proyectil(origen, dir, JuegoConfig.ENEMY_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.ENEMIGO));
+        ManagerSonido.play("disparar");
+
     }
 
     private Vector origenBalaDesdeCentro(org.example.modelo.fisica.Cuerpo tanque, Vector dir,
