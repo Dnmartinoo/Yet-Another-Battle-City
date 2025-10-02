@@ -1,13 +1,13 @@
+// src/main/java/org/example/vista/ControladorJuego.java
 package org.example.vista;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.example.modelo.fisica.Vector;
 import org.example.modelo.juego.InputEstado;
 import org.example.modelo.juego.MotorJuego;
 
@@ -17,19 +17,28 @@ import java.util.Set;
 public final class ControladorJuego {
 
     private final Stage stage;
-    private final Runnable onGameEnd; // callback para volver al menú
+    private final Runnable onGameEnd;
     private final Canvas canvas = new Canvas(800, 600);
 
     // ---- Modelo ----
     private MotorJuego motor;
 
+    // ---- Render ----
+    private final Renderizador renderizador;
+
     // ---- Loop / input ----
     private AnimationTimer loop;
     private final Set<KeyCode> pressed = new HashSet<>();
 
+    // Inyectá un renderizador desde afuera si querés testear o cambiar tema
     public ControladorJuego(Stage stage, Runnable onGameEnd) {
+        this(stage, onGameEnd, new RenderizadorJavaFX());
+    }
+
+    public ControladorJuego(Stage stage, Runnable onGameEnd, Renderizador renderizador) {
         this.stage = stage;
         this.onGameEnd = onGameEnd;
+        this.renderizador = renderizador;
     }
 
     // =========================================
@@ -51,7 +60,6 @@ public final class ControladorJuego {
             if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
             pressed.add(e.getCode());
         });
-
         scene.setOnKeyReleased(e -> pressed.remove(e.getCode()));
         scene.focusOwnerProperty().addListener((obs, oldV, newV) -> {
             if (newV == null) pressed.clear();
@@ -69,8 +77,9 @@ public final class ControladorJuego {
                 if (nivel == null) return;
                 var jugadores = nivel.jugadores();
 
-                // --- J1: WASD si existe ---
-
+                // =========================
+                // J1: WASD + SPACE (disparo)
+                // =========================
                 if (!jugadores.isEmpty()) {
                     var j1 = jugadores.get(0);
                     boolean movio1 = false;
@@ -80,38 +89,27 @@ public final class ControladorJuego {
                     if (pressed.contains(KeyCode.D)) { j1.moverDerecha();   movio1 = true; }
                     if (!movio1) j1.detener();
 
-                    // --- RESOLUCIÓN POR EJES CON COLISIÓN ---
                     var vel = j1.velocidad().por(dt);
 
                     // Eje X
                     if (vel.x() != 0) {
-                        var nextHitboxX = j1.hitbox().trasladado(new org.example.modelo.fisica.Vector(vel.x(), 0));
+                        var nextHitboxX = j1.hitbox().trasladado(new Vector(vel.x(), 0));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
-                            j1.setPosicion(j1.posicion().mas(new org.example.modelo.fisica.Vector(vel.x(), 0)));
+                            j1.setPosicion(j1.posicion().mas(new Vector(vel.x(), 0)));
                         }
                     }
                     // Eje Y
                     if (vel.y() != 0) {
-                        var nextHitboxY = j1.hitbox().trasladado(new org.example.modelo.fisica.Vector(0, vel.y()));
+                        var nextHitboxY = j1.hitbox().trasladado(new Vector(0, vel.y()));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
-                            j1.setPosicion(j1.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
+                            j1.setPosicion(j1.posicion().mas(new Vector(0, vel.y())));
                         }
                     }
-
-                    scene.setOnKeyPressed(e -> {
-                        if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
-                        pressed.add(e.getCode());
-
-                        if (!nivel.jugadores().isEmpty()) {
-                            if (e.getCode() == KeyCode.SPACE) {
-                                nivel.jugadores().get(0).disparar();
-                            }
-                        }
-                    });
-
                 }
 
-// --- J2: Flechas si existe ---
+                // =========================
+                // J2: Flechas + ENTER (disparo)
+                // =========================
                 if (jugadores.size() > 1) {
                     var j2 = jugadores.get(1);
                     boolean movio2 = false;
@@ -125,35 +123,44 @@ public final class ControladorJuego {
 
                     // Eje X
                     if (vel.x() != 0) {
-                        var nextHitboxX = j2.hitbox().trasladado(new org.example.modelo.fisica.Vector(vel.x(), 0));
+                        var nextHitboxX = j2.hitbox().trasladado(new Vector(vel.x(), 0));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
-                            j2.setPosicion(j2.posicion().mas(new org.example.modelo.fisica.Vector(vel.x(), 0)));
+                            j2.setPosicion(j2.posicion().mas(new Vector(vel.x(), 0)));
                         }
                     }
                     // Eje Y
                     if (vel.y() != 0) {
-                        var nextHitboxY = j2.hitbox().trasladado(new org.example.modelo.fisica.Vector(0, vel.y()));
+                        var nextHitboxY = j2.hitbox().trasladado(new Vector(0, vel.y()));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
-                            j2.setPosicion(j2.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
+                            j2.setPosicion(j2.posicion().mas(new Vector(0, vel.y())));
                         }
                     }
-
-                    scene.setOnKeyPressed(e -> {
-                        if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
-                        pressed.add(e.getCode());
-
-                        if (!nivel.jugadores().isEmpty()) {
-                            if (e.getCode() == KeyCode.ENTER) {
-                                nivel.jugadores().get(1).disparar();
-                            }
-                        }
-                    });
-
                 }
 
-                motor.tick(ahoraMs, InputEstado.neutro(), InputEstado.neutro());
-                dibujarNivel();
+                // =========================
+                // Construir InputEstado y tick del modelo
+                // =========================
+                boolean u1 = pressed.contains(KeyCode.W);
+                boolean d1 = pressed.contains(KeyCode.S);
+                boolean l1 = pressed.contains(KeyCode.A);
+                boolean r1 = pressed.contains(KeyCode.D);
+                boolean shoot1 = pressed.contains(KeyCode.SPACE);
 
+                boolean u2 = pressed.contains(KeyCode.UP);
+                boolean d2 = pressed.contains(KeyCode.DOWN);
+                boolean l2 = pressed.contains(KeyCode.LEFT);
+                boolean r2 = pressed.contains(KeyCode.RIGHT);
+                boolean shoot2 = pressed.contains(KeyCode.ENTER);
+
+                var in1 = new InputEstado(u1, d1, l1, r1, shoot1);
+                var in2 = new InputEstado(u2, d2, l2, r2, shoot2);
+
+                motor.tick(ahoraMs, in1, in2);
+
+                // =========================
+                // Render
+                // =========================
+                renderizador.render(motor.nivel(), canvas);
             }
         };
         loop.start();
@@ -171,57 +178,5 @@ public final class ControladorJuego {
     private void terminar() {
         if (loop != null) loop.stop();
         onGameEnd.run();
-    }
-
-    // =========================================
-    // Render
-    // =========================================
-    private void dibujarNivel() {
-        GraphicsContext g = canvas.getGraphicsContext2D();
-
-        // fondo
-        g.setFill(Color.BLACK);
-        g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        var nivel = motor.nivel();
-        if (nivel == null) return;
-
-        // ENEMIGOS (rojo)
-        g.setFill(Color.CRIMSON);
-        for (var e : nivel.enemigos()) {
-            var hb = e.hitbox();
-            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        }
-
-        // JUGADORES (verde)
-        g.setFill(Color.LIMEGREEN);
-        for (var j : nivel.jugadores()) {
-            var hb = j.hitbox();
-            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        }
-// BLOQUES
-        for (var b : nivel.bloques()) {
-            if (b instanceof org.example.modelo.fisica.Cuerpo c) {
-                var hb = c.hitbox();
-                g.setFill(Color.DARKGRAY);
-                g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-            }
-        }
-
-// BASE destacada (si también es Cuerpo por el wrapper)
-        if (nivel.base() instanceof org.example.modelo.fisica.Cuerpo c) {
-            var hb = c.hitbox();
-            g.setFill(Color.GOLD);
-            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        }
-
-        // BALAS (blancas)
-        g.setFill(Color.WHITESMOKE);
-        for (var p : motor.nivel().proyectiles()) {
-            var hb = p.hitbox();
-            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        }
-
-
     }
 }
