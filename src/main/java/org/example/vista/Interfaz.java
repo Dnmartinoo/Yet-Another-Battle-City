@@ -1,6 +1,7 @@
 package org.example.vista;
 
 import javafx.stage.Stage;
+import org.example.audio.ManagerSonido;
 import org.example.modelo.juego.MotorJuego;
 import org.example.modelo.juego.Nivel;
 import org.example.modelo.niveles.XmlNivelLoader;
@@ -18,7 +19,15 @@ public class Interfaz {
 
 
     public void comenzar() {
-     mostrarMenu();
+        ManagerSonido.cargarEfecto("golpe", "/sounds/efectos/bang.wav");
+        ManagerSonido.cargarEfecto("derrota", "/sounds/efectos/explosion.wav");
+        //ManagerSonido.cargarEfecto("powerup", "/sounds/glass-cling.wav"); IMPLEMENTAR CUANDO ESTE POWERUPS
+        ManagerSonido.cargarEfecto("disparar", "/sounds/efectos/laser-gun.wav");
+        ManagerSonido.cargarEfecto("bloqueRoto", "/sounds/efectos/wood-impact.wav");
+
+        ManagerSonido.cargarMusica("/sounds/musica/tribe-drum-loop.wav");
+        ManagerSonido.playMusica();
+        mostrarMenu();
     }
 
 
