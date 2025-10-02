@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<levelConfig gameName="BattleCity" version="1.0" levelIndex="1" name="Level 1">
+    <level width="800" height="600" cols="40" rows="30">
+        <players>
+            <player id="player1" x="510" y="550"/>
+            <player id="player2" x="270" y="550"/>
+        </players>
+        <enemies/>
+        <staticObjects>
+            <staticObject type="brickBlock" x="130" y="290"/>
+            <staticObject type="brickBlock" x="150" y="290"/>
+            <staticObject type="brickBlock" x="130" y="310"/>
+            <staticObject type="brickBlock" x="150" y="310"/>
+            <staticObject type="brickBlock" x="170" y="310"/>
+            <staticObject type="brickBlock" x="150" y="330"/>
+            <staticObject type="brickBlock" x="170" y="330"/>
+            <staticObject type="brickBlock" x="190" y="330"/>
+            <staticObject type="brickBlock" x="130" y="350"/>
+            <staticObject type="brickBlock" x="150" y="350"/>
+            <staticObject type="brickBlock" x="190" y="350"/>
+            <staticObject type="brickBlock" x="130" y="370"/>
+            <staticObject type="brickBlock" x="170" y="370"/>
+            <staticObject type="brickBlock" x="190" y="370"/>
+            <staticObject type="brickBlock" x="130" y="390"/>
+            <staticObject type="brickBlock" x="170" y="390"/>
+            <staticObject type="brickBlock" x="150" y="410"/>
+            <staticObject type="brickBlock" x="170" y="410"/>
+            <staticObject type="baseBlock" x="390" y="570"/>
+        </staticObjects>
+    </level>
+</levelConfig>
