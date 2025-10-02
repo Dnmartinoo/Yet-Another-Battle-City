@@ -1,12 +1,18 @@
 package org.example.modelo.niveles;
 
+import org.example.modelo.fisica.Rectangulo;
+import org.example.modelo.juego.Nivel;
 import org.example.modelo.juego.NivelData;
-import org.w3c.dom.*;
+import org.example.modelo.juego.Spawner;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.XMLConstants;
-import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +26,7 @@ public class XmlNivelLoader {
         this.schema = null;
     }
 
-    /** Loader con validación XSD */
+    /** Loader con validación XSD (opcional) */
     public XmlNivelLoader(InputStream xsd) {
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -30,6 +36,7 @@ public class XmlNivelLoader {
         }
     }
 
+    /** Carga solo los datos del nivel (no crea el mundo). */
     public NivelData cargar(InputStream xml) {
         try {
             var dbf = DocumentBuilderFactory.newInstance();
@@ -42,9 +49,9 @@ public class XmlNivelLoader {
             Element raiz = doc.getDocumentElement(); // <nivel>
 
             // Atributos del nivel
-            int ancho = parseIntAttr(raiz, "ancho", 800);
-            int alto  = parseIntAttr(raiz, "alto", 600);
-            boolean coop = parseBoolAttr(raiz, "coop", false);
+            int ancho  = parseIntAttr(raiz, "ancho", 800);
+            int alto   = parseIntAttr(raiz, "alto", 600);
+            boolean coopXml = parseBoolAttr(raiz, "coop", false); // lo podés pisar desde la vista
 
             // Spawner
             Rect zonaSpawn = leerSpawner(raiz);
@@ -56,10 +63,10 @@ public class XmlNivelLoader {
             if (jugadores.getLength() > 0) {
                 Element eJugadores = (Element) jugadores.item(0);
                 NodeList lista = eJugadores.getElementsByTagName("jugador");
-                for (int i=0; i<lista.getLength(); i++) {
+                for (int i = 0; i < lista.getLength(); i++) {
                     Element j = (Element) lista.item(i);
                     int id = parseIntAttr(j, "id", 1);
-                    double x = parseDoubleAttr(j, "x", (id==1)?100:200);
+                    double x = parseDoubleAttr(j, "x", (id == 1) ? 100 : 200);
                     double y = parseDoubleAttr(j, "y", 500);
                     if (id == 1) p1 = new Pos(x, y);
                     else if (id == 2) p2 = new Pos(x, y);
@@ -72,7 +79,7 @@ public class XmlNivelLoader {
             if (bloquesNL.getLength() > 0) {
                 Element eBloques = (Element) bloquesNL.item(0);
                 NodeList lista = eBloques.getElementsByTagName("bloque");
-                for (int i=0; i<lista.getLength(); i++) {
+                for (int i = 0; i < lista.getLength(); i++) {
                     Element b = (Element) lista.item(i);
                     String tipo = b.getAttribute("tipo"); // LADRILLO/ACERO/AGUA/BOSQUE/BASE...
                     double x = parseDoubleAttr(b, "x", 0);
@@ -87,7 +94,7 @@ public class XmlNivelLoader {
             if (enemigosNL.getLength() > 0) {
                 Element eEnemigos = (Element) enemigosNL.item(0);
                 NodeList lista = eEnemigos.getElementsByTagName("enemigo");
-                for (int i=0; i<lista.getLength(); i++) {
+                for (int i = 0; i < lista.getLength(); i++) {
                     Element e = (Element) lista.item(i);
                     String tipo = e.getAttribute("tipo"); // BASICO/RAPIDO/POTENTE/BLINDADO
                     double x = parseDoubleAttr(e, "x", 0);
@@ -96,15 +103,14 @@ public class XmlNivelLoader {
                 }
             }
 
-            // ---- Mapear a tu NivelData ----
-            // Requiere que NivelData tenga un constructor y setters (ver bloque al final)
-            NivelData data = new NivelData(coop);
+            // Mapear a tu NivelData
+            NivelData data = new NivelData(coopXml);
             data.setAncho(ancho);
             data.setAlto(alto);
             data.setJugador1(p1.x, p1.y);
             data.setJugador2(p2.x, p2.y);
             data.setZonaSpawn(zonaSpawn.x, zonaSpawn.y, zonaSpawn.w, zonaSpawn.h);
-            for (BloqueParse b : bloques) data.addBloque(b.tipo, b.x, b.y);
+            for (BloqueParse b : bloques)  data.addBloque(b.tipo, b.x, b.y);
             for (EnemigoParse e : enemigos) data.addEnemigo(e.tipo, e.x, e.y);
 
             return data;
@@ -114,21 +120,42 @@ public class XmlNivelLoader {
         }
     }
 
-    // -------- helpers DOM --------
-    private static int parseIntAttr(Element e, String name, int def){
-        String v = e.getAttribute(name);
-        return (v==null || v.isBlank()) ? def : Integer.parseInt(v.trim());
-    }
-    private static double parseDoubleAttr(Element e, String name, double def){
-        String v = e.getAttribute(name);
-        return (v==null || v.isBlank()) ? def : Double.parseDouble(v.trim());
-    }
-    private static boolean parseBoolAttr(Element e, String name, boolean def){
-        String v = e.getAttribute(name);
-        return (v==null || v.isBlank()) ? def : Boolean.parseBoolean(v.trim());
+    /**
+     * NUEVO: construye un Nivel completo a partir del XML.
+     * @param xml stream del XML (usar getResourceAsStream)
+     * @param coopOverride true para 2 jugadores, false para 1 (pisará lo que diga el XML)
+     */
+    public Nivel crearNivelDesdeXml(InputStream xml, boolean coopOverride) {
+        NivelData data = cargar(xml);          // parsea el XML
+        data.setCoop(coopOverride);            // fuerza 1P/2P según el menú
+
+        // Mundo y spawner con datos del XML
+        Rectangulo mundo = new Rectangulo(0, 0, data.ancho(), data.alto());
+        Rectangulo zonaSpawn = new Rectangulo(data.spawnX(), data.spawnY(), data.spawnW(), data.spawnH());
+        Spawner spawner = new Spawner();
+
+        Nivel nivel = new Nivel(mundo, spawner);
+        nivel.crearMundo(data);                // instancia jugadores/bloques/enemigos
+        return nivel;
     }
 
-    private static Rect leerSpawner(Element raiz){
+    // ---- helpers ----
+    private static int parseIntAttr(Element e, String name, int def) {
+        String v = e.getAttribute(name);
+        return (v == null || v.isBlank()) ? def : Integer.parseInt(v.trim());
+    }
+
+    private static double parseDoubleAttr(Element e, String name, double def) {
+        String v = e.getAttribute(name);
+        return (v == null || v.isBlank()) ? def : Double.parseDouble(v.trim());
+    }
+
+    private static boolean parseBoolAttr(Element e, String name, boolean def) {
+        String v = e.getAttribute(name);
+        return (v == null || v.isBlank()) ? def : Boolean.parseBoolean(v.trim());
+    }
+
+    private static Rect leerSpawner(Element raiz) {
         NodeList sp = raiz.getElementsByTagName("spawner");
         if (sp.getLength() == 0) return new Rect(390, 0, 20, 20); // default
         Element s = (Element) sp.item(0);
@@ -139,9 +166,9 @@ public class XmlNivelLoader {
         return new Rect(x, y, w, h);
     }
 
-    // -------- structs internas para staging --------
-    private static final class Pos { final double x,y; Pos(double x,double y){this.x=x;this.y=y;} }
-    private static final class Rect { final double x,y,w,h; Rect(double x,double y,double w,double h){this.x=x;this.y=y;this.w=w;this.h=h;} }
-    private static final class BloqueParse { final String tipo; final double x,y; BloqueParse(String t,double x,double y){this.tipo=t;this.x=x;this.y=y;} }
-    private static final class EnemigoParse { final String tipo; final double x,y; EnemigoParse(String t,double x,double y){this.tipo=t;this.x=x;this.y=y;} }
+    // structs internas
+    private static final class Pos  { final double x, y; Pos(double x, double y){ this.x=x; this.y=y; } }
+    private static final class Rect { final double x, y, w, h; Rect(double x, double y, double w, double h){ this.x=x; this.y=y; this.w=w; this.h=h; } }
+    private static final class BloqueParse  { final String tipo; final double x, y; BloqueParse(String t, double x, double y){ this.tipo=t; this.x=x; this.y=y; } }
+    private static final class EnemigoParse { final String tipo; final double x, y; EnemigoParse(String t, double x, double y){ this.tipo=t; this.x=x; this.y=y; } }
 }
