@@ -51,13 +51,12 @@ public final class ControladorJuego {
             if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
             pressed.add(e.getCode());
         });
+
         scene.setOnKeyReleased(e -> pressed.remove(e.getCode()));
-        // Si la ventana pierde foco, soltar todo para evitar teclas “pegadas”
         scene.focusOwnerProperty().addListener((obs, oldV, newV) -> {
             if (newV == null) pressed.clear();
         });
 
-        // Bucle principal (usa dt en segundos)
         final long[] lastMs = {0L};
         loop = new AnimationTimer() {
             @Override public void handle(long now) {
@@ -71,7 +70,7 @@ public final class ControladorJuego {
                 var jugadores = nivel.jugadores();
 
                 // --- J1: WASD si existe ---
-                // --- J1: WASD si existe ---
+
                 if (!jugadores.isEmpty()) {
                     var j1 = jugadores.get(0);
                     boolean movio1 = false;
@@ -98,6 +97,18 @@ public final class ControladorJuego {
                             j1.setPosicion(j1.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
                         }
                     }
+
+                    scene.setOnKeyPressed(e -> {
+                        if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
+                        pressed.add(e.getCode());
+
+                        if (!nivel.jugadores().isEmpty()) {
+                            if (e.getCode() == KeyCode.SPACE) {
+                                nivel.jugadores().get(0).disparar();
+                            }
+                        }
+                    });
+
                 }
 
 // --- J2: Flechas si existe ---
@@ -126,6 +137,18 @@ public final class ControladorJuego {
                             j2.setPosicion(j2.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
                         }
                     }
+
+                    scene.setOnKeyPressed(e -> {
+                        if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
+                        pressed.add(e.getCode());
+
+                        if (!nivel.jugadores().isEmpty()) {
+                            if (e.getCode() == KeyCode.ENTER) {
+                                nivel.jugadores().get(1).disparar();
+                            }
+                        }
+                    });
+
                 }
 
                 motor.tick(ahoraMs, InputEstado.neutro(), InputEstado.neutro());
@@ -147,7 +170,7 @@ public final class ControladorJuego {
 
     private void terminar() {
         if (loop != null) loop.stop();
-        onGameEnd.run(); // volver al menú
+        onGameEnd.run();
     }
 
     // =========================================
@@ -192,17 +215,13 @@ public final class ControladorJuego {
             g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
         }
 
+        // BALAS (blancas)
+        g.setFill(Color.WHITESMOKE);
+        for (var p : motor.nivel().proyectiles()) {
+            var hb = p.hitbox();
+            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
+        }
 
-        // (Opcional) BASE/BLOQUES cuando también implementen Cuerpo
-        // g.setFill(Color.DARKGRAY);
-        // for (var b : nivel.bloques()) {
-        //     var hb = b.hitbox();
-        //     g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        // }
-        // if (nivel.base() != null) {
-        //     var hb = nivel.base().hitbox();
-        //     g.setFill(Color.GOLD);
-        //     g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-        // }
+
     }
 }

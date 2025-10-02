@@ -22,9 +22,6 @@ public class Jugador extends Tanque implements Control{
         super(TipoPersonaje.JUGADOR, posicion);
     }
 
-
-
-
     @Override public void recibirImpacto(int dano) {
         if(invulnerable || !estaVivo()) {
             return;

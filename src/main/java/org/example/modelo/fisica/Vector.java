@@ -23,4 +23,8 @@ public record Vector(double x, double y) {
         double m = modulo();
         return (m == 0) ? this : new Vector(x / m, y / m);
     }
+
+    public boolean esCero() {
+        return modulo() == 0;
+    }
 }

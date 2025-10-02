@@ -38,6 +38,8 @@ public class MundoFisico {
         }
         return res;
     }
+    public void setBloque(int fila, int col, Bloque b) { grid[fila][col] = b; }
+
 
     public int tileSize(){ return TILE; }
 }

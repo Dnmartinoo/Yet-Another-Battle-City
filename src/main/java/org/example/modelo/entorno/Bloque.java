@@ -9,4 +9,6 @@ public interface Bloque extends Cuerpo {
     boolean estaDestruido();
     ResultadoImpacto recibirImpacto(int dano);
     default boolean ocultaVisual() { return false; }
+    default boolean esBase() { return false; }
+
 }

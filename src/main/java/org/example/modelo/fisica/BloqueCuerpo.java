@@ -31,6 +31,8 @@ public final class BloqueCuerpo implements Bloque, Cuerpo {
     @Override public ResultadoImpacto recibirImpacto(int dano) { return delegado.recibirImpacto(dano); }
     @Override public boolean ocultaVisual()          { return delegado.ocultaVisual(); }
 
+    @Override public boolean esBase() { return delegado.esBase(); }
+
     // Por si necesitás detectar la BASE luego
     public Bloque delegado() { return delegado; }
 }

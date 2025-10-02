@@ -33,4 +33,9 @@ public class Base extends BloqueBase {
         destruido = true;
         return ResultadoImpacto.balaSeDetiene();
     }
+
+    @Override
+    public boolean esBase() {
+        return true;
+    }
 }

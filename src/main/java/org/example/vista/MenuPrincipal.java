@@ -20,8 +20,8 @@ public class MenuPrincipal {
             "-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;";
 
     private final Stage stage;
-    private final IntConsumer iniciarJuego; // callback: 1 ó 2 jugadores
-    private final Runnable salir;           // callback: salir app
+    private final IntConsumer iniciarJuego;
+    private final Runnable salir;
 
     public MenuPrincipal(Stage stage, IntConsumer iniciarJuego, Runnable salir) {
         this.stage = stage;
