@@ -160,7 +160,32 @@ public final class ControladorJuego {
                 // =========================
                 // Render
                 // =========================
+
                 renderizador.render(motor.estado(), canvas);
+                var g = canvas.getGraphicsContext2D();
+                if (motor.enVictoria()) {
+                    g.setGlobalAlpha(0.65);
+                    g.setFill(javafx.scene.paint.Color.BLACK);
+                    g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    g.setGlobalAlpha(1.0);
+                    g.setFill(javafx.scene.paint.Color.LIMEGREEN);
+                    g.setFont(javafx.scene.text.Font.font("Consolas", 48));
+                    g.fillText("¡VICTORIA!", canvas.getWidth()/2 - 140, canvas.getHeight()/2);
+                }
+                else if (motor.enDerrota()) {
+                    g.setGlobalAlpha(0.65);
+                    g.setFill(javafx.scene.paint.Color.BLACK);
+                    g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    g.setGlobalAlpha(1.0);
+                    g.setFill(javafx.scene.paint.Color.ORANGERED);
+                    g.setFont(javafx.scene.text.Font.font("Consolas", 48));
+                    g.fillText("DERROTA", canvas.getWidth()/2 - 120, canvas.getHeight()/2);
+                }
+
+                if (motor.partidaFinalizada()) {
+                    terminar();
+                }
+
             }
         };
         loop.start();

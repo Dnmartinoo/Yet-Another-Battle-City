@@ -5,6 +5,27 @@ import org.example.modelo.fisica.Vector;
 
 public final class JuegoConfig {
     private JuegoConfig() {}
+    // TANQUES
+
+    public static final double PLAYER_SPEED = 1.0;
+    public static final int    PLAYER_HEALTH = 3;
+    public static final double PLAYER_FIRE_RATE = 1.0; // disparos/segundo
+
+    public static final double REGULAR_ENEMY_SPEED = 1.0;
+    public static final int    REGULAR_ENEMY_HEALTH = 1;
+    public static final double REGULAR_ENEMY_FIRE_RATE = 1.0;
+
+    public static final double FAST_ENEMY_SPEED = 2.0;
+    public static final int    FAST_ENEMY_HEALTH = 1;
+    public static final double FAST_ENEMY_FIRE_RATE = 1.0;
+
+    public static final double POWERFUL_ENEMY_SPEED = 1.2;
+    public static final int    POWERFUL_ENEMY_HEALTH = 1;
+    public static final double POWERFUL_ENEMY_FIRE_RATE = 2.0;
+
+    public static final double HEAVY_ENEMY_SPEED = 0.8;
+    public static final int    HEAVY_ENEMY_HEALTH = 3;
+    public static final double HEAVY_ENEMY_FIRE_RATE = 1.0;
 
     // BALAS
     public static double PLAYER_BULLET_SPEED = 260.0;
@@ -12,7 +33,8 @@ public final class JuegoConfig {
     public static int BULLET_DAMAGE = 1;
     public static double BULLET_SIZE = 6.0;
     public static long PLAYER_SHOOT_COOLDOWN_MS = 180L;
-    public static long ENEMY_SHOOT_COOLDOWN_MS = 2000L;
+    public static long ENEMY_SHOOT_COOLDOWN_MS = 500;
+    public static long RESPAWN_INVULN_MS = 1500;
 
     public static int VIDAS_INICIALES = 3;
 

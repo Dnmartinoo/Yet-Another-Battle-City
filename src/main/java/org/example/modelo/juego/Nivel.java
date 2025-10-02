@@ -103,9 +103,13 @@ public class Nivel {
 
 
         jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1));
+        jugadores.get(0).setRespawn(new Vector(data.jugador1X(), data.jugador1Y()));
+
         if (data.coop()) {
             jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y()), 2));
+            jugadores.get(1).setRespawn(new Vector(data.jugador2X(), data.jugador2Y()));
         }
+
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
 
@@ -174,7 +178,9 @@ public class Nivel {
 
 
         actualizarBalas(dt);
-
+        if (todosJugadoresAgotados()) {
+            derrota = true;
+        }
 
         if (base != null && base.estaDestruido()) {
             derrota = true;
@@ -291,6 +297,15 @@ public class Nivel {
                 bloques.removeAll(destruidos);
             }
         }
+    }
+    private boolean todosJugadoresAgotados() {
+        if (jugadores.isEmpty()) return true;
+        for (Jugador j : jugadores) {
+            if (!j.sinVidas()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void spawnBalaJugador(Jugador j) {
