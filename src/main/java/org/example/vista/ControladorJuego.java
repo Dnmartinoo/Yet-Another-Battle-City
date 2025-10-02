@@ -71,6 +71,7 @@ public final class ControladorJuego {
                 var jugadores = nivel.jugadores();
 
                 // --- J1: WASD si existe ---
+                // --- J1: WASD si existe ---
                 if (!jugadores.isEmpty()) {
                     var j1 = jugadores.get(0);
                     boolean movio1 = false;
@@ -79,10 +80,27 @@ public final class ControladorJuego {
                     if (pressed.contains(KeyCode.A)) { j1.moverIzquierda(); movio1 = true; }
                     if (pressed.contains(KeyCode.D)) { j1.moverDerecha();   movio1 = true; }
                     if (!movio1) j1.detener();
-                    j1.setPosicion(j1.posicion().mas(j1.velocidad().por(dt)));
+
+                    // --- RESOLUCIÓN POR EJES CON COLISIÓN ---
+                    var vel = j1.velocidad().por(dt);
+
+                    // Eje X
+                    if (vel.x() != 0) {
+                        var nextHitboxX = j1.hitbox().trasladado(new org.example.modelo.fisica.Vector(vel.x(), 0));
+                        if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
+                            j1.setPosicion(j1.posicion().mas(new org.example.modelo.fisica.Vector(vel.x(), 0)));
+                        }
+                    }
+                    // Eje Y
+                    if (vel.y() != 0) {
+                        var nextHitboxY = j1.hitbox().trasladado(new org.example.modelo.fisica.Vector(0, vel.y()));
+                        if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
+                            j1.setPosicion(j1.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
+                        }
+                    }
                 }
 
-                // --- J2: Flechas si existe ---
+// --- J2: Flechas si existe ---
                 if (jugadores.size() > 1) {
                     var j2 = jugadores.get(1);
                     boolean movio2 = false;
@@ -91,8 +109,25 @@ public final class ControladorJuego {
                     if (pressed.contains(KeyCode.LEFT))  { j2.moverIzquierda(); movio2 = true; }
                     if (pressed.contains(KeyCode.RIGHT)) { j2.moverDerecha();   movio2 = true; }
                     if (!movio2) j2.detener();
-                    j2.setPosicion(j2.posicion().mas(j2.velocidad().por(dt)));
+
+                    var vel = j2.velocidad().por(dt);
+
+                    // Eje X
+                    if (vel.x() != 0) {
+                        var nextHitboxX = j2.hitbox().trasladado(new org.example.modelo.fisica.Vector(vel.x(), 0));
+                        if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
+                            j2.setPosicion(j2.posicion().mas(new org.example.modelo.fisica.Vector(vel.x(), 0)));
+                        }
+                    }
+                    // Eje Y
+                    if (vel.y() != 0) {
+                        var nextHitboxY = j2.hitbox().trasladado(new org.example.modelo.fisica.Vector(0, vel.y()));
+                        if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
+                            j2.setPosicion(j2.posicion().mas(new org.example.modelo.fisica.Vector(0, vel.y())));
+                        }
+                    }
                 }
+
                 motor.tick(ahoraMs, InputEstado.neutro(), InputEstado.neutro());
                 dibujarNivel();
 
@@ -141,6 +176,22 @@ public final class ControladorJuego {
             var hb = j.hitbox();
             g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
         }
+// BLOQUES
+        for (var b : nivel.bloques()) {
+            if (b instanceof org.example.modelo.fisica.Cuerpo c) {
+                var hb = c.hitbox();
+                g.setFill(Color.DARKGRAY);
+                g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
+            }
+        }
+
+// BASE destacada (si también es Cuerpo por el wrapper)
+        if (nivel.base() instanceof org.example.modelo.fisica.Cuerpo c) {
+            var hb = c.hitbox();
+            g.setFill(Color.GOLD);
+            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
+        }
+
 
         // (Opcional) BASE/BLOQUES cuando también implementen Cuerpo
         // g.setFill(Color.DARKGRAY);
