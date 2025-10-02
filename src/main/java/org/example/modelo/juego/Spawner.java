@@ -12,6 +12,8 @@ public class Spawner {
     private final Deque<Long> tiemposSpawn = new ArrayDeque<>();
     private boolean termino = false;
 
+
+
     public List<Enemigo> talVezSpawnear(long ahoraMs, Rectangulo area) {
         limpiarVentana(ahoraMs);
         return List.of();
