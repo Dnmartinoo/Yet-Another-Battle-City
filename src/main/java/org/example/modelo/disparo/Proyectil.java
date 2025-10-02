@@ -3,8 +3,10 @@ package org.example.modelo.disparo;
 import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
+import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.Spriteeable;
 
-public class Proyectil implements Cuerpo {
+public class Proyectil implements Cuerpo, Spriteeable {
     private Vector pos;
     private final Vector dirUnit; // dirección unitaria
     private final double speed;   // px/s
@@ -32,4 +34,11 @@ public class Proyectil implements Cuerpo {
     public int dano() { return dano; }
     public boolean vivo() { return vivo; }
     public void destruir() { vivo = false; }
+
+    @Override
+    public String spriteId() {
+        return JuegoConfig.SPRITE_SHOT;
+    }
+
+
 }

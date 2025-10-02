@@ -2,10 +2,12 @@ package org.example.modelo.personajes;
 
 import org.example.modelo.fisica.MundoFisico;
 import org.example.modelo.fisica.Vector;
+import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.Spriteeable;
 
 import java.util.Random;
 
-public class Enemigo extends Tanque {
+public class Enemigo extends Tanque implements Spriteeable {
     private static final Random rng = new Random();
 
     private Vector direccionActual = Vector.CERO;
@@ -70,6 +72,19 @@ public class Enemigo extends Tanque {
 
     private void disparar() {
         // TODO: sistema de proyectiles
-        System.out.println("Enemigo dispara!");
+        //System.out.println("Enemigo dispara!");
     }
+
+    @Override
+    public String spriteId() {
+        return switch (tipo) {
+            case fastEnemy  -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_FAST_0    : JuegoConfig.SPRITE_ENEMY_FAST_1;
+            case heavyEnemy   -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_HEAVY_0   : JuegoConfig.SPRITE_ENEMY_HEAVY_1;
+            case powerfulEnemy   -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_POWER_0   : JuegoConfig.SPRITE_ENEMY_POWER_1;
+            case regularEnemy -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_REGULAR_0 : JuegoConfig.SPRITE_ENEMY_REGULAR_1;
+            case JUGADOR -> throw new IllegalStateException("No debe ser un jugador");
+        };
+    }
+
+
 }

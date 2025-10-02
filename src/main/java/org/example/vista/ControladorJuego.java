@@ -24,7 +24,7 @@ public final class ControladorJuego {
     private MotorJuego motor;
 
     // ---- Render ----
-    private final Renderizador renderizador;
+    private final RenderizadorEstado renderizador;
 
     // ---- Loop / input ----
     private AnimationTimer loop;
@@ -32,13 +32,13 @@ public final class ControladorJuego {
 
     // Inyectá un renderizador desde afuera si querés testear o cambiar tema
     public ControladorJuego(Stage stage, Runnable onGameEnd) {
-        this(stage, onGameEnd, new RenderizadorJavaFX());
+        this(stage, onGameEnd, new RenderizadorSprites());
     }
 
-    public ControladorJuego(Stage stage, Runnable onGameEnd, Renderizador renderizador) {
+    public ControladorJuego(Stage stage, Runnable onGameEnd, RenderizadorEstado renderizador) {
         this.stage = stage;
         this.onGameEnd = onGameEnd;
-        this.renderizador = renderizador;
+        this.renderizador = (RenderizadorEstado) renderizador;
     }
 
     // =========================================
@@ -160,7 +160,7 @@ public final class ControladorJuego {
                 // =========================
                 // Render
                 // =========================
-                renderizador.render(motor.nivel(), canvas);
+                renderizador.render(motor.estado(), canvas);
             }
         };
         loop.start();

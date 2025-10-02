@@ -19,6 +19,11 @@ public abstract class Tanque implements Cuerpo {
     protected static final int DEFAULT_TILE = 20;
     protected static final double DEFAULT_SPEED = 60.0;
 
+
+    protected int frameAnimacion = 0;
+    protected long ultimoCambioAnim = 0;
+    protected long intervaloAnim = 200; // ms
+
     // 1) Ctor completo
     public Tanque(Vector posicion, Rectangulo hitboxLocal, double velocidadEscalar, TipoPersonaje tipo) {
         this.posicion = posicion;
@@ -93,4 +98,17 @@ public abstract class Tanque implements Cuerpo {
             posicion = new Vector(posicion.x(), ny);
         }
     }
+
+
+
+    public void actualizarAnimacion(long ahoraMs) {
+        if (estaMoviendose()) {
+            if (ahoraMs - ultimoCambioAnim > intervaloAnim) {
+                frameAnimacion = (frameAnimacion + 1) % 2;
+                ultimoCambioAnim = ahoraMs;
+            }
+        }
+    }
+
+    public boolean estaMoviendose() { return velocidadActual.x() != 0 || velocidadActual.y() != 0; }
 }

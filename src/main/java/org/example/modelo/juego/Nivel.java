@@ -78,9 +78,9 @@ public class Nivel {
         this.base = baseRef;
 
         // Jugadores
-        jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y())));
+        jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1));
         if (data.coop()) {
-            jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y())));
+            jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y()),2));
         }
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
@@ -309,7 +309,59 @@ public class Nivel {
     }
 
     public EstadoNivel estado() {
-        return new EstadoNivel(victoria, derrota, jugadores.size(), enemigos.size());
+        List<EstadoEntidad> entidades = new ArrayList<>();
+
+        for (var bloque : bloques()) {
+            var hitbox = bloque.hitbox();
+            var id = ((Spriteeable) bloque).spriteId();
+            entidades.add(new EstadoEntidad(
+                    id,
+                    hitbox.x(), hitbox.y(),
+                    hitbox.w(), hitbox.h(),
+                    false
+            ));
+        }
+
+        for (var proyectil : proyectiles()) {
+            var hitbox = proyectil.hitbox();
+            var id = ((Spriteeable) proyectil).spriteId();
+            entidades.add(new EstadoEntidad(
+                    id,
+                    hitbox.x(), hitbox.y(),
+                    hitbox.w(), hitbox.h(),
+                    false
+            ));
+        }
+
+        for (var enemigo : enemigos()) {
+            var hitbox = enemigo.hitbox();
+            var id = ((Spriteeable) enemigo).spriteId();
+            entidades.add(new EstadoEntidad(
+                    id,
+                    hitbox.x(), hitbox.y(),
+                    hitbox.w(), hitbox.h(),
+                    false
+            ));
+        }
+
+        for (var jugador : jugadores()) {
+            var hitbox = jugador.hitbox();
+            var id = ((Spriteeable) jugador).spriteId();
+            boolean casco = jugador.esInvulnerable();
+            entidades.add(new EstadoEntidad(
+                    id,
+                    hitbox.x(), hitbox.y(),
+                    hitbox.w(), hitbox.h(),
+                    casco
+            ));
+        }
+        return new EstadoNivel(
+                victoria,
+                derrota,
+                jugadores.size(),
+                enemigos().size(),
+                entidades
+        );
     }
 
     public void iniciar() { /* hook opcional */ }

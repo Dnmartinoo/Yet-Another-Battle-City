@@ -1,15 +1,19 @@
 package org.example.modelo.personajes;
 
 import org.example.modelo.fisica.*;
+import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.powerup.*;
 import org.example.modelo.controlador.Control;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Jugador extends Tanque implements Control{
-    public Jugador(TipoPersonaje tipo, Vector posicion) {
+public class Jugador extends Tanque implements Control, Spriteeable {
+    private final int idJugador;
+    public Jugador(TipoPersonaje tipo, Vector posicion, int idJugador) {
         super(tipo, posicion);
+        this.idJugador = idJugador;
     }
     private final List<PowerUp> poderes = new ArrayList<>();
 
@@ -18,8 +22,14 @@ public class Jugador extends Tanque implements Control{
     private boolean disparoPotenciado = false;
     private boolean disparoPendiente = false;
 
-    public Jugador(Vector posicion) {
+    public Jugador(Vector posicion, int idJugador) {
+
         super(TipoPersonaje.JUGADOR, posicion);
+        this.idJugador = idJugador;
+    }
+
+    public int getIdJugador() {
+        return idJugador;
     }
 
     @Override public void recibirImpacto(int dano) {
@@ -123,4 +133,13 @@ public class Jugador extends Tanque implements Control{
     public void consumirDisparoPendiente() {
         disparoPendiente = false;
     }
+
+    @Override
+    public String spriteId() {
+        return (idJugador == 1)
+                ? (frameAnimacion == 0 ? JuegoConfig.SPRITE_PLAYER1_0 : JuegoConfig.SPRITE_PLAYER1_1)
+                : (frameAnimacion == 0 ? JuegoConfig.SPRITE_PLAYER2_0 : JuegoConfig.SPRITE_PLAYER2_1);
+    }
+
+
 }
