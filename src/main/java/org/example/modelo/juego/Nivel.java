@@ -39,6 +39,20 @@ public class Nivel {
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
     public List<Proyectil> proyectiles() { return List.copyOf(proyectiles); }
     public Bloque base()              { return base; }  // <- devuelve Bloque
+    // Número de nivel
+    private int numeroDeNivel = 1;
+    public void setNumeroDeNivel(int n) { this.numeroDeNivel = n; }
+    public int numeroDeNivel() { return numeroDeNivel; }
+
+    // Enemigos vivos/pendientes/total
+    public int enemigosVivos() { return enemigos().size(); }
+    public int enemigosPendientes() { return spawner.cantidadPendiente(); }
+    public int enemigosRestantesTotales() { return enemigosVivos() + enemigosPendientes(); }
+
+    // Vidas J1
+    public int vidasJugador1() {
+        return jugadores().isEmpty() ? 0 : jugadores().get(0).vidasRestantes();
+    }
 
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
         this.spawner = spawner;

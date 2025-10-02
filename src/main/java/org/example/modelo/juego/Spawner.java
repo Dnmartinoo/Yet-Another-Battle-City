@@ -46,6 +46,9 @@ public class Spawner {
         out.add(nuevo);
         return out;
     }
+    public int cantidadPendiente(){
+        return pendientes.size();
+    }
 
     private void limpiarVentana(long ahoraMs) {
         while (!tiemposSpawn.isEmpty() && ahoraMs - tiemposSpawn.peekFirst() > ventanaMs) {

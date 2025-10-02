@@ -20,5 +20,5 @@ public final class JuegoConfig {
     public static long ENEMY_SHOOT_COOLDOWN_MS = 2000L;
     public static double BULLET_SIZE = 6.0;
     public static long PLAYER_SHOOT_COOLDOWN_MS = 180L;
-
+    public static int VIDAS_INICIALES = 3;
 }
