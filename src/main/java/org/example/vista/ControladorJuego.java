@@ -7,7 +7,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.example.modelo.juego.InputEstado;
 import org.example.modelo.juego.MotorJuego;
@@ -49,53 +48,58 @@ public final class ControladorJuego {
         // Input continuo (teclas presionadas)
         pressed.clear();
         scene.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case ESCAPE -> terminar();
-                default -> pressed.add(e.getCode());
-            }
+            if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
+            pressed.add(e.getCode());
         });
         scene.setOnKeyReleased(e -> pressed.remove(e.getCode()));
+        // Si la ventana pierde foco, soltar todo para evitar teclas “pegadas”
+        scene.focusOwnerProperty().addListener((obs, oldV, newV) -> {
+            if (newV == null) pressed.clear();
+        });
 
-        // Bucle principal
+        // Bucle principal (usa dt en segundos)
+        final long[] lastMs = {0L};
         loop = new AnimationTimer() {
             @Override public void handle(long now) {
-                // Construir InputEstado jugador 1 (WASD + SPACE)
-                InputEstado j1 = new InputEstado(
-                        pressed.contains(KeyCode.W),
-                        pressed.contains(KeyCode.S),
-                        pressed.contains(KeyCode.A),
-                        pressed.contains(KeyCode.D),
-                        pressed.contains(KeyCode.SPACE)
-                );
-
-                // Jugador 2 (flechas + ENTER) o neutro si no está habilitado
-                InputEstado j2 = (cantidadJugadores == 2)
-                        ? new InputEstado(
-                        pressed.contains(KeyCode.UP),
-                        pressed.contains(KeyCode.DOWN),
-                        pressed.contains(KeyCode.LEFT),
-                        pressed.contains(KeyCode.RIGHT),
-                        pressed.contains(KeyCode.ENTER)
-                )
-                        : InputEstado.neutro();
-
                 long ahoraMs = System.currentTimeMillis();
-                motor.tick(ahoraMs, j1, j2);
+                if (lastMs[0] == 0L) lastMs[0] = ahoraMs;
+                double dt = (ahoraMs - lastMs[0]) / 1000.0;
+                lastMs[0] = ahoraMs;
 
-                // TODO: reemplazar por render real (sprites). Por ahora, placeholder.
+                var nivel = motor.nivel();
+                if (nivel == null) return;
+                var jugadores = nivel.jugadores();
+
+                // --- J1: WASD si existe ---
+                if (!jugadores.isEmpty()) {
+                    var j1 = jugadores.get(0);
+                    boolean movio1 = false;
+                    if (pressed.contains(KeyCode.W)) { j1.moverArriba();    movio1 = true; }
+                    if (pressed.contains(KeyCode.S)) { j1.moverAbajo();     movio1 = true; }
+                    if (pressed.contains(KeyCode.A)) { j1.moverIzquierda(); movio1 = true; }
+                    if (pressed.contains(KeyCode.D)) { j1.moverDerecha();   movio1 = true; }
+                    if (!movio1) j1.detener();
+                    j1.setPosicion(j1.posicion().mas(j1.velocidad().por(dt)));
+                }
+
+                // --- J2: Flechas si existe ---
+                if (jugadores.size() > 1) {
+                    var j2 = jugadores.get(1);
+                    boolean movio2 = false;
+                    if (pressed.contains(KeyCode.UP))    { j2.moverArriba();    movio2 = true; }
+                    if (pressed.contains(KeyCode.DOWN))  { j2.moverAbajo();     movio2 = true; }
+                    if (pressed.contains(KeyCode.LEFT))  { j2.moverIzquierda(); movio2 = true; }
+                    if (pressed.contains(KeyCode.RIGHT)) { j2.moverDerecha();   movio2 = true; }
+                    if (!movio2) j2.detener();
+                    j2.setPosicion(j2.posicion().mas(j2.velocidad().por(dt)));
+                }
+                motor.tick(ahoraMs, InputEstado.neutro(), InputEstado.neutro());
                 dibujarNivel();
 
-                // Fin de nivel: acá ajustá según tu API de EstadoNivel
-                // Opción 1 (si implementás estaTerminado() correctamente en MotorJuego):
-                // if (motor.estaTerminado()) terminar();
-
-                // Opción 2 (si tu EstadoNivel expone banderas tipo esVictoria/esDerrota):
-                // switch (motor.estado().tipo()) { case VICTORIA, DERROTA -> terminar(); default -> {} }
             }
         };
         loop.start();
 
-        // Si se cierra la ventana, frenar el loop
         stage.setOnCloseRequest(ev -> {
             if (loop != null) loop.stop();
         });
@@ -104,10 +108,7 @@ public final class ControladorJuego {
     // =========================================
     // Finalización del juego
     // =========================================
-    /** Llamable desde listeners del modelo (p. ej., al detectar victoria/derrota). */
-    public void terminarDesdeModelo() {
-        terminar();
-    }
+    public void terminarDesdeModelo() { terminar(); }
 
     private void terminar() {
         if (loop != null) loop.stop();
@@ -115,22 +116,10 @@ public final class ControladorJuego {
     }
 
     // =========================================
-    // Dibujo temporal (placeholder)
+    // Render
     // =========================================
-    private void dibujarPlaceholder(int cantidadJugadores) {
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        g.setFill(Color.BLACK);
-        g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        g.setFill(Color.WHITE);
-        g.setFont(Font.font("Verdana", 24));
-        g.fillText("Jugando… (placeholder)", 240, 260);
-
-        g.setFont(Font.font("Verdana", 16));
-        g.fillText("Jugadores: " + cantidadJugadores + "   |   ESC = volver", 220, 310);
-    }
     private void dibujarNivel() {
-        var g = canvas.getGraphicsContext2D();
+        GraphicsContext g = canvas.getGraphicsContext2D();
 
         // fondo
         g.setFill(Color.BLACK);
@@ -142,8 +131,8 @@ public final class ControladorJuego {
         // ENEMIGOS (rojo)
         g.setFill(Color.CRIMSON);
         for (var e : nivel.enemigos()) {
-            var hb = e.hitbox();             // Rectangulo de Tanque
-            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h()); // usa x()/y()/w()/h() o getters según tu clase
+            var hb = e.hitbox();
+            g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
         }
 
         // JUGADORES (verde)
@@ -151,15 +140,9 @@ public final class ControladorJuego {
         for (var j : nivel.jugadores()) {
             var hb = j.hitbox();
             g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
-            // anillo si invulnerable
-            if (j.esInvulnerable()) {
-                g.setStroke(Color.WHITE);
-                g.setLineWidth(2);
-                g.strokeRect(hb.x(), hb.y(), hb.w(), hb.h());
-            }
         }
 
-        // (Opcional) BASE y BLOQUES — solo si también implementan Cuerpo:
+        // (Opcional) BASE/BLOQUES cuando también implementen Cuerpo
         // g.setFill(Color.DARKGRAY);
         // for (var b : nivel.bloques()) {
         //     var hb = b.hitbox();
@@ -171,6 +154,4 @@ public final class ControladorJuego {
         //     g.fillRect(hb.x(), hb.y(), hb.w(), hb.h());
         // }
     }
-
-
 }

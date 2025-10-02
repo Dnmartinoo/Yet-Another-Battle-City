@@ -1,12 +1,9 @@
 package org.example.vista;
 
 import javafx.stage.Stage;
-import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.juego.*;
+import org.example.modelo.juego.MotorJuego;
+import org.example.modelo.juego.Nivel;
 import org.example.modelo.niveles.XmlNivelLoader;
-
-// ✅ si aún no tenés XML, usá un creador de prueba
-// import org.example.modelo.juego.CreadorMundoDePrueba;
 
 public class Interfaz {
     private final Stage stage;
@@ -27,24 +24,21 @@ public class Interfaz {
 
     void iniciarJuego(int cantJugadores) {
         MotorJuego motor = new MotorJuego();
-        boolean coop = cantJugadores == 1;
-        Nivel nivel = CrearNivel.crearNivelDemo(coop);
-
-
+        Nivel nivel = crearNivelDesdeXml(cantJugadores); // << usa el loader
         motor.cargarNivel(nivel);
 
-        controlador = new ControladorJuego(stage, this::mostrarMenu);
-        controlador.iniciar(motor, cantJugadores);
+        this.controlador = new ControladorJuego(stage, this::mostrarMenu);
+        this.controlador.iniciar(motor, cantJugadores);
     }
-
 
     void salir() {
         stage.close();
     }
 
-
-
-    private Nivel crearNivelMock(int cantJugadores) {
+    // =========================
+    // Carga el nivel desde XML
+    // =========================
+    private Nivel crearNivelDesdeXml(int cantJugadores) {
         boolean coop = (cantJugadores == 2);
 
         try (var xml = getClass().getResourceAsStream("/niveles/Level0.xml");
@@ -54,29 +48,12 @@ public class Interfaz {
                 throw new IllegalStateException("No encontré /niveles/Level0.xml en resources");
             }
 
-            // 1) Cargar datos del nivel desde XML (con XSD si está disponible)
             XmlNivelLoader loader = (xsd != null) ? new XmlNivelLoader(xsd) : new XmlNivelLoader();
-            NivelData data = loader.cargar(xml);
-
-            // 2) Ajustar coop según la selección del menú
-            // (si tu NivelData no tiene setCoop, agregalo; o usá un constructor con 'coop')
-            data.setCoop(coop);
-
-            // 3) Crear mundo y spawner a partir de los datos del XML
-            Rectangulo mundo = new Rectangulo(0, 0, data.ancho(), data.alto());
-            Rectangulo zonaSpawn = new Rectangulo(data.spawnX(), data.spawnY(), data.spawnW(), data.spawnH());
-            Spawner spawner = new Spawner();
-
-            // 4) Construir el nivel y poblarlo con data
-            Nivel nivel = new Nivel(mundo, spawner);
-            nivel.crearMundo(data);
-
-            return nivel;
+            // crea el Nivel listo (mundo + spawner + jugadores/bloques/enemigos) y respeta 1P/2P
+            return loader.crearNivelDesdeXml(xml, coop);
 
         } catch (Exception e) {
             throw new RuntimeException("Falló la carga del nivel desde XML", e);
         }
     }
-
-
 }

@@ -103,11 +103,11 @@ public class Jugador extends Tanque implements Control{
     }
 
     @Override public void moverDerecha(){
-        setVelocidad(new Vector(-tipo.obtenerVelocidad()*50, 0 ));
+        setVelocidad(new Vector(+tipo.obtenerVelocidad()*50, 0 ));
     }
 
     @Override public void moverIzquierda(){
-        setVelocidad(new Vector(+tipo.obtenerVelocidad()*50, 0));
+        setVelocidad(new Vector(-tipo.obtenerVelocidad()*50, 0));
     }
 
     @Override public void detener() {
