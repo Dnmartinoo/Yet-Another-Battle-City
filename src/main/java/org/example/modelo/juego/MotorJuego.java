@@ -18,14 +18,14 @@ public class MotorJuego {
     }
 
     public boolean estaTerminado() {
-        return nivelActual == null && nivelActual.estaTerminado();
+        return nivelActual == null || nivelActual.estaTerminado();
     }
 
     public EstadoNivel estado() {
         return (nivelActual != null) ? nivelActual.estado() : EstadoNivel.vacio();
     }
 
-
+    public Nivel nivel() { return nivelActual; }
 }
 
 

@@ -15,7 +15,10 @@ public class Nivel {
     private Base base;
     private final Spawner spawner;
     private boolean victoria = false, derrota = false;
-
+    public java.util.List<Jugador> jugadores() { return java.util.List.copyOf(jugadores); }
+    public java.util.List<Enemigo> enemigos()  { return java.util.List.copyOf(enemigos); }
+    public java.util.List<Bloque> bloques()    { return java.util.List.copyOf(bloques); }
+    public Base base()                         { return base; }
 
 
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
@@ -28,14 +31,14 @@ public class Nivel {
         bloques.addAll(data.construirBloques());
         jugadores.clear();
         jugadores.add(new Jugador(new Vector(
-                data.Jugador1X(),
-                data.Jugador1Y()
+                data.jugador1X(),
+                data.jugador1Y()
         )));
 
         if (data.coop) {
             jugadores.add(new Jugador(new Vector(
-                    data.Jugador2X(),
-                    data.Jugador2Y()
+                    data.jugador2X(),
+                    data.jugador2Y()
             )));
         }
 
