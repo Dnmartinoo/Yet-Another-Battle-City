@@ -41,5 +41,6 @@ public class Acero extends BloqueBase implements Spriteeable {
     public String spriteId() {
         return JuegoConfig.SPRITE_STEEL;
     }
+    public boolean esAcero() { return true; }
 
 }

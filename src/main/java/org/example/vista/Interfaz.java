@@ -26,11 +26,12 @@ public class Interfaz {
 
 
     public void comenzar() {
-        ManagerSonido.cargarEfecto("golpe", "/sounds/efectos/bang.wav");
+        ManagerSonido.cargarEfecto("muerteTanque", "/sounds/efectos/bang.wav");
         ManagerSonido.cargarEfecto("derrota", "/sounds/efectos/explosion.wav");
-        //ManagerSonido.cargarEfecto("powerup", "/sounds/glass-cling.wav"); IMPLEMENTAR CUANDO ESTE POWERUPS
+        ManagerSonido.cargarEfecto("impactoBlindado", "/sounds/glass-cling.wav");
+        ManagerSonido.cargarEfecto("impactoAcero", "/sounds/glass-cling.wav");
         ManagerSonido.cargarEfecto("disparar", "/sounds/efectos/laser-gun.wav");
-        ManagerSonido.cargarEfecto("bloqueRoto", "/sounds/efectos/wood-impact.wav");
+        ManagerSonido.cargarEfecto("ladrilloRoto", "/sounds/efectos/wood-impact.wav");
 
         ManagerSonido.cargarMusica("/sounds/musica/tribe-drum-loop.wav");
         ManagerSonido.playMusica();

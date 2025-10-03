@@ -57,8 +57,6 @@ public class MotorJuego {
         if (campaña != null && idxNivel >= 0) {
             cargarNivelDeCampañaActual();
         } else if (nivelActual != null) {
-            // Modo "manual": si alguien usa cargarNivel(Nivel) sin campaña,
-            // no hacemos nada especial (quedás libre de decidir en tu UI).
         }
     }
 
