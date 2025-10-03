@@ -1,13 +1,12 @@
-// org.example.modelo.entorno.BloqueFactory
 package org.example.modelo.entorno;
 
+import org.example.modelo.entorno.bloques.*;
 import org.example.modelo.fisica.Vector;
 
 import java.util.Locale;
 
 public final class BloqueFactory {
     public static final int TILE = 20;
-    private BloqueFactory(){}
 
     public static Bloque crear(String tipo, double x, double y) {
         String t = (tipo == null ? "" : tipo).toUpperCase(Locale.ROOT);

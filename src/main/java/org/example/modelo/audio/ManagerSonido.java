@@ -1,21 +1,31 @@
+// src/main/java/org/example/modelo/audio/ManagerSonido.java
 package org.example.modelo.audio;
 
 import javafx.scene.media.AudioClip;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
 import java.util.HashMap;
 import java.util.Map;
 
-
 public final class ManagerSonido {
-    private static final Map<String, AudioClip> sonidos = new HashMap<>();
-    private static MediaPlayer musicaLoop;
 
-    private ManagerSonido(){}
+    private static final ManagerSonido INSTANCE = new ManagerSonido();
 
-    public static void cargarEfecto(String id, String ruta) {
+    private final Map<String, AudioClip> sonidos = new HashMap<>();
+    private MediaPlayer musicaLoop;
+
+    // Constructor privado → nadie más puede instanciarlo
+    private ManagerSonido() {}
+
+    // Punto único de acceso
+    public static ManagerSonido get() {
+        return INSTANCE;
+    }
+
+    public void cargarEfecto(String id, String ruta) {
         try {
-            var url = ManagerSonido.class.getResource(ruta);
+            var url = getClass().getResource(ruta);
             if (url == null) {
                 System.err.println("No encontré efecto: " + ruta);
                 return;
@@ -26,9 +36,9 @@ public final class ManagerSonido {
         }
     }
 
-    public static void cargarMusica(String ruta) {
+    public void cargarMusica(String ruta) {
         try {
-            var url = ManagerSonido.class.getResource(ruta);
+            var url = getClass().getResource(ruta);
             if (url == null) {
                 System.err.println("No encontré música: " + ruta);
                 return;
@@ -42,20 +52,14 @@ public final class ManagerSonido {
         }
     }
 
-
-    public static void playEfecto(String id) {
+    public void playEfecto(String id) {
         AudioClip clip = sonidos.get(id);
         if (clip != null) {
             clip.play();
         }
     }
 
-    public static void playMusica() {
+    public void playMusica() {
         if (musicaLoop != null) musicaLoop.play();
     }
-
-    public static void stopMusica() {
-        if (musicaLoop != null) musicaLoop.stop();
-    }
-
 }

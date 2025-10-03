@@ -1,16 +1,21 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
 import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.*;
 import org.example.modelo.fisica.MundoFisico;
 import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.fisica.Vector;
+import org.example.modelo.juego.config.JuegoConfig;
+import org.example.modelo.juego.estado.EstadoEntidad;
+import org.example.modelo.juego.estado.EstadoNivel;
+import org.example.modelo.juego.input.InputEstado;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.PowerUp;
 
 import java.util.*;
+
+import static org.example.modelo.juego.config.JuegoConfig.SND_DERROTA;
 
 public class Nivel {
 
@@ -21,7 +26,6 @@ public class Nivel {
     private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
 
-    // Gestores
     private final GestorBalas gestorBalas = new GestorBalas();
     private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
 
@@ -43,7 +47,6 @@ public class Nivel {
     public List<PowerUp> poderes() { return List.copyOf(poderes); }
     public Bloque base() { return base; }
 
-    // Mapeos bala<->dueño (friendly fire)
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
 
@@ -61,10 +64,7 @@ public class Nivel {
         this.spawner = spawner;
         this.limites = rectangulo;
     }
-
-    // ===================== crearMundo  =====================
     public void crearMundo(NivelData data) {
-        // reset de colecciones/estado (igual que antes)
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
         bloques.clear();
@@ -76,48 +76,37 @@ public class Nivel {
         proximoDisparoJugadorMs.clear();
         victoria = derrota = false;
         lastMs = 0L;
-
-        // reinicio de estructuras internas de gestores
         gestorBalas.reset();
 
-        // construimos el mundo mediante el creador
         CreadorDeMundo creador = new CreadorDeMundo();
         CreadorDeMundo.MundoConstruido mc = creador.construir(data);
 
-        // aplicamos resultado
         this.limites = mc.limites();
         this.base    = mc.base();
         this.mundo   = mc.mundo();
         this.bloques.addAll(mc.bloques());
         this.jugadores.addAll(mc.jugadores());
-
-        // cooldown inicial de disparo de jugadores (igual que el original)
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
-        // enemigos pendientes
         spawner.cargarPendientes(data.enemigos());
     }
-    // =====================================================================================
 
     public void tick(long ahoraMs, InputEstado inJ1, InputEstado inJ2) {
         if (derrota || victoria) return;
 
         double dt = calcularDt(ahoraMs);
 
-        // input de disparo
         if (!jugadores.isEmpty() && inJ1 != null && inJ1.disparar()) jugadores.get(0).disparar();
         if (jugadores.size() > 1 && inJ2 != null && inJ2.disparar()) jugadores.get(1).disparar();
 
-        // actualizar estados
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
-        for (Enemigo e : enemigos)  e.actualizarIA(ahoraMs, mundo);
+        for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, dt, mundo);
 
-        // disparos jugadores (cooldown + spawn)
+
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
             if (ahoraMs >= next) {
-                // delega en GestorBalas pero mantiene listas en Nivel
                 gestorBalas.spawnBalaJugador(j, proyectiles);
                 proximoDisparoJugadorMs.put(j, ahoraMs + JuegoConfig.PLAYER_SHOOT_COOLDOWN_MS);
             }
@@ -134,7 +123,6 @@ public class Nivel {
             }
         }
 
-        // balas: mover, colisionar, limpiar + drops y mantenimiento de grid
         gestorBalas.actualizar(
                 dt,
                 proyectiles,
@@ -146,7 +134,6 @@ public class Nivel {
                 mundo
         );
 
-        // spawn de enemigos
         List<Enemigo> nuevosEnemigos = spawner.spawnearHastaCompletar(
                 enemigos.size(),
                 ahoraMs,
@@ -159,18 +146,16 @@ public class Nivel {
             }
         }
 
-        // condiciones de fin
         if (todosJugadoresAgotados()) {
             derrota = true;
-            try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
+            try { ManagerSonido.get().playEfecto(SND_DERROTA);  } catch (Throwable __) {}
         }
         if (base != null && base.estaDestruido()) {
             derrota = true;
-            try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
+            try { ManagerSonido.get().playEfecto(SND_DERROTA);  } catch (Throwable __) {}
         }
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
-            try { ManagerSonido.playEfecto("victoria"); } catch (Throwable __) {}
         }
     }
 

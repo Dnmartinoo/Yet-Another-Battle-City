@@ -28,8 +28,4 @@ public abstract class PowerUpBase implements PowerUp, Cuerpo {
     @Override
     public void setPosicion(Vector nuevaPosicion) {}
 
-    @Override
-    public boolean solido() {
-        return false;
-    }
 }

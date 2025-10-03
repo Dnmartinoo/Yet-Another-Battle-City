@@ -1,8 +1,11 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
 import org.example.modelo.entorno.Bloque;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.disparo.Proyectil;
+import org.example.modelo.juego.Spriteeable;
+import org.example.modelo.juego.config.JuegoConfig;
+import org.example.modelo.juego.estado.EstadoEntidad;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.PowerUp;
@@ -10,8 +13,6 @@ import org.example.modelo.powerup.PowerUp;
 import java.util.List;
 
 public final class ConstructorEntidades {
-
-    private ConstructorEntidades() {}
 
     private static EstadoEntidad entidadFija(String spriteId, Rectangulo hb) {
         return new EstadoEntidad(
@@ -36,8 +37,6 @@ public final class ConstructorEntidades {
                 rot
         );
     }
-
-    // ============== Creadores de listas ==============
 
     public static void agregarBloques(List<EstadoEntidad> out, List<Bloque> bloques) {
         for (var bloque : bloques) {

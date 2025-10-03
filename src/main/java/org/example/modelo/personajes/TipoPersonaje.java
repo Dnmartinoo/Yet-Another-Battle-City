@@ -1,56 +1,38 @@
 package org.example.modelo.personajes;
 
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 
 public enum TipoPersonaje {
     JUGADOR(
             JuegoConfig.PLAYER_SPEED,
-            JuegoConfig.PLAYER_HEALTH,
-            JuegoConfig.PLAYER_FIRE_RATE
+            JuegoConfig.PLAYER_HEALTH
     ),
     regularEnemy(
             JuegoConfig.REGULAR_ENEMY_SPEED,
-            JuegoConfig.REGULAR_ENEMY_HEALTH,
-            JuegoConfig.REGULAR_ENEMY_FIRE_RATE
+            JuegoConfig.REGULAR_ENEMY_HEALTH
     ),
     fastEnemy(
             JuegoConfig.FAST_ENEMY_SPEED,
-            JuegoConfig.FAST_ENEMY_HEALTH,
-            JuegoConfig.FAST_ENEMY_FIRE_RATE
+            JuegoConfig.FAST_ENEMY_HEALTH
     ),
     powerfulEnemy(
             JuegoConfig.POWERFUL_ENEMY_SPEED,
-            JuegoConfig.POWERFUL_ENEMY_HEALTH,
-            JuegoConfig.POWERFUL_ENEMY_FIRE_RATE
+            JuegoConfig.POWERFUL_ENEMY_HEALTH
     ),
     heavyEnemy(
             JuegoConfig.HEAVY_ENEMY_SPEED,
-            JuegoConfig.HEAVY_ENEMY_HEALTH,
-            JuegoConfig.HEAVY_ENEMY_FIRE_RATE
+            JuegoConfig.HEAVY_ENEMY_HEALTH
     );
 
-    private double velocidad;
-    private int vidaBase;
-    private double cadencia;
+    private final double velocidad;
+    private final int vidaBase;
 
-    TipoPersonaje(double velocidad, int vidaBase, double cadencia) {
+    TipoPersonaje(double velocidad, int vidaBase) {
         this.velocidad = velocidad;
         this.vidaBase = vidaBase;
-        this.cadencia = cadencia;
-    }
-    public double obtenerVelocidad() {
-        return velocidad;
-    }
-    public int vidaBase() {
-        return vidaBase;
-    }
-    public double obtenerCadencia() {
-        return cadencia;
     }
 
-    public void reducirVida() {vidaBase--;}
-
-    public boolean esJugador() { return this == JUGADOR; }
+    public double obtenerVelocidad() { return velocidad; }
+    public int vidaBase() { return vidaBase; }
     public boolean esEnemigo() { return this != JUGADOR; }
-
 }

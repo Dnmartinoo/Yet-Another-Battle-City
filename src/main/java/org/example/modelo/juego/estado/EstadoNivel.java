@@ -1,4 +1,4 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.estado;
 
 import java.util.List;
 
@@ -32,6 +32,4 @@ public record EstadoNivel(
                 List.of()
         );
     }
-
-    public static final EstadoNivel EMPTY = empty();
 }

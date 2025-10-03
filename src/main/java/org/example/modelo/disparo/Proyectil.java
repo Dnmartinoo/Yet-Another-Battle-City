@@ -3,18 +3,19 @@ package org.example.modelo.disparo;
 import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.Spriteeable;
 
 public class Proyectil implements Cuerpo, Spriteeable {
     private Vector pos;
-    private final Vector dirUnit; // dirección unitaria
-    private final double speed;   // px/s
-    private final int dano;
+    private final Vector dirUnit;
+    private final double speed;
     private final double w = 6, h = 6;
-    private final Equipo equipo;
     private boolean vivo = true;
-    private boolean esPotenciada = false;
+
+    private final int dano;
+    private final Equipo equipo;
+    private final boolean potenciada;
 
     public Proyectil(Vector pos, Vector dirUnit, double speed, int dano, Equipo eq, boolean potenciada) {
         this.pos = pos;
@@ -22,27 +23,25 @@ public class Proyectil implements Cuerpo, Spriteeable {
         this.speed = speed;
         this.dano = dano;
         this.equipo = eq;
-        this.esPotenciada = potenciada;
+        this.potenciada = potenciada;
     }
 
-    // ---- Cuerpo ----
     @Override public Rectangulo hitbox() { return new Rectangulo(pos.x(), pos.y(), w, h); }
     @Override public Vector posicion() { return pos; }
     @Override public void setPosicion(Vector p) { this.pos = p; }
     @Override public Vector velocidad() { return dirUnit.por(speed); }
-    @Override public boolean solido() { return false; }
 
-    public Equipo equipo() { return equipo; }
-    public int dano() { return dano; }
+
+    public void destruir() { this.vivo = false; }
     public boolean vivo() { return vivo; }
-    public void destruir() { vivo = false; }
+
+
+    public int dano() { return dano; }
+    public Equipo equipo() { return equipo; }
+    public boolean esPotenciada() { return potenciada; }
 
     @Override
     public String spriteId() {
         return JuegoConfig.SPRITE_SHOT;
     }
-
-    public boolean esPotenciada() { return esPotenciada; }
-
-    public void setPotenciada(boolean v) { esPotenciada = v; }
 }

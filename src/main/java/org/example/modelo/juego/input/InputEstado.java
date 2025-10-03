@@ -1,4 +1,4 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.input;
 
 public class InputEstado {
 

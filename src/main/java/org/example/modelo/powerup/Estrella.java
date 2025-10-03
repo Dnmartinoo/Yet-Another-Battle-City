@@ -1,6 +1,7 @@
 
 package org.example.modelo.powerup;
 
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.fisica.Vector;
@@ -18,11 +19,11 @@ public class Estrella extends PowerUpBase implements Spriteeable {
     }
 
     @Override
-    public String spriteId() { return "power_star"; }
+    public String spriteId() { return JuegoConfig.SPRITE_POWER_STAR; }
 
     @Override
     public Vector velocidad() {
-        return null;
+        return Vector.CERO;
     }
 }
 
