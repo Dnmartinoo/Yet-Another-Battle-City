@@ -1,4 +1,3 @@
-// src/main/java/org/example/vista/ControladorJuego.java
 package org.example.vista;
 
 import javafx.animation.AnimationTimer;
@@ -20,7 +19,6 @@ public final class ControladorJuego {
     private final Runnable onGameEnd;
     private final Canvas canvas = new Canvas(800, 600);
 
-    // ---- Modelo ----
     private MotorJuego motor;
 
     // ---- Render ----

@@ -7,21 +7,21 @@
         </players>
         <enemies>
             <enemy id="enemy20_11" type="heavyEnemy" x="230" y="410"/>
-            <enemy id="enemy20_12" type="heavyEnemy" x="250" y="410"/>
-            <enemy id="enemy20_13" type="heavyEnemy" x="270" y="410"/>
-            <enemy id="enemy20_14" type="heavyEnemy" x="290" y="410"/>
-            <enemy id="enemy20_15" type="heavyEnemy" x="310" y="410"/>
-            <enemy id="enemy20_16" type="heavyEnemy" x="330" y="410"/>
-            <enemy id="enemy24_11" type="heavyEnemy" x="230" y="490"/>
-            <enemy id="enemy24_12" type="heavyEnemy" x="250" y="490"/>
-            <enemy id="enemy24_13" type="heavyEnemy" x="270" y="490"/>
-            <enemy id="enemy24_14" type="heavyEnemy" x="290" y="490"/>
-            <enemy id="enemy25_11" type="heavyEnemy" x="230" y="510"/>
-            <enemy id="enemy25_12" type="heavyEnemy" x="250" y="510"/>
-            <enemy id="enemy25_13" type="heavyEnemy" x="270" y="510"/>
-            <enemy id="enemy25_14" type="heavyEnemy" x="290" y="510"/>
-            <enemy id="enemy25_15" type="heavyEnemy" x="310" y="510"/>
-            <enemy id="enemy25_16" type="heavyEnemy" x="330" y="510"/>
+<!--            <enemy id="enemy20_12" type="heavyEnemy" x="250" y="410"/>-->
+<!--            <enemy id="enemy20_13" type="heavyEnemy" x="270" y="410"/>-->
+<!--            <enemy id="enemy20_14" type="heavyEnemy" x="290" y="410"/>-->
+<!--            <enemy id="enemy20_15" type="heavyEnemy" x="310" y="410"/>-->
+<!--            <enemy id="enemy20_16" type="heavyEnemy" x="330" y="410"/>-->
+<!--            <enemy id="enemy24_11" type="heavyEnemy" x="230" y="490"/>-->
+<!--            <enemy id="enemy24_12" type="heavyEnemy" x="250" y="490"/>-->
+<!--            <enemy id="enemy24_13" type="heavyEnemy" x="270" y="490"/>-->
+<!--            <enemy id="enemy24_14" type="heavyEnemy" x="290" y="490"/>-->
+<!--            <enemy id="enemy25_11" type="heavyEnemy" x="230" y="510"/>-->
+<!--            <enemy id="enemy25_12" type="heavyEnemy" x="250" y="510"/>-->
+<!--            <enemy id="enemy25_13" type="heavyEnemy" x="270" y="510"/>-->
+<!--            <enemy id="enemy25_14" type="heavyEnemy" x="290" y="510"/>-->
+<!--            <enemy id="enemy25_15" type="heavyEnemy" x="310" y="510"/>-->
+<!--            <enemy id="enemy25_16" type="heavyEnemy" x="330" y="510"/>-->
         </enemies>
         <staticObjects>
             <staticObject type="steelBlock" x="190" y="350"/>

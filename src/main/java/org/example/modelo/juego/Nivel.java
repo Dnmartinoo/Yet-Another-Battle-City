@@ -1,7 +1,6 @@
 package org.example.modelo.juego;
 
 import org.example.modelo.audio.ManagerSonido;
-import org.example.modelo.disparo.Equipo;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.*;
 import org.example.modelo.fisica.MundoFisico;
@@ -9,7 +8,7 @@ import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
-import org.example.modelo.powerup.*;
+import org.example.modelo.powerup.PowerUp;
 
 import java.util.*;
 
@@ -21,6 +20,10 @@ public class Nivel {
     private final List<Proyectil> proyectiles = new ArrayList<>();
     private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
+
+    // Gestores
+    private final GestorBalas gestorBalas = new GestorBalas();
+    private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
 
     private Bloque base;
     private MundoFisico mundo;
@@ -40,6 +43,7 @@ public class Nivel {
     public List<PowerUp> poderes() { return List.copyOf(poderes); }
     public Bloque base() { return base; }
 
+    // Mapeos bala<->dueño (friendly fire)
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
 
@@ -58,7 +62,9 @@ public class Nivel {
         this.limites = rectangulo;
     }
 
+    // ===================== crearMundo  =====================
     public void crearMundo(NivelData data) {
+        // reset de colecciones/estado (igual que antes)
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
         bloques.clear();
@@ -71,99 +77,76 @@ public class Nivel {
         victoria = derrota = false;
         lastMs = 0L;
 
-        this.limites = new Rectangulo(0, 0, data.ancho(), data.alto());
+        // reinicio de estructuras internas de gestores
+        gestorBalas.reset();
 
-        Bloque baseRef = null;
-        for (var bd : data.bloques()) {
-            int gridX = (int) Math.floor(bd.x / BloqueFactory.TILE);
-            int gridY = (int) Math.floor(bd.y / BloqueFactory.TILE);
-            double bx = gridX * BloqueFactory.TILE;
-            double by = gridY * BloqueFactory.TILE;
+        // construimos el mundo mediante el creador
+        CreadorDeMundo creador = new CreadorDeMundo();
+        CreadorDeMundo.MundoConstruido mc = creador.construir(data);
 
-            Bloque b = BloqueFactory.crear(bd.tipo, bx, by);
-            bloques.add(b);
+        // aplicamos resultado
+        this.limites = mc.limites();
+        this.base    = mc.base();
+        this.mundo   = mc.mundo();
+        this.bloques.addAll(mc.bloques());
+        this.jugadores.addAll(mc.jugadores());
 
-            if (b.esBase()) baseRef = b;
-        }
-        if (baseRef == null) {
-            double bx = (data.ancho() - BloqueFactory.TILE) / 2.0;
-            double by = data.alto() - BloqueFactory.TILE - 20.0;
-            baseRef = new Base(new Vector(bx, by), BloqueFactory.TILE);
-            bloques.add(baseRef);
-        }
-        this.base = baseRef;
-
-        jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1));
-        jugadores.get(0).setRespawn(new Vector(data.jugador1X(), data.jugador1Y()));
-        if (data.coop()) {
-            jugadores.add(new Jugador(new Vector(data.jugador2X(), data.jugador2Y()), 2));
-            jugadores.get(1).setRespawn(new Vector(data.jugador2X(), data.jugador2Y()));
-        }
+        // cooldown inicial de disparo de jugadores (igual que el original)
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
+        // enemigos pendientes
         spawner.cargarPendientes(data.enemigos());
-
-        int anchoTiles = data.ancho() / BloqueFactory.TILE;
-        int altoTiles  = data.alto() / BloqueFactory.TILE;
-        Bloque[][] grid = new Bloque[altoTiles][anchoTiles];
-        for (Bloque b : bloques) {
-            int gx = (int) (b.posicion().x() / BloqueFactory.TILE);
-            int gy = (int) (b.posicion().y() / BloqueFactory.TILE);
-            if (gx >= 0 && gx < anchoTiles && gy >= 0 && gy < altoTiles) {
-                grid[gy][gx] = b;
-            }
-        }
-        this.mundo = new MundoFisico(BloqueFactory.TILE, anchoTiles, altoTiles, grid);
     }
+    // =====================================================================================
 
     public void tick(long ahoraMs, InputEstado inJ1, InputEstado inJ2) {
         if (derrota || victoria) return;
 
         double dt = calcularDt(ahoraMs);
 
+        // input de disparo
         if (!jugadores.isEmpty() && inJ1 != null && inJ1.disparar()) jugadores.get(0).disparar();
         if (jugadores.size() > 1 && inJ2 != null && inJ2.disparar()) jugadores.get(1).disparar();
 
+        // actualizar estados
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
+        for (Enemigo e : enemigos)  e.actualizarIA(ahoraMs, mundo);
 
-        for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
-
+        // disparos jugadores (cooldown + spawn)
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
             if (ahoraMs >= next) {
-                spawnBalaJugador(j);
+                // delega en GestorBalas pero mantiene listas en Nivel
+                gestorBalas.spawnBalaJugador(j, proyectiles);
                 proximoDisparoJugadorMs.put(j, ahoraMs + JuegoConfig.PLAYER_SHOOT_COOLDOWN_MS);
             }
             j.consumirDisparoPendiente();
         }
 
-        for (Jugador j : jugadores) {
-            for (int i = 0; i < poderes.size(); i++) {
-                PowerUp p = poderes.get(i);
-                if (j.hitbox().intersecta(p.hitbox())) {
-                    ComandoPowerUp cmd = p.aplicar(j);
-                    if (cmd == ComandoPowerUp.DESTUIR_TODOS_ENEMIGOS) {
-                        eliminarTodosLosEnemigos();
-                    }
-                    ManagerSonido.playEfecto("powerup");
-                    poderes.remove(i);
-                    i--;
-                    break;
-                }
-            }
-        }
+        gestorPowerUps.tick(poderes, jugadores, enemigos, spawner);
 
         for (Enemigo e : enemigos) {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
-                spawnBalaEnemigo(e);
+                gestorBalas.spawnBalaEnemigo(e, proyectiles);
                 proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
             }
         }
 
-        actualizarBalas(dt);
+        // balas: mover, colisionar, limpiar + drops y mantenimiento de grid
+        gestorBalas.actualizar(
+                dt,
+                proyectiles,
+                enemigos,
+                jugadores,
+                bloques,
+                poderes,
+                limites,
+                mundo
+        );
 
+        // spawn de enemigos
         List<Enemigo> nuevosEnemigos = spawner.spawnearHastaCompletar(
                 enemigos.size(),
                 ahoraMs,
@@ -176,6 +159,7 @@ public class Nivel {
             }
         }
 
+        // condiciones de fin
         if (todosJugadoresAgotados()) {
             derrota = true;
             try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
@@ -184,7 +168,6 @@ public class Nivel {
             derrota = true;
             try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
         }
-
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
             try { ManagerSonido.playEfecto("victoria"); } catch (Throwable __) {}
@@ -198,212 +181,12 @@ public class Nivel {
         return dt;
     }
 
-    private void actualizarBalas(double dt) {
-        for (var b : proyectiles) {
-            if (b.vivo()) b.setPosicion(b.posicion().mas(b.velocidad().por(dt)));
-        }
-
-        for (var bala : proyectiles) {
-            if (!bala.vivo()) continue;
-            var hb = bala.hitbox();
-
-            for (Bloque bl : mundo.bloquesEn(hb)) {
-                if (!bl.bloqueaProyectiles()) continue;
-                if (!bl.hitbox().intersecta(hb)) continue;
-
-                ResultadoImpacto ri = bl.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
-                if (ri.detener()) {
-                    bala.destruir();
-
-                    if (bl.esAcero() && !bl.estaDestruido()) {
-                        ManagerSonido.playEfecto("impactoAcero");
-                    }
-                    if (bl.esLadrillo() && bl.estaDestruido()) {
-                        ManagerSonido.playEfecto("ladrilloRoto");
-                    }
-                    break;
-                }
-            }
-        }
-
-        for (var bala : proyectiles) {
-            if (!bala.vivo()) continue;
-            var hb = bala.hitbox();
-
-            if (bala.equipo() == Equipo.JUGADOR) {
-                // Impacto en enemigos
-                boolean impacto = false;
-                for (var e : enemigos) {
-                    if (!e.estaVivo()) continue;
-                    if (e.hitbox().intersecta(hb)) {
-                        int dano = bala.dano();
-                        if (bala.esPotenciada()) dano *= 999;
-                        e.recibirImpacto(dano);
-                        bala.destruir();
-                        impacto = true;
-                        break;
-                    }
-                }
-                if (impacto) continue;
-
-                Jugador duenio = duenioDeBala.get(bala);
-                if (duenio != null) {
-                    for (var j : jugadores) {
-                        if (j == duenio) continue;
-                        if (j.hitbox().intersecta(hb)) {
-
-                            long ahora = System.currentTimeMillis();
-                            long duracion = (JuegoConfig.PLAYER_STUN_MS > 0)
-                                    ? JuegoConfig.PLAYER_STUN_MS
-                                    : 1500;
-
-                            j.inmovilizarPorMs(duracion, ahora);
-
-                            try { ManagerSonido.playEfecto("stun"); } catch (Throwable __) {}
-                            bala.destruir();
-                            break;
-                        }
-                    }
-                }
-            } else {
-                for (var j : jugadores) {
-                    if (j.hitbox().intersecta(hb)) {
-                        j.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
-                        bala.destruir();
-                        break;
-                    }
-                }
-            }
-
-        }
-
-        for (int i = 0; i < proyectiles.size(); i++) {
-            var a = proyectiles.get(i);
-            if (!a.vivo()) continue;
-            for (int k = i + 1; k < proyectiles.size(); k++) {
-                var b = proyectiles.get(k);
-                if (!b.vivo()) continue;
-                if (a.hitbox().intersecta(b.hitbox())) {
-                    a.destruir();
-                    b.destruir();
-                }
-            }
-        }
-
-        proyectiles.removeIf(p ->
-                !p.vivo() ||
-                        p.posicion().x() < limites.x() - 32 || p.posicion().x() > limites.x() + limites.w() + 32 ||
-                        p.posicion().y() < limites.y() - 32 || p.posicion().y() > limites.y() + limites.h() + 32
-        );
-
-        enemigos.removeIf(e -> {
-            if (!e.estaVivo()) {
-                if (Math.random() < 0.2) {
-                    poderes.add(crearPoderRandom(e.posicion()));
-                }
-                return true;
-            }
-            return false;
-        });
-
-        if (mundo != null) {
-            List<Bloque> destruidos = new ArrayList<>();
-            for (var b : bloques) {
-                if (b.esDestruible() && b.estaDestruido()) destruidos.add(b);
-            }
-            if (!destruidos.isEmpty()) {
-                for (var b : destruidos) {
-                    int tx = (int)(b.posicion().x() / BloqueFactory.TILE);
-                    int ty = (int)(b.posicion().y() / BloqueFactory.TILE);
-                    mundo.setBloque(ty, tx, null);
-                }
-                bloques.removeAll(destruidos);
-            }
-        }
-        Set<Proyectil> aEliminar = new HashSet<>();
-        duenioDeBala.forEach((proj, owner) -> {
-            if (!proj.vivo() || !proyectiles.contains(proj)) {
-                Proyectil actual = balaActivaPorJugador.get(owner);
-                if (actual == proj) {
-                    balaActivaPorJugador.remove(owner);
-                }
-                aEliminar.add(proj);
-            }
-        });
-        for (Proyectil p : aEliminar) {
-            duenioDeBala.remove(p);
-        }
-
-    }
-
-    private PowerUp crearPoderRandom(Vector posicion) {
-        int r = (int)(Math.random() * 3);
-        return switch (r) {
-            case 0 -> new Casco(posicion);
-            case 1 -> new Estrella(posicion);
-            case 2 -> new Granada(posicion);
-            default -> new Estrella(posicion);
-        };
-    }
-
     private boolean todosJugadoresAgotados() {
         if (jugadores.isEmpty()) return true;
         for (Jugador j : jugadores) {
             if (!j.sinVidas()) return false;
         }
         return true;
-    }
-
-    private void spawnBalaJugador(Jugador j) {
-        Proyectil balaActiva = balaActivaPorJugador.get(j);
-        if (balaActiva != null && balaActiva.vivo()) {
-            return;
-        }
-
-        Vector dir = j.velocidad().esCero() ? j.ultimaDireccion() : j.velocidad().normalizado();
-        Vector origen = origenBalaDesdeCentro(j, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
-        boolean esPotenciada = j.tieneDisparoPotenciado();
-
-        Proyectil nueva = new Proyectil(
-                origen, dir,
-                JuegoConfig.PLAYER_BULLET_SPEED,
-                JuegoConfig.BULLET_DAMAGE,
-                Equipo.JUGADOR,
-                esPotenciada
-        );
-
-        proyectiles.add(nueva);
-        balaActivaPorJugador.put(j, nueva);
-        duenioDeBala.put(nueva, j);
-
-        ManagerSonido.playEfecto("disparar");
-    }
-
-
-    private void spawnBalaEnemigo(Enemigo e) {
-        Vector dir = e.velocidad().esCero() ? e.ultimaDireccion() : e.velocidad().normalizado();
-        Vector origen = origenBalaDesdeCentro(e, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
-        proyectiles.add(new Proyectil(
-                origen, dir,
-                JuegoConfig.ENEMY_BULLET_SPEED,
-                JuegoConfig.BULLET_DAMAGE,
-                Equipo.ENEMIGO,
-                false
-        ));
-        ManagerSonido.playEfecto("disparar");
-    }
-
-    private Vector origenBalaDesdeCentro(org.example.modelo.fisica.Cuerpo tanque, Vector dir,
-                                         double bulletW, double bulletH) {
-        var hb = tanque.hitbox();
-        double cx = hb.x() + hb.w() / 2.0;
-        double cy = hb.y() + hb.h() / 2.0;
-
-        double offset = Math.max(hb.w(), hb.h()) / 2.0;
-        double ox = (cx - bulletW / 2.0) + dir.x() * offset;
-        double oy = (cy - bulletH / 2.0) + dir.y() * offset;
-
-        return new Vector(ox, oy);
     }
 
     public boolean colisionaConBloqueSolido(Rectangulo area) {
@@ -414,71 +197,16 @@ public class Nivel {
         return false;
     }
 
-    public void eliminarTodosLosEnemigos() {
-        enemigos.clear();
-        proximoDisparoEnemigoMs.clear();
-        spawner.cancelarPendientes();
-    }
-
-
     public EstadoNivel estado() {
-        List<EstadoEntidad> entidades = new ArrayList<>();
+        List<EstadoEntidad> entidades = new ArrayList<>(
+                bloques.size() + proyectiles.size() + enemigos.size() + jugadores.size() + poderes.size()
+        );
 
-        for (var bloque : bloques) {
-            var hb = bloque.hitbox();
-            var id = ((Spriteeable) bloque).spriteId();
-            entidades.add(new EstadoEntidad(
-                    id, hb.x(), hb.y(), hb.w(), hb.h(),
-                    false,
-                    JuegoConfig.ROTACION_FIJA
-            ));
-        }
-
-        for (var p : proyectiles) {
-            var hb = p.hitbox();
-            var id = p.spriteId();
-            entidades.add(new EstadoEntidad(
-                    id, hb.x(), hb.y(), hb.w(), hb.h(),
-                    false,
-                    JuegoConfig.ROTACION_FIJA
-            ));
-        }
-
-        for (var e : enemigos) {
-            var hb = e.hitbox();
-            var id = e.spriteId();
-            entidades.add(new EstadoEntidad(
-                    id, hb.x(), hb.y(), hb.w(), hb.h(),
-                    false,
-                    e.rotacion()
-            ));
-        }
-
-// Jugadores
-        for (var j : jugadores) {
-            if (!j.estaVisible()) continue;
-
-            var hb = j.hitbox();
-            var id = j.spriteId();
-            boolean casco = j.esInvulnerable();
-            entidades.add(new EstadoEntidad(
-                    id, hb.x(), hb.y(), hb.w(), hb.h(),
-                    casco,
-                    j.rotacion()
-            ));
-        }
-
-
-
-        for (var p : poderes) {
-            var hb = p.hitbox();
-            var id = ((Spriteeable) p).spriteId();
-            entidades.add(new EstadoEntidad(
-                    id, hb.x(), hb.y(), hb.w(), hb.h(),
-                    false,
-                    JuegoConfig.ROTACION_FIJA
-            ));
-        }
+        ConstructorEntidades.agregarBloques(entidades, bloques);
+        ConstructorEntidades.agregarProyectiles(entidades, proyectiles);
+        ConstructorEntidades.agregarEnemigos(entidades, enemigos);
+        ConstructorEntidades.agregarJugadores(entidades, jugadores);
+        ConstructorEntidades.agregarPowerUps(entidades, poderes);
 
         return new EstadoNivel(
                 victoria,

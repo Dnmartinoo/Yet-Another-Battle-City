@@ -15,7 +15,7 @@ public class Casco extends PowerUpBase implements Spriteeable {
     @Override
     public ComandoPowerUp aplicar(Jugador jugador) {
         long ahora = System.currentTimeMillis();
-        Jugador.activarInvulnerabilidadPor(JuegoConfig.DURACION_MS, ahora);
+        Jugador.activarInvulnerabilidadPor(JuegoConfig.CASCO_DURACION_MS, ahora);
         return ComandoPowerUp.NONE;
     }
 

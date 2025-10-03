@@ -12,14 +12,5 @@ public class InputEstado {
         this.disparar = disparar;
     }
 
-    public static InputEstado neutro() {
-        return new InputEstado(false,false,false,false,false);
-    }
-
-    // --- Getters de conveniencia ---
-    public boolean arriba()    { return arriba; }
-    public boolean abajo()     { return abajo; }
-    public boolean izquierda() { return izquierda; }
-    public boolean derecha()   { return derecha; }
     public boolean disparar()  { return disparar; }
 }

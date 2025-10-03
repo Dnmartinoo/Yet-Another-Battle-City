@@ -33,6 +33,5 @@ public record EstadoNivel(
         );
     }
 
-    // Constante reusable
     public static final EstadoNivel EMPTY = empty();
 }

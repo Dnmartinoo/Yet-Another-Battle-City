@@ -4,6 +4,7 @@ import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.juego.Nivel;
 import org.example.modelo.juego.NivelData;
 import org.example.modelo.juego.Spawner;
+import org.example.modelo.personajes.TipoPersonaje;
 import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
@@ -97,16 +98,14 @@ public class XmlNivelLoader {
                 }
             }
 
-            Rect zonaSpawn = new Rect(390, 0, 20, 20);
 
             NivelData data = new NivelData(coopXml);
             data.setAncho(ancho);
             data.setAlto(alto);
             data.setJugador1(p1.x, p1.y);
             data.setJugador2(p2.x, p2.y);
-            data.setZonaSpawn(zonaSpawn.x, zonaSpawn.y, zonaSpawn.w, zonaSpawn.h);
             for (BloqueParse b : bloques)  data.addBloque(b.tipo, b.x, b.y);
-            for (EnemigoParse e : enemigos) data.addEnemigo(e.tipo, e.x, e.y);
+            for (EnemigoParse e : enemigos) data.addEnemigo(TipoPersonaje.valueOf(e.tipo), e.x, e.y);
 
             return data;
 
@@ -119,7 +118,6 @@ public class XmlNivelLoader {
         NivelData data = cargar(xml);
         data.setCoop(coopOverride);
         Rectangulo mundo = new Rectangulo(0, 0, data.ancho(), data.alto());
-        // FIX: tu Spawner actual no acepta Rectangulo en el ctor
         Spawner spawner = new Spawner();
         Nivel nivel = new Nivel(mundo, spawner);
         spawner.cargarPendientes(data.enemigos());
@@ -160,14 +158,6 @@ public class XmlNivelLoader {
         } catch (Exception e) {
             throw new RuntimeException("Error al cargar recurso XML: " + resourcePath, e);
         }
-    }
-
-    public java.util.List<NivelData> cargarLista(java.util.List<String> rutas) {
-        java.util.ArrayList<NivelData> res = new java.util.ArrayList<>();
-        for (String r : rutas) {
-            res.add(cargar(r));
-        }
-        return java.util.List.copyOf(res);
     }
 
     private static final class Pos  { final double x, y; Pos(double x, double y){ this.x=x; this.y=y; } }

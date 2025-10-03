@@ -1,47 +1,68 @@
-// src/main/java/org/example/modelo/juego/MotorJuego.java
 package org.example.modelo.juego;
 
 import java.util.List;
 
 public class MotorJuego {
-    private enum Fase {JUGANDO, VICTORIA, DERROTA}
+    private enum Fase { JUGANDO, VICTORIA, DERROTA }
 
     private Nivel nivelActual;
-
-    private List<NivelData> campaña = null;
-    private int idxNivel = -1;
+    private List<NivelData> campaña;
+    private int idxNivel;
 
     public interface NivelFactory {
         Nivel crear(NivelData data);
     }
 
-    private NivelFactory factory = null;
+    private NivelFactory factory;
+    private Fase fase;
+    private long faseHastaMs;
+    private boolean finPartida;
 
-    private Fase fase = Fase.JUGANDO;
-    private long faseHastaMs = 0L;
-    private boolean finPartida = false;
+    // ==================== Constructor ====================
+
+    public MotorJuego() {
+        this.campaña = null;
+        this.idxNivel = JuegoConfig.NO_NIVEL;
+        this.factory = null;
+        this.fase = Fase.JUGANDO;
+        this.faseHastaMs = JuegoConfig.TIEMPO_INICIAL_MS;
+        this.finPartida = JuegoConfig.PARTIDA_NO_FINALIZADA;
+    }
+
+    // ==================== Configuración de campaña ====================
+
     public void configurarCampaña(List<NivelData> niveles, NivelFactory factory) {
-        if (niveles == null || niveles.isEmpty())
+        if (niveles == null || niveles.isEmpty()) {
             throw new IllegalArgumentException("La campaña no puede estar vacía");
-        if (factory == null)
+        }
+        if (factory == null) {
             throw new IllegalArgumentException("La factory de niveles no puede ser null");
+        }
 
         this.campaña = List.copyOf(niveles);
         this.factory = factory;
         this.idxNivel = 0;
-        this.finPartida = false;
+        this.finPartida = JuegoConfig.PARTIDA_NO_FINALIZADA;
         cargarNivelDeCampañaActual();
     }
 
     private void cargarNivelDeCampañaActual() {
+        if (campaña == null || factory == null || idxNivel < 0 || idxNivel >= campaña.size()) {
+            nivelActual = null;
+            finPartida = JuegoConfig.PARTIDA_FINALIZADA;
+            fase = Fase.DERROTA;
+            faseHastaMs = JuegoConfig.TIEMPO_INICIAL_MS;
+            return;
+        }
+
         NivelData data = campaña.get(idxNivel);
         this.nivelActual = factory.crear(data);
         this.nivelActual.setNumeroDeNivel(idxNivel + 1);
         this.nivelActual.crearMundo(data);
 
         this.fase = Fase.JUGANDO;
-        this.faseHastaMs = 0L;
-        this.finPartida = false;
+        this.faseHastaMs = JuegoConfig.TIEMPO_INICIAL_MS;
+        this.finPartida = JuegoConfig.PARTIDA_NO_FINALIZADA;
     }
 
     private boolean haySiguienteNivel() {
@@ -49,18 +70,12 @@ public class MotorJuego {
     }
 
     private void avanzarASiguienteNivel() {
-        if (campaña == null) return;
         if (!haySiguienteNivel()) return;
         idxNivel++;
         cargarNivelDeCampañaActual();
     }
 
-    private void reiniciarNivelActual() {
-        if (campaña != null && idxNivel >= 0) {
-            cargarNivelDeCampañaActual();
-        } else if (nivelActual != null) {
-        }
-    }
+    // ==================== Bucle principal ====================
 
     public void tick(long ahoraMs, InputEstado j1, InputEstado j2) {
         if (nivelActual == null) return;
@@ -73,52 +88,38 @@ public class MotorJuego {
                 if (est.derrota()) {
                     fase = Fase.DERROTA;
                     faseHastaMs = ahoraMs + JuegoConfig.DEFEAT_SCREEN_MS;
-
                 } else if (est.victoria()) {
-                    if (haySiguienteNivel()) {
-                        avanzarASiguienteNivel();
-                    } else {
-                        fase = Fase.VICTORIA;
-                        faseHastaMs = ahoraMs + JuegoConfig.VICTORY_SCREEN_MS;
-                    }
+                    fase = Fase.VICTORIA;
+                    faseHastaMs = ahoraMs + JuegoConfig.VICTORY_SCREEN_MS;
                 }
             }
-
             case VICTORIA -> {
-                // Esperamos que pase el tiempo del overlay de victoria
-                if (ahoraMs >= faseHastaMs) {
-                    if (haySiguienteNivel()) {
-                        avanzarASiguienteNivel();
-                    } else {
-                        // ✅ No hay más niveles → Fin de campaña → Victoria final
-                        finPartida = true;
-                        nivelActual = null;
-                        fase = Fase.VICTORIA; // se queda en victoria para que UI dibuje overlay final
-                    }
+                if (ahoraMs < faseHastaMs) return;
+                if (haySiguienteNivel()) {
+                    avanzarASiguienteNivel();
+                } else {
+                    finPartida = JuegoConfig.PARTIDA_FINALIZADA;
+                    nivelActual = null;
                 }
             }
-
             case DERROTA -> {
-                // Esperamos el tiempo de overlay de derrota
-                if (ahoraMs >= faseHastaMs) {
-                    // ✅ Fin de partida por derrota → volver al menú
-                    finPartida = true;
-                    nivelActual = null;
-                    fase = Fase.DERROTA; // se queda en derrota para que UI dibuje overlay
-                }
+                if (ahoraMs < faseHastaMs) return;
+                finPartida = JuegoConfig.PARTIDA_FINALIZADA;
+                nivelActual = null;
             }
         }
     }
 
-    public boolean partidaFinalizada() { return finPartida; }
+    // ==================== Consultas de estado ====================
 
+    public boolean partidaFinalizada() { return finPartida; }
     public boolean enVictoria() { return fase == Fase.VICTORIA; }
-    public boolean enDerrota()  { return fase == Fase.DERROTA;  }
-    public boolean enJuego()    { return fase == Fase.JUGANDO;  }
+    public boolean enDerrota()  { return fase == Fase.DERROTA; }
 
     public EstadoNivel estado() {
-        return (nivelActual != null) ? nivelActual.estado() : EstadoNivel.empty();
+        if (nivelActual != null) return nivelActual.estado();
+        return EstadoNivel.empty();
     }
 
-    public Nivel nivel() { return nivelActual; }}
-
+    public Nivel nivel() { return nivelActual; }
+}

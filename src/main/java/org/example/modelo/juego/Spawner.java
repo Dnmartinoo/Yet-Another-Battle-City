@@ -12,20 +12,18 @@ import java.util.List;
 
 public class Spawner {
 
-    // --- Config (tomadas desde JuegoConfig) ---
     private final int  maxPorVentana;
     private final long ventanaMs;
     private final long minGapMs;
 
-    // --- Estado ---
-    private final Deque<Long> tiemposSpawn = new ArrayDeque<>(); // timestamps de spawns efectivos
+    private final Deque<Long> tiemposSpawn = new ArrayDeque<>();            // timestamps de spawns efectivos
     private final Deque<NivelData.EnemigoDato> pendientes = new ArrayDeque<>();
     private long nextSpawnMs = 0L;
 
     public Spawner() {
-        this.maxPorVentana = JuegoConfig.ENEMY_SPAWN_MAX_IN_WINDOW; // 10
-        this.ventanaMs     = JuegoConfig.ENEMY_SPAWN_WINDOW_MS;     // 60_000
-        this.minGapMs      = JuegoConfig.ENEMY_MIN_SPAWN_GAP_MS;    // 800
+        this.maxPorVentana = JuegoConfig.ENEMY_SPAWN_MAX_IN_WINDOW;
+        this.ventanaMs     = JuegoConfig.ENEMY_SPAWN_WINDOW_MS;
+        this.minGapMs      = JuegoConfig.ENEMY_MIN_SPAWN_GAP_MS;
     }
 
     public void cargarPendientes(List<NivelData.EnemigoDato> lista) {
@@ -49,7 +47,6 @@ public class Spawner {
         nextSpawnMs = 0L;
     }
 
-
     public List<Enemigo> spawnearHastaCompletar(int vivosActuales, long ahoraMs, int maxConcurrentes) {
         limpiarVentana(ahoraMs);
 
@@ -64,42 +61,27 @@ public class Spawner {
         while (huecos > 0 && !pendientes.isEmpty() && disponiblesPorVentana > 0) {
             if (ahoraMs < nextSpawnMs) break; // respetamos separación mínima
 
-            var ed = pendientes.pollFirst();
-            var tipo = mapTipo(ed.tipo);
-            var pos  = new Vector(ed.x, ed.y);
+            var ed   = pendientes.pollFirst();
+            TipoPersonaje tipo = ed.tipo;                 // ya es TipoPersonaje
+            Vector pos         = new Vector(ed.x, ed.y);
 
             Enemigo nuevo = new Enemigo(tipo, pos);
             salientes.add(nuevo);
 
-            // Registrar spawn en la ventana
             tiemposSpawn.addLast(ahoraMs);
 
-            // Programar gap mínimo para el próximo
             nextSpawnMs = ahoraMs + minGapMs;
 
-            // Actualizar contadores
             huecos--;
             disponiblesPorVentana--;
         }
 
-        return salientes;
+        return List.copyOf(salientes);
     }
 
     private void limpiarVentana(long ahoraMs) {
-        // removemos spawns más viejos que la ventana
         while (!tiemposSpawn.isEmpty() && (ahoraMs - tiemposSpawn.peekFirst() > ventanaMs)) {
             tiemposSpawn.removeFirst();
         }
-    }
-
-    private TipoPersonaje mapTipo(String s) {
-        if (s == null) return TipoPersonaje.regularEnemy;
-        return switch (s) {
-            case "fastEnemy"     -> TipoPersonaje.fastEnemy;
-            case "powerfulEnemy" -> TipoPersonaje.powerfulEnemy;
-            case "heavyEnemy"    -> TipoPersonaje.heavyEnemy;
-            case "regularEnemy"  -> TipoPersonaje.regularEnemy;
-            default              -> TipoPersonaje.regularEnemy;
-        };
     }
 }
