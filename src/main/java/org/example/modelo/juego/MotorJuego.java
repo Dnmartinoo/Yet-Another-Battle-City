@@ -71,13 +71,16 @@ public class MotorJuego {
                 var est = nivelActual.estado();
 
                 if (est.derrota()) {
-                    // Derrota del jugador
                     fase = Fase.DERROTA;
                     faseHastaMs = ahoraMs + JuegoConfig.DEFEAT_SCREEN_MS;
+
                 } else if (est.victoria()) {
-                    // Victoria de este nivel
-                    fase = Fase.VICTORIA;
-                    faseHastaMs = ahoraMs + JuegoConfig.VICTORY_SCREEN_MS;
+                    if (haySiguienteNivel()) {
+                        avanzarASiguienteNivel();
+                    } else {
+                        fase = Fase.VICTORIA;
+                        faseHastaMs = ahoraMs + JuegoConfig.VICTORY_SCREEN_MS;
+                    }
                 }
             }
 

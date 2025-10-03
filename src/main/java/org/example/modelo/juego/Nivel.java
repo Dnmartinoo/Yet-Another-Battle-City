@@ -13,7 +13,7 @@ import org.example.modelo.powerup.*;
 
 import java.util.*;
 
-import static org.example.modelo.juego.JuegoConfig.*;
+import static org.example.modelo.juego.JuegoConfig.ROTACION_FIJA;
 
 public class Nivel {
 
@@ -21,7 +21,6 @@ public class Nivel {
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Jugador> jugadores = new ArrayList<>(2);
     private final List<Proyectil> proyectiles = new ArrayList<>();
-    private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
 
     private Bloque base;
@@ -42,7 +41,6 @@ public class Nivel {
     public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
     public List<Proyectil> proyectiles() { return List.copyOf(proyectiles); }
-    public List<PowerUp> poderes()   {return List.copyOf(poderes); }
     public Bloque base()              { return base; }  // <- devuelve Bloque
 
     private int numeroDeNivel = 1;
@@ -153,14 +151,7 @@ public class Nivel {
 
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
 
-
-        List<Enemigo> nuevos = spawner.talVezSpawnear(ahoraMs);
-        if (!nuevos.isEmpty()) {
-            enemigos.addAll(nuevos);
-            for (var e : nuevos) proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
-        }
-
-
+        // --- Disparos: jugadores con cooldown individual ---
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -197,16 +188,12 @@ public class Nivel {
             }
         }
 
-
-
-
-
-
+        // --- Balas: movimiento + colisiones (remueve enemigos muertos) ---
         actualizarBalas(dt);
 
         // --- Spawn ENEMIGOS desp. de limpiar muertos: llenar hasta el máximo concurrente ---
         int vivosActuales = enemigos.size();
-        List<Enemigo> nuevosEnemigos = spawner.spawnearHastaCompletar(
+        List<Enemigo> nuevos = spawner.spawnearHastaCompletar(
                 vivosActuales,
                 ahoraMs,
                 JuegoConfig.MAX_ENEMIGOS_CONCURRENTES
@@ -255,7 +242,7 @@ public class Nivel {
             b.setPosicion(b.posicion().mas(b.velocidad().por(dt)));
         }
 
-
+        // 2) Bala vs Bloque
         for (var bala : proyectiles) {
             if (!bala.vivo()) continue;
             var hb = bala.hitbox();

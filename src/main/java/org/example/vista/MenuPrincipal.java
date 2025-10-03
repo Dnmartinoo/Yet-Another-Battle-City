@@ -1,10 +1,13 @@
 package org.example.vista;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -28,6 +31,9 @@ public class MenuPrincipal {
     private VBox menuBox;
     private ImageView selector;
 
+    // --- Logo ---
+    private ImageView logoView;
+
     public MenuPrincipal(Stage stage, IntConsumer iniciarJuego, Runnable salir) {
         this.stage = stage;
         this.iniciarJuego = iniciarJuego;
@@ -39,7 +45,6 @@ public class MenuPrincipal {
         titulo.setTextFill(Color.ORANGE);
         titulo.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 40));
 
-
         selector = new ImageView(ManagerSprites.get("player1_0"));
         selector.setFitWidth(20);
         selector.setFitHeight(20);
@@ -47,14 +52,18 @@ public class MenuPrincipal {
 
         construirMenu();
 
-        VBox contenedor = new VBox(50, titulo, menuBox);
+        logoView = crearLogoImageView();
+
+        VBox contenedor = new VBox(35);
         contenedor.setAlignment(Pos.CENTER);
+
+        if (logoView != null) contenedor.getChildren().add(logoView);
+        contenedor.getChildren().addAll(titulo, menuBox);
 
         StackPane root = new StackPane(contenedor);
         root.setStyle("-fx-background-color: black;");
 
         Scene scene = new Scene(root, 800, 600);
-
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
@@ -67,6 +76,7 @@ public class MenuPrincipal {
                     updateSelectorPosition();
                 }
                 case ENTER -> ejecutarSeleccion();
+                default -> {}
             }
         });
 
@@ -74,14 +84,8 @@ public class MenuPrincipal {
         stage.setTitle("BATTLE CITY");
         stage.show();
 
-
-        menuBox.setTranslateY(400);
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(2.5), menuBox);
-        tt.setToY(0);
-        tt.setInterpolator(Interpolator.EASE_OUT);
-        tt.play();
+        animarAparicion(contenedor);
     }
-
 
     private void construirMenu() {
         menuBox = new VBox(20);
@@ -124,5 +128,42 @@ public class MenuPrincipal {
             case 1 -> iniciarJuego.accept(2);
             case 2 -> salir.run();
         }
+    }
+
+    private ImageView crearLogoImageView() {
+        try {
+            Image img = new Image("/sprites/logo.png", true);
+            if (img.isError()) return null;
+
+            ImageView iv = new ImageView(img);
+            iv.setPreserveRatio(true);
+            iv.setFitWidth(240);
+            iv.setSmooth(true);
+
+            DropShadow ds = new DropShadow();
+            ds.setRadius(18);
+            ds.setSpread(0.15);
+            ds.setColor(Color.rgb(255, 165, 0, 0.65));
+            iv.setEffect(ds);
+
+            iv.setOpacity(0);
+            FadeTransition ft = new FadeTransition(Duration.seconds(1.4), iv);
+            ft.setFromValue(0);
+            ft.setToValue(1);
+            ft.setInterpolator(Interpolator.EASE_OUT);
+            ft.play();
+
+            return iv;
+        } catch (Exception __) {
+            return null;
+        }
+    }
+
+    private void animarAparicion(VBox contenedor) {
+        menuBox.setTranslateY(400);
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(2.0), menuBox);
+        tt.setToY(0);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+        tt.play();
     }
 }
