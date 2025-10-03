@@ -18,7 +18,7 @@ public final class JuegoConfig {
 
     public static final double POWERFUL_ENEMY_SPEED = 1.2;
     public static final int    POWERFUL_ENEMY_HEALTH = 1;
-    public static final double POWERFUL_ENEMY_FIRE_RATE = 2.0;
+    public static final double POWERFUL_ENEMY_FIRE_RATE = 0.2;
 
     public static final double HEAVY_ENEMY_SPEED = 0.8;
     public static final int    HEAVY_ENEMY_HEALTH = 3;
@@ -78,6 +78,7 @@ public final class JuegoConfig {
     public static final long VICTORY_SCREEN_MS = 2000L;
     public static final long DEFEAT_SCREEN_MS  = 2000L;
     public static final long CASCO_DURACION_MS = 10000;
+    public static final long MS_POR_SEGUNDO = 1000L;
 
     // ==== SPAWN ENEMIGOS ====
     public static final int  MAX_ENEMIGOS_CONCURRENTES   = 4;
@@ -87,6 +88,7 @@ public final class JuegoConfig {
 
     // ==== OTROS ====
     public static final double ROTACION_FIJA = 0.0;
+    public static final String MUST_BE_ENEMY = "debe ser un enemigo, no puede ser un jugador";
 
     // MotorJuego
     public static final int    NO_NIVEL          = -1;

@@ -18,6 +18,8 @@ public class Jugador extends Tanque implements Control, Spriteeable {
     private boolean disparoPendiente = false;
     private boolean visible = true;
 
+    private long inmovilizadoHastaMs = 0L;
+
     public Jugador(Vector posicion, int jugadorId) {
         super(TipoPersonaje.JUGADOR, posicion);
         this.jugadorId = jugadorId;
@@ -69,11 +71,17 @@ public class Jugador extends Tanque implements Control, Spriteeable {
 
     public void setVisible(boolean v) { this.visible = v; }
     public boolean estaVisible() { return visible; }
+    public void inmovilizarPorMs(long duracionMs, long ahoraMs) {
+        this.inmovilizadoHastaMs = Math.max(this.inmovilizadoHastaMs, ahoraMs + duracionMs);
+    }
 
-    @Override public void moverArriba()    { if (visible) setVelocidad(new Vector(0, -tipo.obtenerVelocidad() * 50)); }
-    @Override public void moverAbajo()     { if (visible) setVelocidad(new Vector(0, tipo.obtenerVelocidad() * 50)); }
-    @Override public void moverDerecha()   { if (visible) setVelocidad(new Vector(tipo.obtenerVelocidad() * 50, 0)); }
-    @Override public void moverIzquierda() { if (visible) setVelocidad(new Vector(-tipo.obtenerVelocidad() * 50, 0)); }
+    public boolean estaInmovilizado(long ahoraMs) {
+        return ahoraMs < inmovilizadoHastaMs;
+    }
+    @Override public void moverArriba()    { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(0, -tipo.obtenerVelocidad() * 50)); }
+    @Override public void moverAbajo()     { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(0, tipo.obtenerVelocidad() * 50)); }
+    @Override public void moverDerecha()   { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(tipo.obtenerVelocidad() * 50, 0)); }
+    @Override public void moverIzquierda() { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(-tipo.obtenerVelocidad() * 50, 0)); }
     @Override public void detener()        { setVelocidad(Vector.CERO); }
 
     @Override public void disparar() { if (visible) this.disparoPendiente = true; }

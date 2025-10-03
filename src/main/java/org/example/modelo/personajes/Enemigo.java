@@ -68,6 +68,10 @@ public class Enemigo extends Tanque implements Spriteeable {
 
     private void disparar() {}
 
+    public TipoPersonaje getTipo() {
+        return tipo;
+    }
+
     @Override
     public String spriteId() {
         return switch (tipo) {
@@ -75,7 +79,7 @@ public class Enemigo extends Tanque implements Spriteeable {
             case heavyEnemy   -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_HEAVY_0   : JuegoConfig.SPRITE_ENEMY_HEAVY_1;
             case powerfulEnemy-> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_POWER_0   : JuegoConfig.SPRITE_ENEMY_POWER_1;
             case regularEnemy -> frameAnimacion == 0 ? JuegoConfig.SPRITE_ENEMY_REGULAR_0 : JuegoConfig.SPRITE_ENEMY_REGULAR_1;
-            case JUGADOR      -> throw new IllegalStateException("No debe ser un jugador");
+            case JUGADOR      -> throw new IllegalStateException(JuegoConfig.MUST_BE_ENEMY);
         };
     }
 }

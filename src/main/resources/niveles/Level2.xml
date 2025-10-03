@@ -6,9 +6,9 @@
             <player id="player2" x="530" y="550"/>
         </players>
         <enemies>
-            <enemy id="enemy3_11" type="regularEnemy" x="230" y="70"/>
-            <enemy id="enemy4_19" type="heavyEnemy" x="390" y="90"/>
-            <enemy id="enemy5_14" type="heavyEnemy" x="290" y="110"/>
+            <enemy id="enemy3_11" type="powerfulEnemy" x="230" y="70"/>
+            <enemy id="enemy4_19" type="powerfulEnemy" x="390" y="90"/>
+            <enemy id="enemy5_14" type="powerfulEnemy" x="290" y="110"/>
             <enemy id="enemy5_22" type="heavyEnemy" x="450" y="110"/>
             <enemy id="enemy5_24" type="heavyEnemy" x="490" y="110"/>
             <enemy id="enemy5_25" type="regularEnemy" x="510" y="110"/>

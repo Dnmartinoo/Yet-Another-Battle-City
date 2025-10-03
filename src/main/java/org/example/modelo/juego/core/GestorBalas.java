@@ -125,6 +125,18 @@ public class GestorBalas {
                         break;
                     }
                 }
+                Jugador duenio = duenioDeBala.get(bala);
+                if (duenio != null) {
+                    for (var j : jugadores) {
+                        if (j == duenio) continue;
+                        if (j.hitbox().intersecta(hb)) {
+                            long ahora = System.currentTimeMillis();
+                            j.inmovilizarPorMs(JuegoConfig.PLAYER_STUN_MS, ahora);
+                            bala.destruir();
+                            break;
+                        }
+                    }
+                }
             } else {
                 for (var j : jugadores) {
                     if (j.hitbox().intersecta(hb)) {
@@ -201,8 +213,7 @@ public class GestorBalas {
         for (Proyectil p : aEliminar) duenioDeBala.remove(p);
     }
 
-    private Vector origenBalaDesdeCentro(org.example.modelo.fisica.Cuerpo tanque, Vector dir,
-                                         double bulletW, double bulletH) {
+    private Vector origenBalaDesdeCentro(org.example.modelo.fisica.Cuerpo tanque, Vector dir, double bulletW, double bulletH) {
         var hb = tanque.hitbox();
         double cx = hb.x() + hb.w() / 2.0;
         double cy = hb.y() + hb.h() / 2.0;

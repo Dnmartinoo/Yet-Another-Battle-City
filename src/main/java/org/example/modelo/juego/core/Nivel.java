@@ -122,7 +122,8 @@ public class Nivel {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
                 gestorBalas.spawnBalaEnemigo(e, proyectiles);
-                proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
+                long cooldown = (long)(JuegoConfig.MS_POR_SEGUNDO / e.getTipo().obtenerCadencia());
+                proximoDisparoEnemigoMs.put(e, ahoraMs + cooldown);
             }
         }
 
