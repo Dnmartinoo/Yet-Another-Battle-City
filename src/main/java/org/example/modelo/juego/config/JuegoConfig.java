@@ -1,10 +1,6 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.config;
 
 public final class JuegoConfig {
-
-
-
-    private JuegoConfig() {}
 
     // ==== TANQUES ====
     public static final double PLAYER_SPEED = 1.0;
@@ -106,14 +102,11 @@ public final class JuegoConfig {
     // Identificadores de sonidos
     public static final String SND_DISPARAR = "disparar";
     public static final String SND_DERROTA  = "derrota";
-    public static final String SND_VICTORIA = "victoria";
-    public static final String SND_STUN     = "stun";
     public static final String SND_POWERUP  = "powerup";
     public static final String SND_IMPACTO_ACERO = "impactoAcero";
     public static final String SND_LADRILLO_ROTO = "ladrilloRoto";
 
     // Nivel data
-
     public static final int NIVEL_DEFAULT_ANCHO = 800;
     public static final int NIVEL_DEFAULT_ALTO  = 600;
     public static final double J1_START_X = 100.0, J1_START_Y = 500.0;

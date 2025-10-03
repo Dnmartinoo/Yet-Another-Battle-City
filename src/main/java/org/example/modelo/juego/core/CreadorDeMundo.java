@@ -1,6 +1,6 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
-import org.example.modelo.entorno.Base;
+import org.example.modelo.entorno.bloques.Base;
 import org.example.modelo.entorno.Bloque;
 import org.example.modelo.entorno.BloqueFactory;
 import org.example.modelo.fisica.MundoFisico;
@@ -22,10 +22,7 @@ public final class CreadorDeMundo {
     ) {}
 
     public MundoConstruido construir(NivelData data) {
-        // Limites del nivel
         Rectangulo limites = new Rectangulo(0, 0, data.ancho(), data.alto());
-
-        // Bloques (normalizando a la grilla)
         List<Bloque> bloques = new ArrayList<>();
         Bloque baseRef = null;
 
@@ -40,16 +37,12 @@ public final class CreadorDeMundo {
 
             if (b.esBase()) baseRef = b;
         }
-
-        // Si no vino la base en el data, la creamos por defecto (idéntico al original)
         if (baseRef == null) {
             double bx = (data.ancho() - BloqueFactory.TILE) / 2.0;
-            double by = data.alto() - BloqueFactory.TILE - 20.0; // (lo pasamos a JuegoConfig en una próxima etapa)
+            double by = data.alto() - BloqueFactory.TILE - 20.0;
             baseRef = new Base(new Vector(bx, by), BloqueFactory.TILE);
             bloques.add(baseRef);
         }
-
-        // Jugadores y respawn
         List<Jugador> jugadores = new ArrayList<>(2);
         Jugador j1 = new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1);
         j1.setRespawn(new Vector(data.jugador1X(), data.jugador1Y()));
@@ -60,8 +53,6 @@ public final class CreadorDeMundo {
             j2.setRespawn(new Vector(data.jugador2X(), data.jugador2Y()));
             jugadores.add(j2);
         }
-
-        // Mundo físico (grilla)
         int anchoTiles = data.ancho() / BloqueFactory.TILE;
         int altoTiles  = data.alto()  / BloqueFactory.TILE;
         Bloque[][] grid = new Bloque[altoTiles][anchoTiles];
@@ -73,7 +64,6 @@ public final class CreadorDeMundo {
             }
         }
         MundoFisico mundo = new MundoFisico(BloqueFactory.TILE, anchoTiles, altoTiles, grid);
-
         return new MundoConstruido(limites, bloques, jugadores, baseRef, mundo);
     }
 }

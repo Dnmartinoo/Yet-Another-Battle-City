@@ -7,8 +7,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.InputEstado;
-import org.example.modelo.juego.MotorJuego;
+import org.example.modelo.juego.input.InputEstado;
+import org.example.modelo.juego.core.MotorJuego;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,14 +21,13 @@ public final class ControladorJuego {
 
     private MotorJuego motor;
 
-    // ---- Render ----
     private final RenderizadorEstado renderizador;
 
-    // ---- Loop / input ----
+
     private AnimationTimer loop;
     private final Set<KeyCode> pressed = new HashSet<>();
 
-    // Inyectá un renderizador desde afuera si querés testear o cambiar tema
+
     public ControladorJuego(Stage stage, Runnable onGameEnd) {
         this(stage, onGameEnd, new RenderizadorSprites());
     }
@@ -39,20 +38,15 @@ public final class ControladorJuego {
         this.renderizador = (RenderizadorEstado) renderizador;
     }
 
-    // =========================================
-    // Arranque de la escena de juego
-    // =========================================
+
     public void iniciar(MotorJuego motor, int cantidadJugadores) {
         this.motor = motor;
 
-        // Escena
         StackPane root = new StackPane(canvas);
         Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.setTitle("BATTLE CITY - Jugando");
         stage.show();
-
-        // Input continuo (teclas presionadas)
         pressed.clear();
         scene.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) { terminar(); return; }
@@ -75,9 +69,6 @@ public final class ControladorJuego {
                 if (nivel == null) return;
                 var jugadores = nivel.jugadores();
 
-                // =========================
-                // J1: WASD + SPACE (disparo)
-                // =========================
                 if (!jugadores.isEmpty()) {
                     var j1 = jugadores.get(0);
                     boolean movio1 = false;
@@ -88,15 +79,13 @@ public final class ControladorJuego {
                     if (!movio1) j1.detener();
 
                     var vel = j1.velocidad().por(dt);
-
-                    // Eje X
                     if (vel.x() != 0) {
                         var nextHitboxX = j1.hitbox().trasladado(new Vector(vel.x(), 0));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
                             j1.setPosicion(j1.posicion().mas(new Vector(vel.x(), 0)));
                         }
                     }
-                    // Eje Y
+
                     if (vel.y() != 0) {
                         var nextHitboxY = j1.hitbox().trasladado(new Vector(0, vel.y()));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
@@ -105,9 +94,6 @@ public final class ControladorJuego {
                     }
                 }
 
-                // =========================
-                // J2: Flechas + ENTER (disparo)
-                // =========================
                 if (jugadores.size() > 1) {
                     var j2 = jugadores.get(1);
                     boolean movio2 = false;
@@ -118,15 +104,12 @@ public final class ControladorJuego {
                     if (!movio2) j2.detener();
 
                     var vel = j2.velocidad().por(dt);
-
-                    // Eje X
                     if (vel.x() != 0) {
                         var nextHitboxX = j2.hitbox().trasladado(new Vector(vel.x(), 0));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxX)) {
                             j2.setPosicion(j2.posicion().mas(new Vector(vel.x(), 0)));
                         }
                     }
-                    // Eje Y
                     if (vel.y() != 0) {
                         var nextHitboxY = j2.hitbox().trasladado(new Vector(0, vel.y()));
                         if (!nivel.colisionaConBloqueSolido(nextHitboxY)) {
@@ -134,10 +117,6 @@ public final class ControladorJuego {
                         }
                     }
                 }
-
-                // =========================
-                // Construir InputEstado y tick del modelo
-                // =========================
                 boolean u1 = pressed.contains(KeyCode.W);
                 boolean d1 = pressed.contains(KeyCode.S);
                 boolean l1 = pressed.contains(KeyCode.A);
@@ -154,11 +133,6 @@ public final class ControladorJuego {
                 var in2 = new InputEstado(u2, d2, l2, r2, shoot2);
 
                 motor.tick(ahoraMs, in1, in2);
-
-                // =========================
-                // Render
-                // =========================
-
                 renderizador.render(motor.estado(), canvas);
                 var g = canvas.getGraphicsContext2D();
                 if (motor.enVictoria()) {
@@ -192,11 +166,6 @@ public final class ControladorJuego {
             if (loop != null) loop.stop();
         });
     }
-
-    // =========================================
-    // Finalización del juego
-    // =========================================
-    public void terminarDesdeModelo() { terminar(); }
 
     private void terminar() {
         if (loop != null) loop.stop();

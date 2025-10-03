@@ -1,7 +1,7 @@
 package org.example.modelo.powerup;
 
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.personajes.Jugador;
 
@@ -21,12 +21,10 @@ public class Casco extends PowerUpBase implements Spriteeable {
 
     @Override
     public String spriteId() {
-        return "power_helmet";
+        return JuegoConfig.SPRITE_POWER_HELMET;
     }
 
     @Override
-    public Vector velocidad() {
-        return null;
-    }
+    public Vector velocidad() { return Vector.CERO; }
 }
 

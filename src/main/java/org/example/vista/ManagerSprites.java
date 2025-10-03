@@ -1,7 +1,7 @@
 package org.example.vista;
 
 import javafx.scene.image.Image;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 
 import java.util.HashMap;
 import java.util.Map;

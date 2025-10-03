@@ -1,9 +1,9 @@
 package org.example.modelo.niveles;
 
 import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.juego.Nivel;
-import org.example.modelo.juego.NivelData;
-import org.example.modelo.juego.Spawner;
+import org.example.modelo.juego.core.Nivel;
+import org.example.modelo.juego.core.NivelData;
+import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.personajes.TipoPersonaje;
 import org.w3c.dom.*;
 
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class XmlNivelLoader {
 
-    private final Schema schema; // puede ser null
+    private final Schema schema;
 
     public XmlNivelLoader() { this.schema = null; }
 
@@ -36,12 +36,9 @@ public class XmlNivelLoader {
             var dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             if (schema != null) dbf.setSchema(schema);
-
             Document doc = dbf.newDocumentBuilder().parse(xml);
             doc.getDocumentElement().normalize();
-
-            Element root = doc.getDocumentElement(); // <levelConfig>
-
+            Element root = doc.getDocumentElement();
             NodeList levelNL = root.getElementsByTagName("level");
             if (levelNL.getLength() == 0) {
                 throw new IllegalArgumentException("No se encontró <level> dentro de <levelConfig>");
@@ -75,14 +72,12 @@ public class XmlNivelLoader {
                 NodeList lista = eEnemies.getElementsByTagName("enemy");
                 for (int i = 0; i < lista.getLength(); i++) {
                     Element e = (Element) lista.item(i);
-                    String tipoEn = e.getAttribute("type"); // fastEnemy / regularEnemy / heavyEnemy / powerfulEnemy
+                    String tipoEn = e.getAttribute("type");
                     double x = parseDoubleAttr(e, "x", 0);
                     double y = parseDoubleAttr(e, "y", 0);
-                    // FIX: usar tipoEn directamente (Spawner.mapTipo ya lo entiende)
                     enemigos.add(new EnemigoParse(tipoEn, x, y));
                 }
             }
-
             List<BloqueParse> bloques = new ArrayList<>();
             NodeList staticsNL = eLevel.getElementsByTagName("staticObjects");
             if (staticsNL.getLength() > 0) {
@@ -147,21 +142,7 @@ public class XmlNivelLoader {
         return (v == null || v.isBlank()) ? def : Double.parseDouble(v.trim());
     }
 
-    public NivelData cargar(String resourcePath) {
-        try (InputStream in = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream(resourcePath)) {
-            if (in == null) {
-                throw new IllegalArgumentException("Recurso no encontrado en classpath: " + resourcePath);
-            }
-            return cargar(in); // reutilizamos tu método existente
-        } catch (Exception e) {
-            throw new RuntimeException("Error al cargar recurso XML: " + resourcePath, e);
-        }
-    }
-
     private static final class Pos  { final double x, y; Pos(double x, double y){ this.x=x; this.y=y; } }
-    private static final class Rect { final double x, y, w, h; Rect(double x, double y, double w, double h){ this.x=x; this.y=y; this.w=w; this.h=h; } }
     private static final class BloqueParse  { final String tipo; final double x, y; BloqueParse(String t, double x, double y){ this.tipo=t; this.x=x; this.y=y; } }
     private static final class EnemigoParse { final String tipo; final double x, y; EnemigoParse(String t, double x, double y){ this.tipo=t; this.x=x; this.y=y; } }
 }

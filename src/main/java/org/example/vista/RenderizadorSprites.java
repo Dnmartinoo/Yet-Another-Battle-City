@@ -5,8 +5,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.example.modelo.juego.EstadoEntidad;
-import org.example.modelo.juego.EstadoNivel;
+import org.example.modelo.juego.estado.EstadoEntidad;
+import org.example.modelo.juego.estado.EstadoNivel;
 
 public final class RenderizadorSprites implements RenderizadorEstado {
 

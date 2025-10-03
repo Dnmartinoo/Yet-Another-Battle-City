@@ -4,7 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.example.modelo.juego.Nivel;
+import org.example.modelo.juego.core.Nivel;
 
 public final class RenderizadorJavaFX implements Renderizador {
 

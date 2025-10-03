@@ -1,6 +1,6 @@
 package org.example.vista;
 
-import org.example.modelo.juego.EstadoNivel;
+import org.example.modelo.juego.estado.EstadoNivel;
 
 import javafx.scene.canvas.Canvas;
 

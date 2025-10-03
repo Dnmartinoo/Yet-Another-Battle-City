@@ -1,7 +1,8 @@
 // src/main/java/org/example/modelo/juego/Spawner.java
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
 import org.example.modelo.fisica.Vector;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.TipoPersonaje;
 

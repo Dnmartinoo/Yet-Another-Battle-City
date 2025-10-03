@@ -1,5 +1,6 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.personajes.TipoPersonaje;
 
 import java.util.ArrayList;

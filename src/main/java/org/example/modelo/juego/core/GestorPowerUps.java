@@ -1,7 +1,8 @@
-package org.example.modelo.juego;
+package org.example.modelo.juego.core;
 
 import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.fisica.Vector;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.*;
@@ -10,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class GestorPowerUps {
-
     public static PowerUp crearPoderRandom(Vector posicion) {
         int r = (int) (Math.random() * 3);
         return switch (r) {
@@ -33,9 +33,9 @@ public class GestorPowerUps {
                         enemigos.clear();
                         spawner.cancelarPendientes();
                     }
-                    ManagerSonido.playEfecto(JuegoConfig.SND_POWERUP);
+                    ManagerSonido.get().playEfecto(JuegoConfig.SND_POWERUP);
                     it.remove();
-                    break; // un powerup por jugador por tick
+                    break;
                 }
             }
         }

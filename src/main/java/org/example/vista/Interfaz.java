@@ -5,10 +5,10 @@ import javafx.stage.Stage;
 import org.example.modelo.audio.ManagerSonido;
 import javafx.scene.image.Image;
 import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.juego.MotorJuego;
-import org.example.modelo.juego.Nivel;
-import org.example.modelo.juego.NivelData;
-import org.example.modelo.juego.Spawner;
+import org.example.modelo.juego.core.MotorJuego;
+import org.example.modelo.juego.core.Nivel;
+import org.example.modelo.juego.core.NivelData;
+import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.niveles.XmlNivelLoader;
 
 import java.io.InputStream;
@@ -26,15 +26,15 @@ public class Interfaz {
 
 
     public void comenzar() {
-        ManagerSonido.cargarEfecto("muerteTanque", "/sounds/efectos/bang.wav");
-        ManagerSonido.cargarEfecto("derrota", "/sounds/efectos/explosion.wav");
-        ManagerSonido.cargarEfecto("impactoBlindado", "/sounds/glass-cling.wav");
-        ManagerSonido.cargarEfecto("impactoAcero", "/sounds/glass-cling.wav");
-        ManagerSonido.cargarEfecto("disparar", "/sounds/efectos/laser-gun.wav");
-        ManagerSonido.cargarEfecto("ladrilloRoto", "/sounds/efectos/wood-impact.wav");
+        ManagerSonido.get().cargarEfecto("muerteTanque", "/sounds/efectos/bang.wav");
+        ManagerSonido.get().cargarEfecto("derrota", "/sounds/efectos/explosion.wav");
+        ManagerSonido.get().cargarEfecto("impactoBlindado", "/sounds/efectos/glass-cling.wav");
+        ManagerSonido.get().cargarEfecto("impactoAcero", "/sounds/efectos/glass-cling.wav");
+        ManagerSonido.get().cargarEfecto("disparar", "/sounds/efectos/laser-gun.wav");
+        ManagerSonido.get().cargarEfecto("ladrilloRoto", "/sounds/efectos/wood-impact.wav");
 
-        ManagerSonido.cargarMusica("/sounds/musica/tribe-drum-loop.wav");
-        ManagerSonido.playMusica();
+        ManagerSonido.get().cargarMusica("/sounds/musica/tribe-drum-loop.wav");
+        ManagerSonido.get().playMusica();
         mostrarMenu();
     }
 
