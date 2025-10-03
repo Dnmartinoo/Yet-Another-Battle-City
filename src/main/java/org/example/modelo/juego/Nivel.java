@@ -206,14 +206,14 @@ public class Nivel {
 
         // --- Spawn ENEMIGOS desp. de limpiar muertos: llenar hasta el máximo concurrente ---
         int vivosActuales = enemigos.size();
-        List<Enemigo> nuevos = spawner.spawnearHastaCompletar(
+        List<Enemigo> nuevosEnemigos = spawner.spawnearHastaCompletar(
                 vivosActuales,
                 ahoraMs,
                 JuegoConfig.MAX_ENEMIGOS_CONCURRENTES
         );
-        if (!nuevos.isEmpty()) {
-            enemigos.addAll(nuevos);
-            for (var e : nuevos) {
+        if (!nuevosEnemigos.isEmpty()) {
+            enemigos.addAll(nuevosEnemigos);
+            for (var e : nuevosEnemigos) {
                 proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
             }
         }
@@ -222,12 +222,12 @@ public class Nivel {
         if (todosJugadoresAgotados()) {
             derrota = true;
             // si usás sonidos:
-            try { ManagerSonido.play("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
+            try { ManagerSonido.playEfecto("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
         }
 
         if (base != null && base.estaDestruido()) {
             derrota = true;
-            try { ManagerSonido.play("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
+            try { ManagerSonido.playEfecto("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
             ManagerSonido.playEfecto("derrota");
             ManagerSonido.stopMusica();
         }
@@ -236,7 +236,7 @@ public class Nivel {
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
             // si querés sonido:
-            try { ManagerSonido.play("victoria"); } catch (Throwable __) {}
+            try { ManagerSonido.playEfecto("victoria"); } catch (Throwable __) {}
         }
     }
 
@@ -333,11 +333,10 @@ public class Nivel {
 
         enemigos.removeIf(e -> {
             if (!e.estaVivo()) {
-                poderes.add(new Estrella(e.posicion()));
-                /*if (Math.random() < 0.2) {
+                if (Math.random() < 0.2) {
                     Vector posicion = e.posicion();
                     poderes.add(crearPoderRandom(posicion));
-                }*/
+                }
                 return true;
             }
             return false;
