@@ -2,7 +2,7 @@
 package org.example.vista;
 
 import javafx.stage.Stage;
-import org.example.audio.ManagerSonido;
+import org.example.modelo.audio.ManagerSonido;
 import javafx.scene.image.Image;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.juego.MotorJuego;

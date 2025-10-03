@@ -1,4 +1,4 @@
-package org.example.audio;
+package org.example.modelo.audio;
 
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.MediaPlayer;

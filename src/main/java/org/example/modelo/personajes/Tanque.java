@@ -1,6 +1,6 @@
 package org.example.modelo.personajes;
 
-import org.example.audio.ManagerSonido;
+import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;

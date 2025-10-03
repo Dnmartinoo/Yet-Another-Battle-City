@@ -1,6 +1,6 @@
 package org.example.modelo.juego;
 
-import org.example.audio.ManagerSonido;
+import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.disparo.Equipo;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.*;
