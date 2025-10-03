@@ -35,6 +35,7 @@ public final class JuegoConfig {
     public static long PLAYER_SHOOT_COOLDOWN_MS = 180L;
     public static long ENEMY_SHOOT_COOLDOWN_MS = 500;
     public static long RESPAWN_INVULN_MS = 1500;
+    public static final long PLAYER_STUN_MS = 1500; // 1.5 segundos
 
     public static int VIDAS_INICIALES = 3;
 

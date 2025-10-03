@@ -2,34 +2,28 @@ package org.example.modelo.personajes;
 
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.juego.Spriteeable;
-import org.example.modelo.powerup.PowerUp;
 import org.example.modelo.controlador.Control;
 import org.example.modelo.juego.JuegoConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Jugador extends Tanque implements Control, Spriteeable {
 
     private int vidasRestantes = (JuegoConfig.VIDAS_INICIALES > 0)
             ? JuegoConfig.VIDAS_INICIALES
-            : 3; // fallback
+            : 3;
 
     private Vector respawnPos = null;
 
     private final int jugadorId;
 
     public int vidasRestantes() { return vidasRestantes; }
-    public void setVidasRestantes(int v) { vidasRestantes = Math.max(0, v); }
-    public void ganarUnaVida() { vidasRestantes++; }
+
 
     public void setRespawn(Vector p) { this.respawnPos = p; }
 
 
-    private final List<PowerUp> poderes = new ArrayList<>();
-
     private static boolean invulnerable = false;
     private static long invulnerableHasta = 0L;
+    private long inmovilizadoHastaMs = 0L;
 
     private boolean disparoPotenciado = false;
     private boolean disparoPendiente = false;
@@ -49,11 +43,22 @@ public class Jugador extends Tanque implements Control, Spriteeable {
             } else {
                 this.vidaActual = 0;
                 this.detener();
+                this.setVisible(false);
             }
         } else {
             this.vidaActual = 0;
             this.detener();
+            this.setVisible(false);
         }
+    }
+
+
+    public void inmovilizarPorMs(long duracionMs, long ahoraMs) {
+        this.inmovilizadoHastaMs = Math.max(this.inmovilizadoHastaMs, ahoraMs + duracionMs);
+    }
+
+    public boolean estaInmovilizado(long ahoraMs) {
+        return ahoraMs < inmovilizadoHastaMs;
     }
 
     private void respawnear() {
@@ -91,13 +96,21 @@ public class Jugador extends Tanque implements Control, Spriteeable {
     public void setDisparoPotenciado(boolean v) { disparoPotenciado = v; }
     public boolean tieneDisparoPotenciado() { return disparoPotenciado; }
 
-    @Override public void moverArriba()    { setVelocidad(new Vector(0, -tipo.obtenerVelocidad() * 50)); }
-    @Override public void moverAbajo()     { setVelocidad(new Vector(0, +tipo.obtenerVelocidad() * 50)); }
-    @Override public void moverDerecha()   { setVelocidad(new Vector(+tipo.obtenerVelocidad() * 50, 0)); }
-    @Override public void moverIzquierda() { setVelocidad(new Vector(-tipo.obtenerVelocidad() * 50, 0)); }
+    private boolean controlBloqueado = false;
+    private boolean visible = true;
+
+    public void setVisible(boolean v) { this.visible = v; }
+    public boolean estaVisible() { return visible; }
+
+    @Override public void moverArriba()    { if (!estaVisible()) return; setVelocidad(new Vector(0, -tipo.obtenerVelocidad() * 50)); }
+    @Override public void moverAbajo()     { if (!estaVisible()) return; setVelocidad(new Vector(0, +tipo.obtenerVelocidad() * 50)); }
+    @Override public void moverDerecha()   { if (!estaVisible()) return; setVelocidad(new Vector(+tipo.obtenerVelocidad() * 50, 0)); }
+    @Override public void moverIzquierda() { if (!estaVisible()) return; setVelocidad(new Vector(-tipo.obtenerVelocidad() * 50, 0)); }
     @Override public void detener()        { setVelocidad(Vector.CERO); }
 
-    @Override public void disparar() { this.disparoPendiente = true; }
+
+
+    @Override public void disparar() { if (!estaVisible()) return; this.disparoPendiente = true; }
     public boolean hayDisparoPendiente() { return disparoPendiente; }
     public void consumirDisparoPendiente() { disparoPendiente = false; }
 

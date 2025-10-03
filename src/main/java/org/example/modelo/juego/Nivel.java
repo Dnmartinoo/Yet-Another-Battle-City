@@ -28,14 +28,11 @@ public class Nivel {
 
     private boolean victoria = false, derrota = false;
 
-    // Cooldowns de disparo
     private final Map<Enemigo, Long> proximoDisparoEnemigoMs = new IdentityHashMap<>();
     private final Map<Jugador, Long> proximoDisparoJugadorMs = new IdentityHashMap<>();
 
-    // Timing
     private long lastMs = 0L;
 
-    // Lectura para vista / estado
     public List<Jugador> jugadores()  { return List.copyOf(jugadores); }
     public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
@@ -46,29 +43,21 @@ public class Nivel {
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
 
-    // Número de nivel
     private int numeroDeNivel = 1;
     public void setNumeroDeNivel(int n) { this.numeroDeNivel = n; }
     public int numeroDeNivel() { return numeroDeNivel; }
 
-    // Info para HUD
     public int enemigosVivos() { return enemigos.size(); }
     public int enemigosPendientes() { return spawner.cantidadPendiente(); }
     public int enemigosRestantesTotales() { return enemigosVivos() + enemigosPendientes(); }
     public int vidasJugador1() { return jugadores.isEmpty() ? 0 : jugadores.get(0).vidasRestantes(); }
     public int vidasJugador2() { return (jugadores.size() > 1) ? jugadores.get(1).vidasRestantes() : 0; }
 
-    // --------------------------
-    // Ctor
-    // --------------------------
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
         this.spawner = spawner;
         this.limites = rectangulo;
     }
 
-    // --------------------------
-    // Construcción del mundo
-    // --------------------------
     public void crearMundo(NivelData data) {
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
@@ -84,7 +73,6 @@ public class Nivel {
 
         this.limites = new Rectangulo(0, 0, data.ancho(), data.alto());
 
-        // Bloques + Base
         Bloque baseRef = null;
         for (var bd : data.bloques()) {
             int gridX = (int) Math.floor(bd.x / BloqueFactory.TILE);
@@ -105,7 +93,6 @@ public class Nivel {
         }
         this.base = baseRef;
 
-        // Jugadores
         jugadores.add(new Jugador(new Vector(data.jugador1X(), data.jugador1Y()), 1));
         jugadores.get(0).setRespawn(new Vector(data.jugador1X(), data.jugador1Y()));
         if (data.coop()) {
@@ -114,10 +101,8 @@ public class Nivel {
         }
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
-        // Enemigos desde spawner
         spawner.cargarPendientes(data.enemigos());
 
-        // Construir mundo físico
         int anchoTiles = data.ancho() / BloqueFactory.TILE;
         int altoTiles  = data.alto() / BloqueFactory.TILE;
         Bloque[][] grid = new Bloque[altoTiles][anchoTiles];
@@ -131,25 +116,18 @@ public class Nivel {
         this.mundo = new MundoFisico(BloqueFactory.TILE, anchoTiles, altoTiles, grid);
     }
 
-    // --------------------------
-    // Tick principal
-    // --------------------------
     public void tick(long ahoraMs, InputEstado inJ1, InputEstado inJ2) {
         if (derrota || victoria) return;
 
         double dt = calcularDt(ahoraMs);
 
-        // Input de disparo
         if (!jugadores.isEmpty() && inJ1 != null && inJ1.disparar()) jugadores.get(0).disparar();
         if (jugadores.size() > 1 && inJ2 != null && inJ2.disparar()) jugadores.get(1).disparar();
 
-        // Estado de jugadores
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
 
-        // IA de enemigos
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
 
-        // Disparos: Jugadores (respeto de cooldown)
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -160,7 +138,6 @@ public class Nivel {
             j.consumirDisparoPendiente();
         }
 
-        // Colisión con poderes y aplicación
         for (Jugador j : jugadores) {
             for (int i = 0; i < poderes.size(); i++) {
                 PowerUp p = poderes.get(i);
@@ -177,7 +154,6 @@ public class Nivel {
             }
         }
 
-        // Disparo enemigos con cooldown por instancia
         for (Enemigo e : enemigos) {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
@@ -186,10 +162,8 @@ public class Nivel {
             }
         }
 
-        // Balas: movimiento + colisiones
         actualizarBalas(dt);
 
-        // Spawning escalonado: llenar hasta max concurrentes
         List<Enemigo> nuevosEnemigos = spawner.spawnearHastaCompletar(
                 enemigos.size(),
                 ahoraMs,
@@ -202,26 +176,21 @@ public class Nivel {
             }
         }
 
-        // Derrota: sin vidas o base destruida
         if (todosJugadoresAgotados()) {
             derrota = true;
-            try { ManagerSonido.playEfecto("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
+            try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
         }
         if (base != null && base.estaDestruido()) {
             derrota = true;
-            try { ManagerSonido.playEfecto("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
+            try { ManagerSonido.playEfecto("derrota");  } catch (Throwable __) {}
         }
 
-        // Victoria: sin enemigos, y spawner terminó
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
             try { ManagerSonido.playEfecto("victoria"); } catch (Throwable __) {}
         }
     }
 
-    // --------------------------
-    // Helpers
-    // --------------------------
     private double calcularDt(long ahoraMs) {
         if (lastMs == 0L) { lastMs = ahoraMs; return 0.0; }
         double dt = (ahoraMs - lastMs) / 1000.0;
@@ -262,6 +231,8 @@ public class Nivel {
             var hb = bala.hitbox();
 
             if (bala.equipo() == Equipo.JUGADOR) {
+                // Impacto en enemigos
+                boolean impacto = false;
                 for (var e : enemigos) {
                     if (!e.estaVivo()) continue;
                     if (e.hitbox().intersecta(hb)) {
@@ -269,7 +240,29 @@ public class Nivel {
                         if (bala.esPotenciada()) dano *= 999;
                         e.recibirImpacto(dano);
                         bala.destruir();
+                        impacto = true;
                         break;
+                    }
+                }
+                if (impacto) continue;
+
+                Jugador duenio = duenioDeBala.get(bala);
+                if (duenio != null) {
+                    for (var j : jugadores) {
+                        if (j == duenio) continue;
+                        if (j.hitbox().intersecta(hb)) {
+
+                            long ahora = System.currentTimeMillis();
+                            long duracion = (JuegoConfig.PLAYER_STUN_MS > 0)
+                                    ? JuegoConfig.PLAYER_STUN_MS
+                                    : 1500;
+
+                            j.inmovilizarPorMs(duracion, ahora);
+
+                            try { ManagerSonido.playEfecto("stun"); } catch (Throwable __) {}
+                            bala.destruir();
+                            break;
+                        }
                     }
                 }
             } else {
@@ -281,6 +274,7 @@ public class Nivel {
                     }
                 }
             }
+
         }
 
         for (int i = 0; i < proyectiles.size(); i++) {
@@ -460,8 +454,10 @@ public class Nivel {
             ));
         }
 
-        // Jugadores
+// Jugadores
         for (var j : jugadores) {
+            if (!j.estaVisible()) continue;
+
             var hb = j.hitbox();
             var id = j.spriteId();
             boolean casco = j.esInvulnerable();
@@ -471,6 +467,8 @@ public class Nivel {
                     j.rotacion()
             ));
         }
+
+
 
         for (var p : poderes) {
             var hb = p.hitbox();
