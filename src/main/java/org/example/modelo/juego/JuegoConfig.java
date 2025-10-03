@@ -10,7 +10,7 @@ public final class JuegoConfig {
     public static final double PLAYER_SPEED = 1.0;
     public static final int    PLAYER_HEALTH = 3;
     public static final double PLAYER_FIRE_RATE = 1.0; // disparos/segundo
-
+    public static final boolean BULLET_CARDINAL_ONLY = true;
     public static final double REGULAR_ENEMY_SPEED = 1.0;
     public static final int    REGULAR_ENEMY_HEALTH = 1;
     public static final double REGULAR_ENEMY_FIRE_RATE = 1.0;
@@ -85,8 +85,10 @@ public final class JuegoConfig {
 
 
     // Spawn de enemigos:
-    public static final int    MAX_ENEMIGOS_CONCURRENTES = 6;
-    public static final long   ENEMY_SPAWN_INTERVAL_MS   = 1600L;
+    public static final int    MAX_ENEMIGOS_CONCURRENTES = 4;
+    public static final long ENEMY_MIN_SPAWN_GAP_MS    = 800;
+    public static final int  ENEMY_SPAWN_MAX_IN_WINDOW = 10;
+    public static final long ENEMY_SPAWN_WINDOW_MS     = 60_000;
 
     public static final double ROTACION_FIJA = 0.0;
 }

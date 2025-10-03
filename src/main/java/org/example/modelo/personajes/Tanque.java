@@ -16,8 +16,6 @@ public abstract class Tanque implements Cuerpo {
     protected Vector velocidadActual = Vector.CERO;
     protected double ultimaRotacion = 0.0;
     protected Vector ultimaDireccion = new Vector(0, -1);
-
-
     protected static final int DEFAULT_TILE = 20;
     protected static final double DEFAULT_SPEED = 60.0;
 
