@@ -97,11 +97,6 @@ public final class JuegoConfig {
     public static final boolean PARTIDA_NO_FINALIZADA = false;
     public static final boolean PARTIDA_FINALIZADA    = true;
 
-    // Nivel
-    public static final double BASE_OFFSET_Y = 20.0;
-    public static final int    PROYECTIL_MARGIN = 32;
-    public static final double PROB_DROP_POWERUP = 0.2;
-    public static final int    TOTAL_POWERUP_TYPES = 3;
 
     // Identificadores de sonidos
     public static final String SND_DISPARAR = "disparar";
@@ -119,4 +114,20 @@ public final class JuegoConfig {
     public static final double J1_START_X = 100.0, J1_START_Y = 500.0;
     public static final double J2_START_X = 200.0, J2_START_Y = 500.0;
 
+
+    // Fallback para atributos de <player> en XML
+    public static final double PLAYER_DEFAULT_X = 0.0;
+    public static final double PLAYER_DEFAULT_Y = 0.0;
+
+    // Fallback para atributos de <enemy> en XML
+    public static final double ENEMY_DEFAULT_X = 0.0;
+    public static final double ENEMY_DEFAULT_Y = 0.0;
+
+    // Fallback para atributos de <staticObject> en XML
+    public static final double BLOCK_DEFAULT_X = 0.0;
+    public static final double BLOCK_DEFAULT_Y = 0.0;
+
+    // Tipo de enemigo por defecto (si en XML viene vacío o inválido)
+    public static final org.example.modelo.personajes.TipoPersonaje ENEMY_DEFAULT_TYPE =
+            org.example.modelo.personajes.TipoPersonaje.regularEnemy;
 }

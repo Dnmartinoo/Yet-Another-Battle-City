@@ -1,4 +1,4 @@
-package org.example.vista;
+package org.example.vista.render;
 
 import org.example.modelo.juego.EstadoNivel;
 
