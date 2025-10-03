@@ -14,13 +14,15 @@ public class Proyectil implements Cuerpo, Spriteeable {
     private final double w = 6, h = 6;
     private final Equipo equipo;
     private boolean vivo = true;
+    private boolean esPotenciada = false;
 
-    public Proyectil(Vector pos, Vector dirUnit, double speed, int dano, Equipo eq) {
+    public Proyectil(Vector pos, Vector dirUnit, double speed, int dano, Equipo eq, boolean potenciada) {
         this.pos = pos;
         this.dirUnit = dirUnit.normalizado();
         this.speed = speed;
         this.dano = dano;
         this.equipo = eq;
+        this.esPotenciada = potenciada;
     }
 
     // ---- Cuerpo ----
@@ -40,5 +42,7 @@ public class Proyectil implements Cuerpo, Spriteeable {
         return JuegoConfig.SPRITE_SHOT;
     }
 
+    public boolean esPotenciada() { return esPotenciada; }
 
+    public void setPotenciada(boolean v) { esPotenciada = v; }
 }

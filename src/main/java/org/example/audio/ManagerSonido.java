@@ -43,7 +43,7 @@ public final class ManagerSonido {
     }
 
 
-    public static void play(String id) {
+    public static void playEfecto(String id) {
         AudioClip clip = sonidos.get(id);
         if (clip != null) {
             clip.play();

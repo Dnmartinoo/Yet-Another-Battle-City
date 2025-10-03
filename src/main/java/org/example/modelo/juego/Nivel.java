@@ -9,10 +9,11 @@ import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
+import org.example.modelo.powerup.*;
 
 import java.util.*;
 
-import static org.example.modelo.juego.JuegoConfig.ROTACION_FIJA;
+import static org.example.modelo.juego.JuegoConfig.*;
 
 public class Nivel {
 
@@ -20,6 +21,7 @@ public class Nivel {
     private final List<Enemigo> enemigos = new ArrayList<>();
     private final List<Jugador> jugadores = new ArrayList<>(2);
     private final List<Proyectil> proyectiles = new ArrayList<>();
+    private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
 
     private Bloque base;
@@ -40,6 +42,7 @@ public class Nivel {
     public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
     public List<Proyectil> proyectiles() { return List.copyOf(proyectiles); }
+    public List<PowerUp> poderes()   {return List.copyOf(poderes); }
     public Bloque base()              { return base; }  // <- devuelve Bloque
 
     private int numeroDeNivel = 1;
@@ -70,6 +73,7 @@ public class Nivel {
         jugadores.clear();
         enemigos.clear();
         proyectiles.clear();
+        poderes.clear();
         proximoDisparoEnemigoMs.clear();
         proximoDisparoJugadorMs.clear();
         victoria = derrota = false;
@@ -146,10 +150,17 @@ public class Nivel {
         // --- Estado de jugadores ---
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
 
-        // --- IA de enemigos ---
+
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, mundo);
 
-        // --- Disparos: jugadores con cooldown individual ---
+
+        List<Enemigo> nuevos = spawner.talVezSpawnear(ahoraMs);
+        if (!nuevos.isEmpty()) {
+            enemigos.addAll(nuevos);
+            for (var e : nuevos) proximoDisparoEnemigoMs.put(e, ahoraMs + JuegoConfig.ENEMY_SHOOT_COOLDOWN_MS);
+        }
+
+
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -160,7 +171,24 @@ public class Nivel {
             j.consumirDisparoPendiente();
         }
 
-        // --- Disparos: enemigos con cooldown por instancia ---
+
+        for (Jugador j : jugadores) {
+            for (int i = 0; i < poderes.size(); i++) {
+                PowerUp p = poderes.get(i);
+                if (j.hitbox().intersecta(p.hitbox())) {
+                    ComandoPowerUp cmd = p.aplicar(j);
+
+                    if (cmd == ComandoPowerUp.DESTUIR_TODOS_ENEMIGOS) {
+                        eliminarTodosLosEnemigos();
+                    }
+                    ManagerSonido.playEfecto("powerup");
+                    poderes.remove(i);
+                    i--;
+                    break;
+                }
+            }
+        }
+
         for (Enemigo e : enemigos) {
             long next = proximoDisparoEnemigoMs.getOrDefault(e, 0L);
             if (ahoraMs >= next) {
@@ -169,7 +197,11 @@ public class Nivel {
             }
         }
 
-        // --- Balas: movimiento + colisiones (remueve enemigos muertos) ---
+
+
+
+
+
         actualizarBalas(dt);
 
         // --- Spawn ENEMIGOS desp. de limpiar muertos: llenar hasta el máximo concurrente ---
@@ -196,6 +228,8 @@ public class Nivel {
         if (base != null && base.estaDestruido()) {
             derrota = true;
             try { ManagerSonido.play("derrota"); ManagerSonido.stopMusica(); } catch (Throwable __) {}
+            ManagerSonido.playEfecto("derrota");
+            ManagerSonido.stopMusica();
         }
 
         // --- Condición de victoria ---
@@ -233,9 +267,12 @@ public class Nivel {
                 ResultadoImpacto ri = bl.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
                 if (ri.detener()) {
                     bala.destruir();
+                    if(bl.esAcero() && !bl.estaDestruido()){
+                        ManagerSonido.playEfecto("impactoAcero");
+                    }
 
-                    if (bl.estaDestruido() && bl.estaDestruido()) {
-                        ManagerSonido.play("bloqueRoto");
+                    if (bl.estaDestruido() && bl.estaDestruido() && bl.esLadrillo()) {
+                        ManagerSonido.playEfecto("ladrilloRoto");
                     }
                     break;
                 }
@@ -251,7 +288,11 @@ public class Nivel {
                 for (var e : enemigos) {
                     if (!e.estaVivo()) continue;
                     if (e.hitbox().intersecta(hb)) {
-                        e.recibirImpacto(JuegoConfig.BULLET_DAMAGE);
+                        int dano = bala.dano();
+                        if(bala.esPotenciada()) {
+                            dano *= 999;
+                        }
+                        e.recibirImpacto(dano);
                         bala.destruir();
                         break;
                     }
@@ -289,7 +330,18 @@ public class Nivel {
         );
 
 
-        enemigos.removeIf(e -> !e.estaVivo());
+
+        enemigos.removeIf(e -> {
+            if (!e.estaVivo()) {
+                poderes.add(new Estrella(e.posicion()));
+                /*if (Math.random() < 0.2) {
+                    Vector posicion = e.posicion();
+                    poderes.add(crearPoderRandom(posicion));
+                }*/
+                return true;
+            }
+            return false;
+        });
         {
             var it = enemigos.iterator();
             while (it.hasNext()) {
@@ -328,17 +380,28 @@ public class Nivel {
     private void spawnBalaJugador(Jugador j) {
         Vector dir = j.velocidad().esCero() ? j.ultimaDireccion() : j.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(j, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
-        proyectiles.add(new Proyectil(origen, dir, JuegoConfig.PLAYER_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.JUGADOR));
-        ManagerSonido.play("disparar");
+        boolean esPotenciada = j.tieneDisparoPotenciado();
+        proyectiles.add(new Proyectil(origen, dir, PLAYER_BULLET_SPEED, BULLET_DAMAGE, Equipo.JUGADOR, esPotenciada));
+        ManagerSonido.playEfecto("disparar");
 
     }
 
     private void spawnBalaEnemigo(Enemigo e) {
         Vector dir = e.velocidad().esCero() ? e.ultimaDireccion() : e.velocidad().normalizado();
         Vector origen = origenBalaDesdeCentro(e, dir, JuegoConfig.BULLET_SIZE, JuegoConfig.BULLET_SIZE);
-        proyectiles.add(new Proyectil(origen, dir, JuegoConfig.ENEMY_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.ENEMIGO));
-        ManagerSonido.play("disparar");
+        proyectiles.add(new Proyectil(origen, dir, JuegoConfig.ENEMY_BULLET_SPEED, JuegoConfig.BULLET_DAMAGE, Equipo.ENEMIGO, false));
+        ManagerSonido.playEfecto("disparar");
 
+    }
+
+    private PowerUp crearPoderRandom(Vector posicion) {
+        int r = (int)(Math.random() * 3);
+        return switch (r) {
+            case 0 -> new Casco(posicion);
+            case 1 -> new Estrella(posicion);
+            case 2 -> new Granada(posicion);
+            default -> new Estrella(posicion);
+        };
     }
 
     private Vector origenBalaDesdeCentro(org.example.modelo.fisica.Cuerpo tanque, Vector dir,
@@ -430,6 +493,18 @@ public class Nivel {
                     hb.w(), hb.h(),
                     casco,
                     jugador.rotacion()
+            ));
+        }
+
+        for (var poder : poderes()) {
+            var hb = poder.hitbox();
+            var id = ((Spriteeable) poder).spriteId();
+            entidades.add(new EstadoEntidad(
+                    id,
+                    hb.x(), hb.y(),
+                    hb.w(), hb.h(),
+                    false,
+                    ROTACION_FIJA
             ));
         }
 

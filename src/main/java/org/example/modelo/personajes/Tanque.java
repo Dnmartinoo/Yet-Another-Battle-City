@@ -74,8 +74,13 @@ public abstract class Tanque implements Cuerpo {
     public boolean estaVivo() { return vidaActual > 0; }
 
     public void recibirImpacto(int dano) {
-        vidaActual -= 1;
-        ManagerSonido.play("golpe");
+        vidaActual -= dano;
+        if (vidaActual <= 0) {
+            ManagerSonido.playEfecto("muerteTanque");
+        }
+        if(this.tipo == TipoPersonaje.heavyEnemy && estaVivo()) {
+            ManagerSonido.playEfecto("impactoBlindado");
+        }
     }
 
 

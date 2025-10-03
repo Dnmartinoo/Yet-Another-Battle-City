@@ -42,5 +42,5 @@ public class Ladrillo extends BloqueBase implements Spriteeable {
     public String spriteId() {
         return JuegoConfig.SPRITE_BRICK;
     }
-
+    public boolean esLadrillo() { return true; }
 }

@@ -1,3 +1,4 @@
+// src/main/java/org/example/modelo/juego/MotorJuego.java
 package org.example.modelo.juego;
 
 import java.util.List;
@@ -52,6 +53,13 @@ public class MotorJuego {
         if (!haySiguienteNivel()) return;
         idxNivel++;
         cargarNivelDeCampañaActual();
+    }
+
+    private void reiniciarNivelActual() {
+        if (campaña != null && idxNivel >= 0) {
+            cargarNivelDeCampañaActual();
+        } else if (nivelActual != null) {
+        }
     }
 
     public void tick(long ahoraMs, InputEstado j1, InputEstado j2) {
