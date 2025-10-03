@@ -28,10 +28,9 @@ public final class RenderizadorSprites implements RenderizadorEstado {
 
         if (estado == null) return;
 
-        // --- Sprites ---
         for (EstadoEntidad entidad : estado.entidades()) {
             String spriteId = entidad.spriteId();
-            if (spriteId == null) continue;
+            if (spriteId == null || "forest".equals(spriteId)) continue;
 
             if (entidad.rotacion() != 0.0) {
                 g.save();
@@ -66,9 +65,23 @@ public final class RenderizadorSprites implements RenderizadorEstado {
             }
         }
 
+        for (EstadoEntidad entidad : estado.entidades()) {
+            if ("forest".equals(entidad.spriteId())) {
+                g.drawImage(
+                        ManagerSprites.get("forest"),
+                        entidad.x(),
+                        entidad.y(),
+                        entidad.ancho(),
+                        entidad.alto()
+                );
+            }
+        }
+
         // --- HUD ---
         dibujarHUD(estado, canvas, g);
     }
+
+
 
     private void dibujarHUD(EstadoNivel estado, Canvas canvas, GraphicsContext g) {
         // Panel translúcido arriba
