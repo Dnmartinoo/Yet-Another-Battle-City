@@ -77,6 +77,7 @@ public final class JuegoConfig {
     public static final String SPRITE_POWER_HELMET  = "power_helmet";
     public static final String SPRITE_POWER_STAR    = "power_star";
     public static final String SPRITE_POWER_SHOVEL  = "power_shovel";
+    public static final long DURACION_MS = 10_000;
 
     public static final long VICTORY_SCREEN_MS = 2000; // 2s
     public static final long DEFEAT_SCREEN_MS  = 2000; // 2s
