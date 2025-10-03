@@ -3,7 +3,7 @@ package org.example.vista.render;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import org.example.modelo.juego.EstadoNivel;
+import org.example.modelo.juego.estado.EstadoNivel;
 
 public final class RenderizadorSprites implements RenderizadorEstado {
 

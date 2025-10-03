@@ -72,6 +72,7 @@ public final class JuegoConfig {
     public static final String SPRITE_POWER_HELMET  = "power_helmet";
     public static final String SPRITE_POWER_STAR    = "power_star";
     public static final String SPRITE_POWER_SHOVEL  = "power_shovel";
+    public static final double PROB_DROP_POWERUP = 0.2;
 
     // ==== TIMINGS ====
     public static final long VICTORY_SCREEN_MS = 2000L;
@@ -107,20 +108,4 @@ public final class JuegoConfig {
     public static final double J1_START_X = 100.0, J1_START_Y = 500.0;
     public static final double J2_START_X = 200.0, J2_START_Y = 500.0;
 
-
-    // Fallback para atributos de <player> en XML
-    public static final double PLAYER_DEFAULT_X = 0.0;
-    public static final double PLAYER_DEFAULT_Y = 0.0;
-
-    // Fallback para atributos de <enemy> en XML
-    public static final double ENEMY_DEFAULT_X = 0.0;
-    public static final double ENEMY_DEFAULT_Y = 0.0;
-
-    // Fallback para atributos de <staticObject> en XML
-    public static final double BLOCK_DEFAULT_X = 0.0;
-    public static final double BLOCK_DEFAULT_Y = 0.0;
-
-    // Tipo de enemigo por defecto (si en XML viene vacío o inválido)
-    public static final org.example.modelo.personajes.TipoPersonaje ENEMY_DEFAULT_TYPE =
-            org.example.modelo.personajes.TipoPersonaje.regularEnemy;
 }

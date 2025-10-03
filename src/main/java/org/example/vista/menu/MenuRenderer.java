@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.vista.config.ConstantesUI;
 import org.example.vista.assets.ManagerSprites;
 

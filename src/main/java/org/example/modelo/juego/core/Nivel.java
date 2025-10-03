@@ -41,11 +41,7 @@ public class Nivel {
     private long lastMs = 0L;
 
     public List<Jugador> jugadores()  { return List.copyOf(jugadores); }
-    public List<Enemigo> enemigos()   { return List.copyOf(enemigos); }
     public List<Bloque> bloques()     { return List.copyOf(bloques); }
-    public List<Proyectil> proyectiles() { return List.copyOf(proyectiles); }
-    public List<PowerUp> poderes() { return List.copyOf(poderes); }
-    public Bloque base() { return base; }
 
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
@@ -56,7 +52,6 @@ public class Nivel {
 
     public int enemigosVivos() { return enemigos.size(); }
     public int enemigosPendientes() { return spawner.cantidadPendiente(); }
-    public int enemigosRestantesTotales() { return enemigosVivos() + enemigosPendientes(); }
     public int vidasJugador1() { return jugadores.isEmpty() ? 0 : jugadores.get(0).vidasRestantes(); }
     public int vidasJugador2() { return (jugadores.size() > 1) ? jugadores.get(1).vidasRestantes() : 0; }
 
@@ -89,6 +84,14 @@ public class Nivel {
         for (var j : jugadores) proximoDisparoJugadorMs.put(j, 0L);
 
         spawner.cargarPendientes(data.enemigos());
+    }
+
+    public boolean colisionaConBloqueSolido(Rectangulo area) {
+        for (var b : mundo.bloquesEn(area)) {
+            if (!b.bloqueaMovimiento()) continue;
+            if (b.hitbox().intersecta(area)) return true;
+        }
+        return false;
     }
 
     public void tick(long ahoraMs, InputEstado inJ1, InputEstado inJ2) {
@@ -174,14 +177,6 @@ public class Nivel {
         return true;
     }
 
-    public boolean colisionaConBloqueSolido(Rectangulo area) {
-        for (var b : mundo.bloquesEn(area)) {
-            if (!b.bloqueaMovimiento()) continue;
-            if (b.hitbox().intersecta(area)) return true;
-        }
-        return false;
-    }
-
     public EstadoNivel estado() {
         List<EstadoEntidad> entidades = new ArrayList<>(
                 bloques.size() + proyectiles.size() + enemigos.size() + jugadores.size() + poderes.size()
@@ -206,5 +201,6 @@ public class Nivel {
                 entidades
         );
     }
+
 
 }

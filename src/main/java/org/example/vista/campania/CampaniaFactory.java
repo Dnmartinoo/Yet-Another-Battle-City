@@ -1,10 +1,10 @@
 package org.example.vista.campania;
 
 import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.juego.MotorJuego;
-import org.example.modelo.juego.Nivel;
-import org.example.modelo.juego.NivelData;
-import org.example.modelo.juego.Spawner;
+import org.example.modelo.juego.core.MotorJuego;
+import org.example.modelo.juego.core.Nivel;
+import org.example.modelo.juego.core.NivelData;
+import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.niveles.XmlNivelLoader;
 import org.example.vista.config.ConstantesUI;
 

@@ -1,4 +1,3 @@
-// src/main/java/org/example/modelo/audio/ManagerSonido.java
 package org.example.modelo.audio;
 
 import javafx.scene.media.AudioClip;
@@ -14,11 +13,7 @@ public final class ManagerSonido {
 
     private final Map<String, AudioClip> sonidos = new HashMap<>();
     private MediaPlayer musicaLoop;
-
-    // Constructor privado → nadie más puede instanciarlo
     private ManagerSonido() {}
-
-    // Punto único de acceso
     public static ManagerSonido get() {
         return INSTANCE;
     }

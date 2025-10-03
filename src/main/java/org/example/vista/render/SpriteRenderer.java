@@ -1,8 +1,8 @@
 package org.example.vista.render;
 
 import javafx.scene.canvas.GraphicsContext;
-import org.example.modelo.juego.EstadoEntidad;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.estado.EstadoEntidad;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.vista.assets.ManagerSprites;
 
 final class SpriteRenderer {

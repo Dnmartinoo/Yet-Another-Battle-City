@@ -1,7 +1,7 @@
 package org.example.vista.assets;
 
 import javafx.scene.image.Image;
-import org.example.modelo.juego.JuegoConfig;
+import org.example.modelo.juego.config.JuegoConfig;
 import org.example.vista.config.ConstantesUI;
 
 import java.util.HashMap;
@@ -43,20 +43,20 @@ public final class ManagerSprites {
         put(JuegoConfig.SPRITE_ENEMY_REGULAR_1, ConstantesUI.PATH_E_REG_1);
 
         // ======================
-        // OTROS
-        // ======================
-        put(JuegoConfig.SPRITE_TANK_DESTROYED,  ConstantesUI.PATH_TANK_DESTROYED);
-        put(JuegoConfig.SPRITE_SHOT,            ConstantesUI.PATH_SHOT);
-        put(JuegoConfig.SPRITE_INVULNERABLE,    ConstantesUI.PATH_INVULNERABLE);
-        put(JuegoConfig.SPRITE_LOGO,            ConstantesUI.PATH_LOGO);
-
-        // ======================
         // POWERUPS
         // ======================
         put(JuegoConfig.SPRITE_POWER_GRENADE,   ConstantesUI.PATH_PW_GRENADE);
         put(JuegoConfig.SPRITE_POWER_HELMET,    ConstantesUI.PATH_PW_HELMET);
         put(JuegoConfig.SPRITE_POWER_STAR,      ConstantesUI.PATH_PW_STAR);
         put(JuegoConfig.SPRITE_POWER_SHOVEL,    ConstantesUI.PATH_PW_SHOVEL);
+
+        // ======================
+        // OTROS
+        // ======================
+        put(JuegoConfig.SPRITE_TANK_DESTROYED,  ConstantesUI.PATH_TANK_DESTROYED);
+        put(JuegoConfig.SPRITE_SHOT,            ConstantesUI.PATH_SHOT);
+        put(JuegoConfig.SPRITE_INVULNERABLE,    ConstantesUI.PATH_INVULNERABLE);
+        put(JuegoConfig.SPRITE_LOGO,            ConstantesUI.PATH_LOGO);
     }
 
     private static void put(String key, String resourcePath) {
@@ -65,7 +65,6 @@ public final class ManagerSprites {
     }
 
     private static Image cargar(String path) {
-        // Usamos getResourceAsStream relativo a la clase (acepta rutas con "/" inicial)
         var stream = ManagerSprites.class.getResourceAsStream(path);
         Objects.requireNonNull(stream, "No se encontró el recurso: " + path);
         return new Image(stream);

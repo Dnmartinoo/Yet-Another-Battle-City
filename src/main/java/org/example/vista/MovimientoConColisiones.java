@@ -1,7 +1,7 @@
 package org.example.vista;
 
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.Nivel;
+import org.example.modelo.juego.core.Nivel;
 import org.example.modelo.personajes.Jugador;
 
 public final class MovimientoConColisiones {

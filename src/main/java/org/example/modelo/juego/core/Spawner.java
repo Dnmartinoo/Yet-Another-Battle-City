@@ -1,4 +1,3 @@
-// src/main/java/org/example/modelo/juego/Spawner.java
 package org.example.modelo.juego.core;
 
 import org.example.modelo.fisica.Vector;
@@ -17,7 +16,7 @@ public class Spawner {
     private final long ventanaMs;
     private final long minGapMs;
 
-    private final Deque<Long> tiemposSpawn = new ArrayDeque<>();            // timestamps de spawns efectivos
+    private final Deque<Long> tiemposSpawn = new ArrayDeque<>();
     private final Deque<NivelData.EnemigoDato> pendientes = new ArrayDeque<>();
     private long nextSpawnMs = 0L;
 
@@ -60,10 +59,9 @@ public class Spawner {
         List<Enemigo> salientes = new ArrayList<>();
 
         while (huecos > 0 && !pendientes.isEmpty() && disponiblesPorVentana > 0) {
-            if (ahoraMs < nextSpawnMs) break; // respetamos separación mínima
-
+            if (ahoraMs < nextSpawnMs) break;
             var ed   = pendientes.pollFirst();
-            TipoPersonaje tipo = ed.tipo;                 // ya es TipoPersonaje
+            TipoPersonaje tipo = ed.tipo;
             Vector pos         = new Vector(ed.x, ed.y);
 
             Enemigo nuevo = new Enemigo(tipo, pos);

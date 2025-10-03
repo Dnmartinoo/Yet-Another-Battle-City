@@ -50,7 +50,7 @@ public final class MotorJuego {
         this.nivelActual.crearMundo(data);
 
         this.fase = Fase.JUGANDO;
-        this.finPartida = false;
+        this.finPartida = JuegoConfig.PARTIDA_NO_FINALIZADA;
     }
 
     public void tick(long ahoraMs, InputEstado j1, InputEstado j2) {
@@ -81,14 +81,14 @@ public final class MotorJuego {
             idxNivel++;
             cargarNivelDeCampañaActual();
         } else {
-            finPartida = true;
+            finPartida = JuegoConfig.PARTIDA_FINALIZADA;
             nivelActual = null;
         }
     }
 
     private void tickDerrota(long ahoraMs) {
         if (ahoraMs < faseHastaMs) return;
-        finPartida = true;
+        finPartida = JuegoConfig.PARTIDA_FINALIZADA;
         nivelActual = null;
     }
 

@@ -8,7 +8,6 @@ import java.util.List;
 
 public class NivelData {
 
-    // ----------------- Estado del nivel (configurable) -----------------
     private boolean coop;
     private int ancho;
     private int alto;
@@ -18,7 +17,6 @@ public class NivelData {
     private double jugador2X;
     private double jugador2Y;
 
-    // ----------------- DTOs inmutables -----------------
     public static final class BloqueDato {
         public final String tipo;
         public final double x, y;
@@ -42,7 +40,6 @@ public class NivelData {
     private final List<BloqueDato> bloques = new ArrayList<>();
     private final List<EnemigoDato> enemigos = new ArrayList<>();
 
-    // ----------------- Constructores -----------------
     public NivelData(boolean coop) {
         this.coop = coop;
         this.ancho = JuegoConfig.NIVEL_DEFAULT_ANCHO;
@@ -54,7 +51,6 @@ public class NivelData {
         this.jugador2Y = JuegoConfig.J2_START_Y;
     }
 
-    // ----------------- Setters  -----------------
     public void setCoop(boolean v) { this.coop = v; }
 
     public void setAncho(int v) { this.ancho = v; }
@@ -79,7 +75,6 @@ public class NivelData {
         enemigos.add(new EnemigoDato(tipo, x, y));
     }
 
-    // ----------------- Getters  -----------------
     public boolean coop() { return coop; }
 
     public int ancho() { return ancho; }

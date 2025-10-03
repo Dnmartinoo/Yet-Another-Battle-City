@@ -8,10 +8,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import org.example.modelo.juego.InputEstado;
-import org.example.modelo.juego.JuegoConfig;
-import org.example.modelo.juego.MotorJuego;
-import org.example.modelo.juego.Nivel;
+import org.example.modelo.juego.input.InputEstado;
+import org.example.modelo.juego.config.JuegoConfig;
+import org.example.modelo.juego.core.MotorJuego;
+import org.example.modelo.juego.core.Nivel;
 import org.example.vista.*;
 import org.example.vista.config.ConstantesUI;
 import org.example.vista.input.TecladoAdapter;

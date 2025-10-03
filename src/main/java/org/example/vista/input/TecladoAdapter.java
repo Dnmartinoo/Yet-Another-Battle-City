@@ -3,7 +3,7 @@ package org.example.vista.input;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 
-import org.example.modelo.juego.InputEstado;
+import org.example.modelo.juego.input.InputEstado;
 
 import java.util.EnumSet;
 import java.util.Set;

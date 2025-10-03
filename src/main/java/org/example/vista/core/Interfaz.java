@@ -2,7 +2,7 @@ package org.example.vista.core;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.example.modelo.juego.MotorJuego;
+import org.example.modelo.juego.core.MotorJuego;
 import org.example.vista.campania.CampaniaFactory;
 import org.example.vista.config.ConstantesUI;
 import org.example.vista.menu.MenuPrincipal;
