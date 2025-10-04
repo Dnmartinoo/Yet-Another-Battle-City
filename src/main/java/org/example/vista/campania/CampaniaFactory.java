@@ -6,19 +6,23 @@ import org.example.modelo.juego.core.Nivel;
 import org.example.modelo.juego.core.NivelData;
 import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.niveles.XmlNivelLoader;
-import org.example.vista.config.ConstantesUI;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CampaniaFactory {
-    private CampaniaFactory() {}
+public class CampaniaFactory {
 
-    public static MotorJuego crearMotorCampania(boolean coop, List<String> rutasXml) {
+    private final String xsdPath;
+
+    public CampaniaFactory(String xsdPath) {
+        this.xsdPath = xsdPath;
+    }
+
+    public MotorJuego crearMotorCampania(boolean coop, List<String> rutasXml) {
         MotorJuego motor = new MotorJuego();
 
-        XmlNivelLoader loader = crearLoaderSeguro(ConstantesUI.XSD_NIVEL);
+        XmlNivelLoader loader = crearLoaderSeguro(xsdPath);
         List<NivelData> nivelesData = cargarNiveles(loader, rutasXml, coop);
 
         MotorJuego.NivelFactory factory = (data) -> {
@@ -31,15 +35,15 @@ public final class CampaniaFactory {
         return motor;
     }
 
-    private static XmlNivelLoader crearLoaderSeguro(String xsdPath) {
+    private XmlNivelLoader crearLoaderSeguro(String xsdPath) {
         try (InputStream xsd = CampaniaFactory.class.getResourceAsStream(xsdPath)) {
             return (xsd != null) ? new XmlNivelLoader(xsd) : new XmlNivelLoader();
         } catch (Exception e) {
-            return new XmlNivelLoader(); // fallback robusto
+            return new XmlNivelLoader();
         }
     }
 
-    private static List<NivelData> cargarNiveles(XmlNivelLoader loader, List<String> rutas, boolean coop) {
+    private List<NivelData> cargarNiveles(XmlNivelLoader loader, List<String> rutas, boolean coop) {
         List<NivelData> out = new ArrayList<>(rutas.size());
         for (String ruta : rutas) {
             try (InputStream xml = CampaniaFactory.class.getResourceAsStream(ruta)) {

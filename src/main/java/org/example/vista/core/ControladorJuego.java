@@ -12,51 +12,42 @@ import org.example.modelo.juego.input.InputEstado;
 import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.core.MotorJuego;
 import org.example.modelo.juego.core.Nivel;
-import org.example.vista.*;
+import org.example.vista.MovimientoConColisiones;
 import org.example.vista.config.ConstantesUI;
 import org.example.vista.input.TecladoAdapter;
 import org.example.vista.render.OverlayRenderer;
 import org.example.vista.render.RenderizadorEstado;
-import org.example.vista.render.RenderizadorSprites;
 
 import java.util.List;
 
-public final class ControladorJuego {
-
-    private static final TecladoAdapter.TeclasJugador CONTROLES_J1 =
-            new TecladoAdapter.TeclasJugador(KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D, KeyCode.SPACE);
-    private static final TecladoAdapter.TeclasJugador CONTROLES_J2 =
-            new TecladoAdapter.TeclasJugador(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER);
+public class ControladorJuego {
 
     private final Stage stage;
     private final Runnable onGameEnd;
-    private final Canvas canvas = new Canvas(JuegoConfig.NIVEL_DEFAULT_ANCHO, JuegoConfig.NIVEL_DEFAULT_ALTO);
-
-    private MotorJuego motor;
+    private final Canvas canvas;
     private final RenderizadorEstado renderizador;
     private final OverlayRenderer overlays = new OverlayRenderer();
-
     private final TecladoAdapter teclado = new TecladoAdapter();
-    private AnimationTimer loop;
-
     private final MovimientoConColisiones mover = new MovimientoConColisiones();
 
-    private List<TecladoAdapter.TeclasJugador> controlesActivos = List.of();
+    private AnimationTimer loop;
+    private MotorJuego motor;
+    private List<TecladoAdapter.TeclasJugador> controlesActivos;
 
-    public ControladorJuego(Stage stage, Runnable onGameEnd) {
-        this(stage, onGameEnd, new RenderizadorSprites());
-    }
     public ControladorJuego(Stage stage, Runnable onGameEnd, RenderizadorEstado renderizador) {
         this.stage = stage;
         this.onGameEnd = onGameEnd;
         this.renderizador = renderizador;
+        this.canvas = new Canvas(JuegoConfig.NIVEL_DEFAULT_ANCHO, JuegoConfig.NIVEL_DEFAULT_ALTO);
+    }
+
+    public ControladorJuego(Stage stage, Runnable onGameEnd) {
+        this(stage, onGameEnd, new org.example.vista.render.RenderizadorSprites());
     }
 
     public void iniciar(MotorJuego motor, int cantidadJugadores) {
         this.motor = motor;
-        this.controlesActivos = cantidadJugadores >= 2
-                ? List.of(CONTROLES_J1, CONTROLES_J2)
-                : List.of(CONTROLES_J1);
+        this.controlesActivos = crearControles(cantidadJugadores);
 
         Scene scene = prepararEscenaYMostrar();
         teclado.instalar(scene, this::terminar);
@@ -65,9 +56,9 @@ public final class ControladorJuego {
         loop = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (lastNs[0] == 0L) lastNs[0] = now;
-                double dt = (now - lastNs[0]) / 1_000_000_000.0; // ns → s
+                double dt = (now - lastNs[0]) / 1_000_000_000.0;
                 lastNs[0] = now;
-                tickYRender(dt);
+                tickYRender(dt, System.currentTimeMillis());
             }
         };
         loop.start();
@@ -75,43 +66,45 @@ public final class ControladorJuego {
         stage.setOnCloseRequest(ev -> { if (loop != null) loop.stop(); });
     }
 
-    private void tickYRender(double dt) {
+    private List<TecladoAdapter.TeclasJugador> crearControles(int cantidadJugadores) {
+        var j1 = new TecladoAdapter.TeclasJugador(KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D, KeyCode.SPACE);
+        var j2 = new TecladoAdapter.TeclasJugador(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER);
+        return (cantidadJugadores >= 2) ? List.of(j1, j2) : List.of(j1);
+    }
+
+    private void tickYRender(double dt, long ahoraMs) {
         if (motor == null) return;
         Nivel nivel = motor.nivel();
         if (nivel == null) return;
 
         var jugadores = nivel.jugadores();
-        if (!jugadores.isEmpty()) {
-            boolean up = teclado.estaPresionada(CONTROLES_J1.up());
-            boolean down = teclado.estaPresionada(CONTROLES_J1.down());
-            boolean left = teclado.estaPresionada(CONTROLES_J1.left());
-            boolean right = teclado.estaPresionada(CONTROLES_J1.right());
-            mover.aplicarMovimiento(jugadores.getFirst(), dt, nivel, up, down, left, right);
-        }
-        if (jugadores.size() >= 2) {
-            boolean up = teclado.estaPresionada(CONTROLES_J2.up());
-            boolean down = teclado.estaPresionada(CONTROLES_J2.down());
-            boolean left = teclado.estaPresionada(CONTROLES_J2.left());
-            boolean right = teclado.estaPresionada(CONTROLES_J2.right());
-            mover.aplicarMovimiento(jugadores.get(1), dt, nivel, up, down, left, right);
-        }
+        if (!jugadores.isEmpty()) aplicarControles(jugadores.getFirst(), controlesActivos.get(0), dt, nivel);
+        if (jugadores.size() >= 2) aplicarControles(jugadores.get(1), controlesActivos.get(1), dt, nivel);
 
-        InputEstado in1 = teclado.construirInput(CONTROLES_J1);
-        InputEstado in2 = controlesActivos.size() >= 2
-                ? teclado.construirInput(CONTROLES_J2)
+        InputEstado in1 = teclado.construirInput(controlesActivos.get(0));
+        InputEstado in2 = (controlesActivos.size() >= 2)
+                ? teclado.construirInput(controlesActivos.get(1))
                 : new InputEstado(false, false, false, false, false);
 
-        motor.tick(System.currentTimeMillis(), in1, in2);
+        motor.tick(ahoraMs, in1, in2);
 
         renderizador.render(motor.estado(), canvas);
 
-        if (motor.enVictoria()) {
-            overlays.render(canvas, ConstantesUI.SPLASH_VICTORIA, Color.LIMEGREEN);
-        } else if (motor.enDerrota()) {
-            overlays.render(canvas, ConstantesUI.SPLASH_DERROTA, Color.ORANGERED);
-        }
+        if (motor.enVictoria()) overlays.render(canvas, ConstantesUI.SPLASH_VICTORIA, Color.LIMEGREEN);
+        else if (motor.enDerrota()) overlays.render(canvas, ConstantesUI.SPLASH_DERROTA, Color.ORANGERED);
 
         if (motor.partidaFinalizada()) terminar();
+    }
+
+    private void aplicarControles(org.example.modelo.personajes.Jugador jugador,
+                                  TecladoAdapter.TeclasJugador teclas,
+                                  double dt,
+                                  Nivel nivel) {
+        boolean up = teclado.estaPresionada(teclas.up());
+        boolean down = teclado.estaPresionada(teclas.down());
+        boolean left = teclado.estaPresionada(teclas.left());
+        boolean right = teclado.estaPresionada(teclas.right());
+        mover.aplicarMovimiento(jugador, dt, nivel, up, down, left, right);
     }
 
     private void terminar() {

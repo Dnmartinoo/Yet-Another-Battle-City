@@ -2,6 +2,7 @@ package org.example.vista.core;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.juego.core.MotorJuego;
 import org.example.vista.campania.CampaniaFactory;
 import org.example.vista.config.ConstantesUI;
@@ -10,6 +11,8 @@ import org.example.vista.menu.MenuPrincipal;
 public class Interfaz {
     private final Stage stage;
     private ControladorJuego controlador;
+    CampaniaFactory factory = new CampaniaFactory(ConstantesUI.XSD_NIVEL);
+    AudioInitializer audio = new AudioInitializer(ManagerSonido.get());
 
     public Interfaz(Stage stage) {
         this.stage = stage;
@@ -17,7 +20,7 @@ public class Interfaz {
     }
 
     public void comenzar() {
-        AudioInitializer.inicializar();
+        audio.inicializar();
         mostrarMenu();
     }
 
@@ -28,7 +31,7 @@ public class Interfaz {
 
     void iniciarJuego(int cantJugadores) {
         boolean coop = (cantJugadores == 2);
-        MotorJuego motor = CampaniaFactory.crearMotorCampania(coop, ConstantesUI.NIVELES_XML);
+        MotorJuego motor = factory.crearMotorCampania(coop, ConstantesUI.NIVELES_XML);
 
         this.controlador = new ControladorJuego(stage, this::mostrarMenu);
         this.controlador.iniciar(motor, cantJugadores);

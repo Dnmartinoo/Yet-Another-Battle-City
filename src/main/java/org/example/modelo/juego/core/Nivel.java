@@ -15,7 +15,6 @@ import org.example.modelo.powerup.PowerUp;
 
 import java.util.*;
 
-import static org.example.modelo.juego.config.JuegoConfig.SND_DERROTA;
 
 public class Nivel {
 
@@ -25,6 +24,7 @@ public class Nivel {
     private final List<Proyectil> proyectiles = new ArrayList<>();
     private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
+
 
     private final GestorBalas gestorBalas = new GestorBalas();
     private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
@@ -54,6 +54,8 @@ public class Nivel {
     public int enemigosPendientes() { return spawner.cantidadPendiente(); }
     public int vidasJugador1() { return jugadores.isEmpty() ? 0 : jugadores.get(0).vidasRestantes(); }
     public int vidasJugador2() { return (jugadores.size() > 1) ? jugadores.get(1).vidasRestantes() : 0; }
+
+    ConstructorEntidades constructor = new ConstructorEntidades();
 
     public Nivel(Rectangulo rectangulo, Spawner spawner) {
         this.spawner = spawner;
@@ -152,11 +154,11 @@ public class Nivel {
 
         if (todosJugadoresAgotados()) {
             derrota = true;
-            try { ManagerSonido.get().playEfecto(SND_DERROTA);  } catch (Throwable __) {}
+            { ManagerSonido.get().playEfecto(JuegoConfig.SND_DERROTA); }
         }
         if (base != null && base.estaDestruido()) {
             derrota = true;
-            try { ManagerSonido.get().playEfecto(SND_DERROTA);  } catch (Throwable __) {}
+            { ManagerSonido.get().playEfecto(JuegoConfig.SND_DERROTA); }
         }
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
@@ -183,11 +185,11 @@ public class Nivel {
                 bloques.size() + proyectiles.size() + enemigos.size() + jugadores.size() + poderes.size()
         );
 
-        ConstructorEntidades.agregarBloques(entidades, bloques);
-        ConstructorEntidades.agregarProyectiles(entidades, proyectiles);
-        ConstructorEntidades.agregarEnemigos(entidades, enemigos);
-        ConstructorEntidades.agregarJugadores(entidades, jugadores);
-        ConstructorEntidades.agregarPowerUps(entidades, poderes);
+        constructor.agregarBloques(entidades, bloques);
+        constructor.agregarProyectiles(entidades, proyectiles);
+        constructor.agregarEnemigos(entidades, enemigos);
+        constructor.agregarJugadores(entidades, jugadores);
+        constructor.agregarPowerUps(entidades, poderes);
 
         return new EstadoNivel(
                 victoria,

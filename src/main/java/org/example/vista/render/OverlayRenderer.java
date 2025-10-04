@@ -25,7 +25,7 @@ public final class OverlayRenderer {
         double textH = tx.getLayoutBounds().getHeight();
 
         double x = (canvas.getWidth()  - textW) * 0.5;
-        double y = (canvas.getHeight() - textH) * 0.5 + textH; // baseline
+        double y = (canvas.getHeight() - textH) * 0.5 + textH;
         g.fillText(texto, x, y);
     }
 }

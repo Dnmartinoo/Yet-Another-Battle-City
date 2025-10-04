@@ -15,7 +15,7 @@ public class Acero extends BloqueBase implements Spriteeable {
 
     @Override
     public ResultadoImpacto recibirImpacto(int dano) {
-        return ResultadoImpacto.balaSeDetiene();
+        return ResultadoImpacto.DETENIDO;
     }
 
     @Override public boolean esAcero() { return true; }

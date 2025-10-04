@@ -15,7 +15,7 @@ public class Bosque extends BloqueBase implements Spriteeable {
 
     @Override
     public ResultadoImpacto recibirImpacto(int dano) {
-        return ResultadoImpacto.balaAtraviesa();
+        return ResultadoImpacto.ATRAVIESA;
     }
 
     @Override public boolean ocultaVisual() { return true; }

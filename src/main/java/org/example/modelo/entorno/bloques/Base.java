@@ -16,7 +16,7 @@ public class Base extends BloqueBase implements Spriteeable {
     @Override
     public ResultadoImpacto recibirImpacto(int dano) {
         destruido = true;
-        return ResultadoImpacto.balaSeDetiene();
+        return ResultadoImpacto.DETENIDO;
     }
 
     @Override public boolean esBase() { return true; }

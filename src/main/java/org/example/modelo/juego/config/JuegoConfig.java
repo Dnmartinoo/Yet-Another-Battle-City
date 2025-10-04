@@ -44,6 +44,7 @@ public final class JuegoConfig {
     public static final String SPRITE_FOREST  = "forest";
     public static final String SPRITE_BASE    = "base";
     public static final String SPRITE_EMPTY   = "empty";
+    public static final int TILE_SIZE = 20;
 
     // ==== SPRITES: Jugadores ====
     public static final String SPRITE_PLAYER1_0 = "player1_0";

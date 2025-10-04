@@ -4,22 +4,22 @@ import org.example.modelo.entorno.Bloque;
 
 public final class ColisionUtils {
 
-    public static boolean colisionaConBloqueSolido(Rectangulo bbox, MundoFisico mundo) {
+    public boolean colisionaConBloqueSolido(Rectangulo bbox, MundoFisico mundo) {
         for (Bloque b : mundo.bloquesEn(bbox)) {
             if (b.bloqueaMovimiento() && b.hitbox().intersecta(bbox)) return true;
         }
         return false;
     }
 
-    public static double ajustarX(double xActual, double yActual, double dx, Rectangulo bbox, MundoFisico mundo) {
+    public double ajustarX(double xActual, double yActual, double dx, Rectangulo bbox, MundoFisico mundo) {
         return ajustar(xActual, yActual, dx, 0, bbox, mundo).x();
     }
 
-    public static double ajustarY(double xActual, double yActual, double dy, Rectangulo bbox, MundoFisico mundo) {
+    public double ajustarY(double xActual, double yActual, double dy, Rectangulo bbox, MundoFisico mundo) {
         return ajustar(xActual, yActual, 0, dy, bbox, mundo).y();
     }
 
-    private static Vector ajustar(double xActual, double yActual, double dx, double dy, Rectangulo bbox, MundoFisico mundo) {
+    private Vector ajustar(double xActual, double yActual, double dx, double dy, Rectangulo bbox, MundoFisico mundo) {
         double nx = xActual;
         double ny = yActual;
 

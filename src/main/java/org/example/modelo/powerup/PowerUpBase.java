@@ -11,7 +11,6 @@ public abstract class PowerUpBase implements PowerUp, Cuerpo {
     protected final double h = 20;
     
     public PowerUpBase(Vector posicion) {
-
         this.posicion = posicion;
     }
     

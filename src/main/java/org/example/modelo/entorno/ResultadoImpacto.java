@@ -1,44 +1,23 @@
 package org.example.modelo.entorno;
 
+public final class ResultadoImpacto {
+    private final boolean proyectilAtraviesa;
 
-public class ResultadoImpacto {
+    public static final ResultadoImpacto DETENIDO   = new ResultadoImpacto(false);
+    public static final ResultadoImpacto ATRAVIESA  = new ResultadoImpacto(true);
 
-    public enum Evento {
-        NINGUNO,
-        BLOQUE_DESTRUIDO,
-        BASE_DESTRUIDA
-    }
-
-
-    public final boolean proyectilAtraviesa;
-
-
-    public final Evento evento;
-
-    private ResultadoImpacto(boolean proyectilAtraviesa, Evento evento) {
+    public ResultadoImpacto(boolean proyectilAtraviesa) {
         this.proyectilAtraviesa = proyectilAtraviesa;
-        this.evento = evento;
     }
-
 
     public boolean detener() {
         return !proyectilAtraviesa;
     }
 
-    public static ResultadoImpacto balaSeDetiene() {
-        return new ResultadoImpacto(false, Evento.NINGUNO);
-    }
-
-    public static ResultadoImpacto balaAtraviesa() {
-        return new ResultadoImpacto(true, Evento.NINGUNO);
-    }
-
-
     @Override
     public String toString() {
         return "ResultadoImpacto{" +
-                "proyectilAtraviesa=" + proyectilAtraviesa +
-                ", evento=" + evento +
-                '}';
+                "proyectilAtraviesa=" + proyectilAtraviesa;
     }
 }
+

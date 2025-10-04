@@ -15,7 +15,7 @@ public class Agua extends BloqueBase implements Spriteeable {
 
     @Override
     public ResultadoImpacto recibirImpacto(int dano) {
-        return ResultadoImpacto.balaAtraviesa();
+        return ResultadoImpacto.ATRAVIESA;
     }
 
     @Override public String spriteId() { return JuegoConfig.SPRITE_WATER; }

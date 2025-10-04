@@ -1,9 +1,5 @@
 package org.example.modelo.niveles;
-
-import org.example.modelo.fisica.Rectangulo;
-import org.example.modelo.juego.core.Nivel;
 import org.example.modelo.juego.core.NivelData;
-import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.personajes.TipoPersonaje;
 import org.w3c.dom.*;
 
@@ -21,6 +17,7 @@ public class XmlNivelLoader {
     private final Schema schema;
 
     public XmlNivelLoader() { this.schema = null; }
+
 
     public XmlNivelLoader(InputStream xsd) {
         try {
@@ -107,17 +104,6 @@ public class XmlNivelLoader {
         } catch (Exception e) {
             throw new RuntimeException("Error al cargar/parsear XML de nivel (levelConfig/level)", e);
         }
-    }
-
-    public Nivel crearNivelDesdeXml(InputStream xml, boolean coopOverride) {
-        NivelData data = cargar(xml);
-        data.setCoop(coopOverride);
-        Rectangulo mundo = new Rectangulo(0, 0, data.ancho(), data.alto());
-        Spawner spawner = new Spawner();
-        Nivel nivel = new Nivel(mundo, spawner);
-        spawner.cargarPendientes(data.enemigos());
-        nivel.crearMundo(data);
-        return nivel;
     }
 
     private static String mapBlockType(String en) {

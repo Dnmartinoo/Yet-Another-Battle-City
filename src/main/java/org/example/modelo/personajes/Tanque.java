@@ -6,6 +6,7 @@ import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.fisica.ColisionUtils;
 import org.example.modelo.fisica.MundoFisico;
+import org.example.modelo.juego.config.JuegoConfig;
 
 public abstract class Tanque implements Cuerpo {
     protected final TipoPersonaje tipo;
@@ -18,11 +19,12 @@ public abstract class Tanque implements Cuerpo {
     protected double ultimaRotacion = 0.0;
     protected Vector ultimaDireccion = new Vector(0, -1);
 
-    protected static final int DEFAULT_TILE = 20;
+    ColisionUtils colisiones = new ColisionUtils();
+
 
     public Tanque(TipoPersonaje tipo, Vector posicion) {
         this.posicion = posicion;
-        this.hitboxLocal = new Rectangulo(0, 0, DEFAULT_TILE, DEFAULT_TILE);
+        this.hitboxLocal = new Rectangulo(0, 0, JuegoConfig.TILE_SIZE, JuegoConfig.TILE_SIZE);
         this.velocidadEscalar = tipo.obtenerVelocidad();
         this.tipo = tipo;
         this.vidaActual = tipo.vidaBase();
@@ -57,8 +59,8 @@ public abstract class Tanque implements Cuerpo {
         if (delta.x() != 0) {
             double nx = posicion.x() + delta.x();
             Rectangulo hX = hitboxLocal.trasladado(new Vector(nx - posicion.x(), 0));
-            if (ColisionUtils.colisionaConBloqueSolido(hX, mundo)) {
-                nx = ColisionUtils.ajustarX(posicion.x(), posicion.y(), delta.x(), hitbox(), mundo);
+            if (colisiones.colisionaConBloqueSolido(hX, mundo)) {
+                nx = colisiones.ajustarX(posicion.x(), posicion.y(), delta.x(), hitbox(), mundo);
             }
             posicion = new Vector(nx, posicion.y());
         }
@@ -66,8 +68,8 @@ public abstract class Tanque implements Cuerpo {
         if (delta.y() != 0) {
             double ny = posicion.y() + delta.y();
             Rectangulo hY = hitboxLocal.trasladado(new Vector(0, ny - posicion.y()));
-            if (ColisionUtils.colisionaConBloqueSolido(hY, mundo)) {
-                ny = ColisionUtils.ajustarY(posicion.x(), posicion.y(), delta.y(), hitbox(), mundo);
+            if (colisiones.colisionaConBloqueSolido(hY, mundo)) {
+                ny = colisiones.ajustarY(posicion.x(), posicion.y(), delta.y(), hitbox(), mundo);
             }
             posicion = new Vector(posicion.x(), ny);
         }

@@ -1,4 +1,5 @@
 package org.example.modelo.juego.core;
+
 import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.estado.EstadoNivel;
 import org.example.modelo.juego.input.InputEstado;
@@ -6,6 +7,7 @@ import org.example.modelo.juego.input.InputEstado;
 import java.util.List;
 
 public final class MotorJuego {
+
     private enum Fase { JUGANDO, VICTORIA, DERROTA }
 
     private Nivel nivelActual;
@@ -16,6 +18,7 @@ public final class MotorJuego {
     private Fase fase;
     private long faseHastaMs;
     private boolean finPartida;
+    private final EstadoNivel estadoVacio = new EstadoNivel();
 
     public interface NivelFactory {
         Nivel crear(NivelData data);
@@ -92,9 +95,23 @@ public final class MotorJuego {
         nivelActual = null;
     }
 
-    public boolean partidaFinalizada() { return finPartida; }
-    public EstadoNivel estado() { return nivelActual != null ? nivelActual.estado() : EstadoNivel.empty(); }
-    public Nivel nivel() { return nivelActual; }
-    public boolean enVictoria() { return fase == Fase.VICTORIA; }
-    public boolean enDerrota()  { return fase == Fase.DERROTA; }
+    public boolean partidaFinalizada() {
+        return finPartida;
+    }
+
+    public EstadoNivel estado() {
+        return (nivelActual != null) ? nivelActual.estado() : estadoVacio;
+    }
+
+    public Nivel nivel() {
+        return nivelActual;
+    }
+
+    public boolean enVictoria() {
+        return fase == Fase.VICTORIA;
+    }
+
+    public boolean enDerrota()  {
+        return fase == Fase.DERROTA;
+    }
 }

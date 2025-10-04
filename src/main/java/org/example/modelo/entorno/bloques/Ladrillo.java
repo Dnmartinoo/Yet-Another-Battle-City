@@ -21,7 +21,7 @@ public class Ladrillo extends BloqueBase implements Spriteeable {
     public ResultadoImpacto recibirImpacto(int dano) {
         vida -= dano;
         if (vida <= 0) destruido = true;
-        return ResultadoImpacto.balaSeDetiene();
+        return ResultadoImpacto.DETENIDO;
     }
 
     @Override public boolean esLadrillo() { return true; }

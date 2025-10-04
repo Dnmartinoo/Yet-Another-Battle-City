@@ -9,9 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class ManagerSprites {
-    private static final Map<String, Image> sprites = new HashMap<>();
 
-    static {
+    private static ManagerSprites instance;
+
+    private final Map<String, Image> sprites = new HashMap<>();
+
+    private ManagerSprites() {
         // ======================
         // BLOQUES
         // ======================
@@ -59,20 +62,25 @@ public final class ManagerSprites {
         put(JuegoConfig.SPRITE_LOGO,            ConstantesUI.PATH_LOGO);
     }
 
-    private static void put(String key, String resourcePath) {
+    private void put(String key, String resourcePath) {
         Image img = cargar(resourcePath);
         sprites.put(key, img);
     }
 
-    private static Image cargar(String path) {
+    private Image cargar(String path) {
         var stream = ManagerSprites.class.getResourceAsStream(path);
         Objects.requireNonNull(stream, "No se encontró el recurso: " + path);
         return new Image(stream);
     }
 
-    public static Image get(String id) {
+    public Image get(String id) {
         return sprites.get(id);
     }
 
-    private ManagerSprites() {}
+    public static ManagerSprites get() {
+        if (instance == null) {
+            instance = new ManagerSprites();
+        }
+        return instance;
+    }
 }

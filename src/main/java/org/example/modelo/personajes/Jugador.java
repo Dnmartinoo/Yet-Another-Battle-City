@@ -11,8 +11,8 @@ public class Jugador extends Tanque implements Control, Spriteeable {
     private Vector respawnPos = null;
     private final int jugadorId;
 
-    private static boolean invulnerable = false;
-    private static long invulnerableHasta = 0L;
+    private boolean invulnerable = false;
+    private long invulnerableHasta = 0L;
 
     private boolean disparoPotenciado = false;
     private boolean disparoPendiente = false;
@@ -49,14 +49,14 @@ public class Jugador extends Tanque implements Control, Spriteeable {
         setInvulnerableHasta(System.currentTimeMillis() + JuegoConfig.RESPAWN_INVULN_MS);
     }
 
-    public static void activarInvulnerabilidadPor(long duracionMs, long ahoraMs) {
-        invulnerable = true;
-        invulnerableHasta = Math.max(invulnerableHasta, ahoraMs + duracionMs);
+    public void activarInvulnerabilidadPor(long duracionMs, long ahoraMs) {
+        this.invulnerable = true;
+        this.invulnerableHasta = Math.max(this.invulnerableHasta, ahoraMs + duracionMs);
     }
 
     public void setInvulnerableHasta(long instanteMs) {
-        invulnerable = true;
-        invulnerableHasta = instanteMs;
+        this.invulnerable = true;
+        this.invulnerableHasta = instanteMs;
     }
 
     public void actualizarEstado(long ahoraMs) {
@@ -71,6 +71,7 @@ public class Jugador extends Tanque implements Control, Spriteeable {
 
     public void setVisible(boolean v) { this.visible = v; }
     public boolean estaVisible() { return visible; }
+
     public void inmovilizarPorMs(long duracionMs, long ahoraMs) {
         this.inmovilizadoHastaMs = Math.max(this.inmovilizadoHastaMs, ahoraMs + duracionMs);
     }
@@ -78,6 +79,7 @@ public class Jugador extends Tanque implements Control, Spriteeable {
     public boolean estaInmovilizado(long ahoraMs) {
         return ahoraMs < inmovilizadoHastaMs;
     }
+
     @Override public void moverArriba()    { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(0, -tipo.obtenerVelocidad() * 50)); }
     @Override public void moverAbajo()     { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(0, tipo.obtenerVelocidad() * 50)); }
     @Override public void moverDerecha()   { if (visible && !estaInmovilizado(System.currentTimeMillis())) setVelocidad(new Vector(tipo.obtenerVelocidad() * 50, 0)); }

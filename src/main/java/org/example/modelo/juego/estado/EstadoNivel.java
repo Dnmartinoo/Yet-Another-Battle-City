@@ -17,19 +17,7 @@ public record EstadoNivel(
     public int enemigosTotales() {
         return enemigosVivos + enemigosPendientes;
     }
-
-    public static EstadoNivel empty() {
-        return new EstadoNivel(
-                false,
-                false,
-                true,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                List.of()
-        );
+    public EstadoNivel() {
+        this(false, false, true, 0, 0, 0, 1, 0, 0, List.of());
     }
 }

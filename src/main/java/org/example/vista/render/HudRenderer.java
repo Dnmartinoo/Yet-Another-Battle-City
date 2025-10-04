@@ -26,12 +26,11 @@ final class HudRenderer {
         double x = ConstantesUI.HUD_PADDING_X;
         double y = ConstantesUI.HUD_PADDING_Y;
 
-        // P1
         g.setFill(Color.web(ConstantesUI.HUD_COLOR_TEXT));
         g.fillText("P1 Vidas: " + vidasP1, x, y);
         x += ConstantesUI.HUD_SEPARACION;
 
-        // P2 (si existe)
+
         if (cantJugadores >= 2) {
             g.setFill(Color.web(ConstantesUI.HUD_COLOR_P2));
             g.fillText("P2 Vidas: " + vidasP2, x, y);
@@ -39,10 +38,8 @@ final class HudRenderer {
             g.setFill(Color.web(ConstantesUI.HUD_COLOR_TEXT));
         }
 
-        // Enemigos + Nivel
         g.fillText("Enemigos: " + enemigosTot, x, y);
         x += ConstantesUI.HUD_SEPARACION;
-
         g.fillText("Nivel: " + nivelNro, x, y);
     }
 }

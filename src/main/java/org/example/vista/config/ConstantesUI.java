@@ -3,7 +3,7 @@ package org.example.vista.config;
 import java.util.List;
 
 public final class ConstantesUI {
-    private ConstantesUI() {} // no instanciable
+    private ConstantesUI() {}
 
     // --- Ventana ---
     public static final String WINDOW_TITLE = "BATTLE CITY - Jugando";

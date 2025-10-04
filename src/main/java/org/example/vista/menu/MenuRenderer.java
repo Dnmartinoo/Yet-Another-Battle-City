@@ -39,18 +39,15 @@ final class MenuRenderer {
         titulo.setTextFill(Color.web(ConstantesUI.MENU_TITLE_COLOR));
         titulo.setFont(Font.font(ConstantesUI.MENU_TITLE_FONT, ConstantesUI.MENU_TITLE_SIZE));
 
-        // Selector (tanque)
-        selector = new ImageView(ManagerSprites.get(JuegoConfig.SPRITE_PLAYER1_0));
+        selector = new ImageView(ManagerSprites.get().get(JuegoConfig.SPRITE_PLAYER1_0));
         selector.setFitWidth(ConstantesUI.MENU_SELECTOR_W);
         selector.setFitHeight(ConstantesUI.MENU_SELECTOR_H);
         selector.setRotate(ConstantesUI.MENU_SELECTOR_ROT);
 
-        // Menú
         menuBox = new VBox(ConstantesUI.MENU_OPTIONS_GAP);
         menuBox.setAlignment(Pos.CENTER);
         opcionesMenu();
 
-        // Logo con fade-in
         ImageView logoView = construirLogo();
 
         VBox contenedor = new VBox(ConstantesUI.MENU_VSPACING);
@@ -79,7 +76,7 @@ final class MenuRenderer {
     }
 
     void animar() {
-        // Slide menú
+
         menuBox.setTranslateY(ConstantesUI.MENU_SLIDE_START_Y);
         var slide = new javafx.animation.TranslateTransition(Duration.seconds(ConstantesUI.MENU_SLIDE_SEC), menuBox);
         slide.setToY(0);

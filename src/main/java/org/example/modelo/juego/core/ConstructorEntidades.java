@@ -14,7 +14,9 @@ import java.util.List;
 
 public final class ConstructorEntidades {
 
-    private static EstadoEntidad entidadFija(String spriteId, Rectangulo hb) {
+    public ConstructorEntidades() {}
+
+    private EstadoEntidad entidadFija(String spriteId, Rectangulo hb) {
         return new EstadoEntidad(
                 spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
                 false,
@@ -22,7 +24,7 @@ public final class ConstructorEntidades {
         );
     }
 
-    private static EstadoEntidad entidadConRot(String spriteId, Rectangulo hb, double rot) {
+    private EstadoEntidad entidadConRot(String spriteId, Rectangulo hb, double rot) {
         return new EstadoEntidad(
                 spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
                 false,
@@ -30,7 +32,7 @@ public final class ConstructorEntidades {
         );
     }
 
-    private static EstadoEntidad entidadJugador(String spriteId, Rectangulo hb, boolean casco, double rot) {
+    private EstadoEntidad entidadJugador(String spriteId, Rectangulo hb, boolean casco, double rot) {
         return new EstadoEntidad(
                 spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
                 casco,
@@ -38,7 +40,7 @@ public final class ConstructorEntidades {
         );
     }
 
-    public static void agregarBloques(List<EstadoEntidad> out, List<Bloque> bloques) {
+    public void agregarBloques(List<EstadoEntidad> out, List<Bloque> bloques) {
         for (var bloque : bloques) {
             var hb = bloque.hitbox();
             var id = ((Spriteeable) bloque).spriteId();
@@ -46,21 +48,21 @@ public final class ConstructorEntidades {
         }
     }
 
-    public static void agregarProyectiles(List<EstadoEntidad> out, List<Proyectil> proyectiles) {
+    public void agregarProyectiles(List<EstadoEntidad> out, List<Proyectil> proyectiles) {
         for (var p : proyectiles) {
             var hb = p.hitbox();
             out.add(entidadFija(p.spriteId(), hb));
         }
     }
 
-    public static void agregarEnemigos(List<EstadoEntidad> out, List<Enemigo> enemigos) {
+    public void agregarEnemigos(List<EstadoEntidad> out, List<Enemigo> enemigos) {
         for (var e : enemigos) {
             var hb = e.hitbox();
             out.add(entidadConRot(e.spriteId(), hb, e.rotacion()));
         }
     }
 
-    public static void agregarJugadores(List<EstadoEntidad> out, List<Jugador> jugadores) {
+    public void agregarJugadores(List<EstadoEntidad> out, List<Jugador> jugadores) {
         for (var j : jugadores) {
             if (!j.estaVisible()) continue;
             var hb = j.hitbox();
@@ -68,7 +70,7 @@ public final class ConstructorEntidades {
         }
     }
 
-    public static void agregarPowerUps(List<EstadoEntidad> out, List<PowerUp> poderes) {
+    public void agregarPowerUps(List<EstadoEntidad> out, List<PowerUp> poderes) {
         for (var p : poderes) {
             var hb = p.hitbox();
             var id = ((Spriteeable) p).spriteId();

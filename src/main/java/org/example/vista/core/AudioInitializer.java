@@ -3,19 +3,25 @@ package org.example.vista.core;
 import org.example.modelo.audio.ManagerSonido;
 import org.example.vista.config.ConstantesUI;
 
-final class AudioInitializer {
-    private AudioInitializer() {}
+public class AudioInitializer {
 
-    static void inicializar() {
-        ManagerSonido.get().cargarEfecto("muerteTanque",     ConstantesUI.SFX_MUERTE_TANQUE);
-        ManagerSonido.get().cargarEfecto("derrota",          ConstantesUI.SFX_DERROTA);
-        ManagerSonido.get().cargarEfecto("impactoBlindado",  ConstantesUI.SFX_IMPACTO_BLIND);
-        ManagerSonido.get().cargarEfecto("impactoAcero",     ConstantesUI.SFX_IMPACTO_ACERO);
-        ManagerSonido.get().cargarEfecto("disparar",         ConstantesUI.SFX_DISPARAR);
-        ManagerSonido.get().cargarEfecto("ladrilloRoto",     ConstantesUI.SFX_LADRILLO_ROTO);
+    private final ManagerSonido sonido;
 
-        // Música
-        ManagerSonido.get().cargarMusica(ConstantesUI.MUSICA_LOOP);
-        ManagerSonido.get().playMusica();
+    public AudioInitializer(ManagerSonido sonido) {
+        this.sonido = sonido;
+    }
+
+    public void inicializar() {
+        //EFECTOS
+        sonido.cargarEfecto("muerteTanque",     ConstantesUI.SFX_MUERTE_TANQUE);
+        sonido.cargarEfecto("derrota",          ConstantesUI.SFX_DERROTA);
+        sonido.cargarEfecto("impactoBlindado",  ConstantesUI.SFX_IMPACTO_BLIND);
+        sonido.cargarEfecto("impactoAcero",     ConstantesUI.SFX_IMPACTO_ACERO);
+        sonido.cargarEfecto("disparar",         ConstantesUI.SFX_DISPARAR);
+        sonido.cargarEfecto("ladrilloRoto",     ConstantesUI.SFX_LADRILLO_ROTO);
+
+        // MUSICA
+        sonido.cargarMusica(ConstantesUI.MUSICA_LOOP);
+        sonido.playMusica();
     }
 }

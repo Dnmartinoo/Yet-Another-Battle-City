@@ -4,7 +4,6 @@ import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.disparo.Equipo;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.Bloque;
-import org.example.modelo.entorno.BloqueFactory;
 import org.example.modelo.entorno.ResultadoImpacto;
 import org.example.modelo.fisica.MundoFisico;
 import org.example.modelo.fisica.Rectangulo;
@@ -21,7 +20,7 @@ public class GestorBalas {
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
     private final ManagerSonido sonido = ManagerSonido.get();
-
+    private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
     public void reset() {
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
@@ -165,7 +164,7 @@ public class GestorBalas {
     }
 
     private void limpiarBalasFuera(List<Proyectil> proyectiles, Rectangulo limites) {
-        final double MARGEN = BloqueFactory.TILE;
+        final double MARGEN =  JuegoConfig.TILE_SIZE;
         proyectiles.removeIf(p ->
                 !p.vivo() ||
                         p.posicion().x() < limites.x() - MARGEN ||
@@ -179,7 +178,7 @@ public class GestorBalas {
         enemigos.removeIf(e -> {
             if (!e.estaVivo()) {
                 if (Math.random() < JuegoConfig.PROB_DROP_POWERUP) {
-                    poderes.add(GestorPowerUps.crearPoderRandom(e.posicion()));
+                    poderes.add(gestorPowerUps.crearPoderRandom(e.posicion()));
                 }
                 return true;
             }
@@ -194,8 +193,8 @@ public class GestorBalas {
             if (b.esDestruible() && b.estaDestruido()) destruidos.add(b);
         }
         for (var b : destruidos) {
-            int tx = (int)(b.posicion().x() / BloqueFactory.TILE);
-            int ty = (int)(b.posicion().y() / BloqueFactory.TILE);
+            int tx = (int)(b.posicion().x() /  JuegoConfig.TILE_SIZE);
+            int ty = (int)(b.posicion().y() /  JuegoConfig.TILE_SIZE);
             mundo.setBloque(ty, tx, null);
         }
         bloques.removeAll(destruidos);
