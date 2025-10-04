@@ -36,7 +36,7 @@ YABC (Yet Another Battle City) es una implementación en Java del clásico juego
 
 ### Compilación y ejecución
 ```bash
-git clone [URL_DEL_REPOSITORIO]
+git clone https://github.com/paradigmas-tb025-essaya/tp1-miguel-borja.git
 cd tp1-miguel-borja
 
 

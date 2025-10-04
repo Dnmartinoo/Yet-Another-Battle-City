@@ -20,17 +20,17 @@ public final class ConstantesUI {
     public static final String MUSICA_LOOP       = "/sounds/musica/tribe-drum-loop.wav";
     public static final String SFX_MUERTE_TANQUE = "/sounds/efectos/bang.wav";
     public static final String SFX_DERROTA       = "/sounds/efectos/explosion.wav";
-    public static final String SFX_IMPACTO_BLIND = "/sounds/glass-cling.wav";
-    public static final String SFX_IMPACTO_ACERO = "/sounds/glass-cling.wav";
+    public static final String SFX_IMPACTO_BLIND = "/sounds/efectos/glass-cling.wav";
+    public static final String SFX_IMPACTO_ACERO = "/sounds/efectos/glass-cling.wav";
     public static final String SFX_DISPARAR      = "/sounds/efectos/laser-gun.wav";
     public static final String SFX_LADRILLO_ROTO = "/sounds/efectos/wood-impact.wav";
 
     // --- Niveles / esquema ---
     public static final String XSD_NIVEL = "/niveles/schema/levelConfig.xsd";
     public static final List<String> NIVELES_XML = List.of(
-            "/niveles/Level1.xml",
+            "/niveles/Level2.xml",
             "/niveles/Level0.xml",
-            "/niveles/Level2.xml"
+            "/niveles/Level1.xml"
     );
 
     // Post Nivel
