@@ -58,3 +58,7 @@ mvn javafx:run
 ### Menus:
 - **Seleccionar Un Jugador, Dos Jugadores, Salir** ENTER
 - **Moverse entre Opciones** Flechas de teclado Verticales(↑↓)
+
+### Videos:
+- **Agustin:** https://www.youtube.com/watch?v=gAaI3CuL5SQ
+- **Martino:** https://www.youtube.com/watch?v=m4Ti5dXHStU
