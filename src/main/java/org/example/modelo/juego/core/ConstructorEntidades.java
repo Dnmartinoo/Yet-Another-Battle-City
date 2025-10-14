@@ -2,8 +2,8 @@ package org.example.modelo.juego.core;
 
 import org.example.modelo.entorno.Bloque;
 import org.example.modelo.fisica.Rectangulo;
+import org.example.modelo.fisica.Vector;
 import org.example.modelo.disparo.Proyectil;
-import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.juego.estado.EstadoEntidad;
 import org.example.modelo.personajes.Enemigo;
@@ -16,65 +16,69 @@ public final class ConstructorEntidades {
 
     public ConstructorEntidades() {}
 
-    private EstadoEntidad entidadFija(String spriteId, Rectangulo hb) {
+    private EstadoEntidad entidadFija(String tipo, Rectangulo hb) {
         return new EstadoEntidad(
-                spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
+                tipo, hb.x(), hb.y(), hb.w(), hb.h(),
                 false,
-                JuegoConfig.ROTACION_FIJA
+                0, 0
         );
     }
 
-    private EstadoEntidad entidadConRot(String spriteId, Rectangulo hb, double rot) {
+    private EstadoEntidad entidadDirigida(String tipo, Rectangulo hb, Vector dir) {
         return new EstadoEntidad(
-                spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
+                tipo, hb.x(), hb.y(), hb.w(), hb.h(),
                 false,
-                rot
+                dir.x(), dir.y()
         );
     }
 
-    private EstadoEntidad entidadJugador(String spriteId, Rectangulo hb, boolean casco, double rot) {
+    private EstadoEntidad entidadJugador(Rectangulo hb, boolean casco, Vector dir) {
         return new EstadoEntidad(
-                spriteId, hb.x(), hb.y(), hb.w(), hb.h(),
+                "Jugador", hb.x(), hb.y(), hb.w(), hb.h(),
                 casco,
-                rot
+                dir.x(), dir.y()
         );
     }
+
 
     public void agregarBloques(List<EstadoEntidad> out, List<Bloque> bloques) {
         for (var bloque : bloques) {
             var hb = bloque.hitbox();
-            var id = ((Spriteeable) bloque).spriteId();
-            out.add(entidadFija(id, hb));
+            String tipo = bloque.getClass().getSimpleName();
+            out.add(entidadFija(tipo, hb));
         }
     }
+
 
     public void agregarProyectiles(List<EstadoEntidad> out, List<Proyectil> proyectiles) {
         for (var p : proyectiles) {
             var hb = p.hitbox();
-            out.add(entidadFija(p.spriteId(), hb));
+            out.add(entidadDirigida("Proyectil", hb, p.velocidad().normalizado()));
         }
     }
+
 
     public void agregarEnemigos(List<EstadoEntidad> out, List<Enemigo> enemigos) {
         for (var e : enemigos) {
             var hb = e.hitbox();
-            out.add(entidadConRot(e.spriteId(), hb, e.rotacion()));
+            out.add(entidadDirigida(e.getTipo().name(), hb, e.ultimaDireccion()));
         }
     }
+
 
     public void agregarJugadores(List<EstadoEntidad> out, List<Jugador> jugadores) {
         for (var j : jugadores) {
             if (!j.estaVisible()) continue;
             var hb = j.hitbox();
-            out.add(entidadJugador(j.spriteId(), hb, j.esInvulnerable(), j.rotacion()));
+            out.add(entidadJugador(hb, j.esInvulnerable(), j.ultimaDireccion()));
         }
     }
 
     public void agregarPowerUps(List<EstadoEntidad> out, List<PowerUp> poderes) {
         for (var p : poderes) {
             var hb = p.hitbox();
-            var id = ((Spriteeable) p).spriteId();
-            out.add(entidadFija(id, hb));
+            String tipo = p.getClass().getSimpleName();
+            out.add(entidadFija(tipo, hb));
         }
     }
 }

@@ -3,10 +3,8 @@ package org.example.modelo.entorno.bloques;
 import org.example.modelo.entorno.BloqueBase;
 import org.example.modelo.entorno.ResultadoImpacto;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.config.JuegoConfig;
-import org.example.modelo.juego.Spriteeable;
 
-public class Base extends BloqueBase implements Spriteeable {
+public class Base extends BloqueBase {
     public Base(Vector posicion, int tileSize) { super(posicion, tileSize); }
 
     @Override public boolean bloqueaMovimiento() { return !destruido; }
@@ -20,6 +18,4 @@ public class Base extends BloqueBase implements Spriteeable {
     }
 
     @Override public boolean esBase() { return true; }
-
-    @Override public String spriteId() { return JuegoConfig.SPRITE_BASE; }
 }

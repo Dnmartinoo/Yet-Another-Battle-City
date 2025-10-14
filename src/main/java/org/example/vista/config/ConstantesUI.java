@@ -20,17 +20,17 @@ public final class ConstantesUI {
     public static final String MUSICA_LOOP       = "/sounds/musica/tribe-drum-loop.wav";
     public static final String SFX_MUERTE_TANQUE = "/sounds/efectos/bang.wav";
     public static final String SFX_DERROTA       = "/sounds/efectos/explosion.wav";
-    public static final String SFX_IMPACTO_BLIND = "/sounds/glass-cling.wav";
-    public static final String SFX_IMPACTO_ACERO = "/sounds/glass-cling.wav";
+    public static final String SFX_IMPACTO_BLIND = "/sounds/efectos/glass-cling.wav";
+    public static final String SFX_IMPACTO_ACERO = "/sounds/efectos/glass-cling.wav";
     public static final String SFX_DISPARAR      = "/sounds/efectos/laser-gun.wav";
     public static final String SFX_LADRILLO_ROTO = "/sounds/efectos/wood-impact.wav";
 
     // --- Niveles / esquema ---
     public static final String XSD_NIVEL = "/niveles/schema/levelConfig.xsd";
     public static final List<String> NIVELES_XML = List.of(
+            "/niveles/Level2.xml",
             "/niveles/Level1.xml",
-            "/niveles/Level0.xml",
-            "/niveles/Level2.xml"
+            "/niveles/Level0.xml"
     );
 
     // Post Nivel
@@ -105,7 +105,7 @@ public final class ConstantesUI {
     public static final double HUD_OPACIDAD_FONDO  = 0.35;
     public static final String HUD_FONT_FAMILY     = "Consolas";
     public static final int    HUD_FONT_SIZE       = 18;
-    public static final String HUD_COLOR_TEXT      = "#F5F5F5"; // WHITESMOKE
-    public static final String HUD_COLOR_P2        = "#87CEFA"; // LIGHTSKYBLUE
+    public static final String HUD_COLOR_TEXT      = "#F5F5F5";
+    public static final String HUD_COLOR_P2        = "#87CEFA";
 
 }

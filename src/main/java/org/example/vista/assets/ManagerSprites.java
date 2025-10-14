@@ -12,9 +12,20 @@ public final class ManagerSprites {
 
     private static ManagerSprites instance;
 
+    public static ManagerSprites get() {
+        if (instance == null) {
+            instance = new ManagerSprites();
+        }
+        return instance;
+    }
+
     private final Map<String, Image> sprites = new HashMap<>();
 
     private ManagerSprites() {
+        cargarSprites();
+    }
+
+    private void cargarSprites() {
         // ======================
         // BLOQUES
         // ======================
@@ -77,10 +88,33 @@ public final class ManagerSprites {
         return sprites.get(id);
     }
 
-    public static ManagerSprites get() {
-        if (instance == null) {
-            instance = new ManagerSprites();
-        }
-        return instance;
+    public String spriteDesdeTipo(String tipo) {
+        if (tipo == null) return JuegoConfig.SPRITE_EMPTY;
+
+        return switch (tipo) {
+            // BLOQUES
+            case "Ladrillo" -> JuegoConfig.SPRITE_BRICK;
+            case "Acero"   -> JuegoConfig.SPRITE_STEEL;
+            case "Agua"    -> JuegoConfig.SPRITE_WATER;
+            case "Bosque"  -> JuegoConfig.SPRITE_FOREST;
+            case "Base"    -> JuegoConfig.SPRITE_BASE;
+
+            // POWERUPS
+            case "Casco"   -> JuegoConfig.SPRITE_POWER_HELMET;
+            case "Granada" -> JuegoConfig.SPRITE_POWER_GRENADE;
+            case "Estrella"-> JuegoConfig.SPRITE_POWER_STAR;
+
+            // ENEMIGOS
+            case "fastEnemy"    -> JuegoConfig.SPRITE_ENEMY_FAST_0;
+            case "heavyEnemy"   -> JuegoConfig.SPRITE_ENEMY_HEAVY_0;
+            case "powerfulEnemy"-> JuegoConfig.SPRITE_ENEMY_POWER_0;
+            case "regularEnemy" -> JuegoConfig.SPRITE_ENEMY_REGULAR_0;
+
+            // OTROS
+            case "Jugador"   -> JuegoConfig.SPRITE_PLAYER1_0;
+            case "Proyectil" -> JuegoConfig.SPRITE_SHOT;
+
+            default -> JuegoConfig.SPRITE_EMPTY;
+        };
     }
 }

@@ -3,10 +3,8 @@ package org.example.modelo.entorno.bloques;
 import org.example.modelo.entorno.BloqueBase;
 import org.example.modelo.entorno.ResultadoImpacto;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.config.JuegoConfig;
-import org.example.modelo.juego.Spriteeable;
 
-public class Acero extends BloqueBase implements Spriteeable {
+public class Acero extends BloqueBase {
     public Acero(Vector posicion, int tileSize) { super(posicion, tileSize); }
 
     @Override public boolean bloqueaMovimiento() { return true; }
@@ -19,6 +17,4 @@ public class Acero extends BloqueBase implements Spriteeable {
     }
 
     @Override public boolean esAcero() { return true; }
-
-    @Override public String spriteId() { return JuegoConfig.SPRITE_STEEL; }
 }
