@@ -1,6 +1,5 @@
 package org.example.modelo.juego.core;
 
-import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.disparo.Equipo;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.Bloque;
@@ -12,6 +11,7 @@ import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.PowerUp;
+import org.example.modelo.puertos.SoundPort;
 
 import java.util.*;
 
@@ -19,8 +19,15 @@ public class GestorBalas {
 
     private final Map<Jugador, Proyectil> balaActivaPorJugador = new IdentityHashMap<>();
     private final Map<Proyectil, Jugador> duenioDeBala = new IdentityHashMap<>();
-    private final ManagerSonido sonido = ManagerSonido.get();
-    private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
+
+    private final SoundPort sound;
+    private final GestorPowerUps gestorPowerUps;
+
+    public GestorBalas(SoundPort sound) {
+        this.sound = sound;
+        this.gestorPowerUps = new GestorPowerUps(sound);
+    }
+
     public void reset() {
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
@@ -45,7 +52,7 @@ public class GestorBalas {
         balaActivaPorJugador.put(j, nueva);
         duenioDeBala.put(nueva, j);
 
-        sonido.playEfecto(JuegoConfig.SND_DISPARAR);
+        sound.playEffect(JuegoConfig.SND_DISPARAR);
     }
 
     public void spawnBalaEnemigo(Enemigo e, List<Proyectil> proyectiles) {
@@ -58,7 +65,7 @@ public class GestorBalas {
                 Equipo.ENEMIGO,
                 false
         ));
-        sonido.playEfecto(JuegoConfig.SND_DISPARAR);
+        sound.playEffect(JuegoConfig.SND_DISPARAR);
     }
 
     public void actualizar(
@@ -100,8 +107,8 @@ public class GestorBalas {
                 if (ri.detener()) {
                     bala.destruir();
 
-                    if (bl.esAcero() && !bl.estaDestruido()) sonido.playEfecto(JuegoConfig.SND_IMPACTO_ACERO);
-                    if (bl.esLadrillo() && bl.estaDestruido()) sonido.playEfecto(JuegoConfig.SND_LADRILLO_ROTO);
+                    if (bl.esAcero() && !bl.estaDestruido()) sound.playEffect(JuegoConfig.SND_IMPACTO_ACERO);
+                    if (bl.esLadrillo() && bl.estaDestruido()) sound.playEffect(JuegoConfig.SND_LADRILLO_ROTO);
                     break;
                 }
             }

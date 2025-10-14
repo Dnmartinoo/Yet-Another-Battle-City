@@ -1,4 +1,4 @@
-package org.example.modelo.audio;
+package org.example.vista.audio;
 
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;

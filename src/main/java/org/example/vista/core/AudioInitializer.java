@@ -1,6 +1,6 @@
 package org.example.vista.core;
 
-import org.example.modelo.audio.ManagerSonido;
+import org.example.vista.audio.ManagerSonido;
 import org.example.vista.config.ConstantesUI;
 
 public class AudioInitializer {

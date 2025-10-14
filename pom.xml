@@ -31,7 +31,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>org.example.modelo.App</mainClass>
+                    <mainClass>org.example.vista.App</mainClass>
                 </configuration>
             </plugin>
         </plugins>

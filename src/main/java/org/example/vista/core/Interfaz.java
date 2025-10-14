@@ -2,7 +2,8 @@ package org.example.vista.core;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.example.modelo.audio.ManagerSonido;
+import org.example.vista.audio.AdaptadorDeSonido;
+import org.example.vista.audio.ManagerSonido;
 import org.example.modelo.juego.core.MotorJuego;
 import org.example.vista.campania.CampaniaFactory;
 import org.example.vista.config.ConstantesUI;
@@ -11,7 +12,7 @@ import org.example.vista.menu.MenuPrincipal;
 public class Interfaz {
     private final Stage stage;
     private ControladorJuego controlador;
-    CampaniaFactory factory = new CampaniaFactory(ConstantesUI.XSD_NIVEL);
+    CampaniaFactory factory = new CampaniaFactory(ConstantesUI.XSD_NIVEL,  new AdaptadorDeSonido(ManagerSonido.get()));
     AudioInitializer audio = new AudioInitializer(ManagerSonido.get());
 
     public Interfaz(Stage stage) {

@@ -1,4 +1,4 @@
-package org.example.modelo;
+package org.example.vista;
 
 import javafx.application.Application;
 import javafx.stage.Stage;

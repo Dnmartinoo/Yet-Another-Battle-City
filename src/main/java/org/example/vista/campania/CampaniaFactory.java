@@ -6,6 +6,7 @@ import org.example.modelo.juego.core.Nivel;
 import org.example.modelo.juego.core.NivelData;
 import org.example.modelo.juego.core.Spawner;
 import org.example.modelo.niveles.XmlNivelLoader;
+import org.example.modelo.puertos.SoundPort;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,9 +15,11 @@ import java.util.List;
 public class CampaniaFactory {
 
     private final String xsdPath;
+    private final SoundPort sound;
 
-    public CampaniaFactory(String xsdPath) {
+    public CampaniaFactory(String xsdPath, SoundPort sound) {
         this.xsdPath = xsdPath;
+        this.sound = sound;
     }
 
     public MotorJuego crearMotorCampania(boolean coop, List<String> rutasXml) {
@@ -28,7 +31,7 @@ public class CampaniaFactory {
         MotorJuego.NivelFactory factory = (data) -> {
             Rectangulo bounds = new Rectangulo(0, 0, data.ancho(), data.alto());
             Spawner spawner   = new Spawner();
-            return new Nivel(bounds, spawner);
+            return new Nivel(bounds, spawner, sound);
         };
 
         motor.configurarCampaña(nivelesData, factory);

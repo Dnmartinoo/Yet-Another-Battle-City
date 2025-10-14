@@ -1,6 +1,5 @@
 package org.example.modelo.juego.core;
 
-import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.disparo.Proyectil;
 import org.example.modelo.entorno.*;
 import org.example.modelo.fisica.MundoFisico;
@@ -12,9 +11,9 @@ import org.example.modelo.juego.input.InputEstado;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.PowerUp;
+import org.example.modelo.puertos.SoundPort;
 
 import java.util.*;
-
 
 public class Nivel {
 
@@ -25,9 +24,8 @@ public class Nivel {
     private final List<PowerUp> poderes = new ArrayList<>();
     private final Spawner spawner;
 
-
-    private final GestorBalas gestorBalas = new GestorBalas();
-    private final GestorPowerUps gestorPowerUps = new GestorPowerUps();
+    private final GestorBalas gestorBalas;
+    private final GestorPowerUps gestorPowerUps;
 
     private Bloque base;
     private MundoFisico mundo;
@@ -57,10 +55,17 @@ public class Nivel {
 
     ConstructorEntidades constructor = new ConstructorEntidades();
 
-    public Nivel(Rectangulo rectangulo, Spawner spawner) {
+    private final SoundPort sound;
+
+    public Nivel(Rectangulo rectangulo, Spawner spawner, SoundPort sound) {
         this.spawner = spawner;
         this.limites = rectangulo;
+        this.sound = sound;
+
+        this.gestorBalas = new GestorBalas(sound);
+        this.gestorPowerUps = new GestorPowerUps(sound);
     }
+
     public void crearMundo(NivelData data) {
         balaActivaPorJugador.clear();
         duenioDeBala.clear();
@@ -107,7 +112,6 @@ public class Nivel {
         for (Jugador j : jugadores) j.actualizarEstado(ahoraMs);
         for (Enemigo e : enemigos) e.actualizarIA(ahoraMs, dt, mundo);
 
-
         for (Jugador j : jugadores) {
             if (!j.hayDisparoPendiente()) continue;
             long next = proximoDisparoJugadorMs.getOrDefault(j, 0L);
@@ -152,13 +156,13 @@ public class Nivel {
             }
         }
 
-        if (todosJugadoresAgotados()) {
+        if (todosJugadoresAgotados() && !derrota) {
             derrota = true;
-            { ManagerSonido.get().playEfecto(JuegoConfig.SND_DERROTA); }
+            sound.playEffect(JuegoConfig.SND_DERROTA);
         }
-        if (base != null && base.estaDestruido()) {
+        if (base != null && base.estaDestruido() && !derrota) {
             derrota = true;
-            { ManagerSonido.get().playEfecto(JuegoConfig.SND_DERROTA); }
+            sound.playEffect(JuegoConfig.SND_DERROTA);
         }
         if (enemigos.isEmpty() && spawner.yaTermino()) {
             victoria = true;
@@ -204,6 +208,4 @@ public class Nivel {
                 entidades
         );
     }
-
-
 }
