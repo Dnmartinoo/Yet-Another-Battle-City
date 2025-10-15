@@ -3,10 +3,8 @@ package org.example.modelo.disparo;
 import org.example.modelo.fisica.Cuerpo;
 import org.example.modelo.fisica.Rectangulo;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.config.JuegoConfig;
-import org.example.modelo.juego.Spriteeable;
 
-public class Proyectil implements Cuerpo, Spriteeable {
+public class Proyectil implements Cuerpo {
     private Vector posicion;
     private final Vector direccionUnitaria;
     private final double velocidad;
@@ -38,9 +36,4 @@ public class Proyectil implements Cuerpo, Spriteeable {
     public int dano() { return dano; }
     public Equipo equipo() { return equipo; }
     public boolean esPotenciada() { return potenciada; }
-
-    @Override
-    public String spriteId() {
-        return JuegoConfig.SPRITE_SHOT;
-    }
 }

@@ -1,11 +1,10 @@
 package org.example.modelo.personajes;
 
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.controlador.Control;
 import org.example.modelo.juego.config.JuegoConfig;
 
-public class Jugador extends Tanque implements Control, Spriteeable {
+public class Jugador extends Tanque implements Control {
 
     private int vidasRestantes = JuegoConfig.VIDAS_INICIALES;
     private Vector respawnPos = null;
@@ -89,9 +88,4 @@ public class Jugador extends Tanque implements Control, Spriteeable {
     @Override public void disparar() { if (visible) this.disparoPendiente = true; }
     public boolean hayDisparoPendiente() { return disparoPendiente; }
     public void consumirDisparoPendiente() { disparoPendiente = false; }
-
-    @Override
-    public String spriteId() {
-        return (jugadorId == 1) ? JuegoConfig.SPRITE_PLAYER1_0 : JuegoConfig.SPRITE_PLAYER2_0;
-    }
 }

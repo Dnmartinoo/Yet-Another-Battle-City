@@ -2,10 +2,9 @@ package org.example.modelo.powerup;
 
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.juego.config.JuegoConfig;
-import org.example.modelo.juego.Spriteeable;
 import org.example.modelo.personajes.Jugador;
 
-public class Casco extends PowerUpBase implements Spriteeable {
+public class Casco extends PowerUpBase{
 
 
     public Casco(Vector posicion) {
@@ -17,11 +16,6 @@ public class Casco extends PowerUpBase implements Spriteeable {
         long ahora = System.currentTimeMillis();
         jugador.activarInvulnerabilidadPor(JuegoConfig.CASCO_DURACION_MS, ahora);
         return ComandoPowerUp.NONE;
-    }
-
-    @Override
-    public String spriteId() {
-        return JuegoConfig.SPRITE_POWER_HELMET;
     }
 
     @Override

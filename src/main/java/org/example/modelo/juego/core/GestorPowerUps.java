@@ -1,11 +1,11 @@
 package org.example.modelo.juego.core;
 
-import org.example.modelo.audio.ManagerSonido;
 import org.example.modelo.fisica.Vector;
 import org.example.modelo.juego.config.JuegoConfig;
 import org.example.modelo.personajes.Enemigo;
 import org.example.modelo.personajes.Jugador;
 import org.example.modelo.powerup.*;
+import org.example.modelo.puertos.SoundPort;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +14,11 @@ import java.util.Random;
 public class GestorPowerUps {
 
     private final Random rng = new Random();
+    private final SoundPort sound;
+
+    public GestorPowerUps(SoundPort sound) {
+        this.sound = sound;
+    }
 
     public PowerUp crearPoderRandom(Vector posicion) {
         int r = rng.nextInt(3);
@@ -36,7 +41,7 @@ public class GestorPowerUps {
                         enemigos.clear();
                         spawner.cancelarPendientes();
                     }
-                    ManagerSonido.get().playEfecto(JuegoConfig.SND_POWERUP);
+                    sound.playEffect(JuegoConfig.SND_POWERUP);
                     it.remove();
                     break;
                 }

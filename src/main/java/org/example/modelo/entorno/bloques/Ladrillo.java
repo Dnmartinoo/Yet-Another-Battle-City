@@ -3,10 +3,8 @@ package org.example.modelo.entorno.bloques;
 import org.example.modelo.entorno.BloqueBase;
 import org.example.modelo.entorno.ResultadoImpacto;
 import org.example.modelo.fisica.Vector;
-import org.example.modelo.juego.config.JuegoConfig;
-import org.example.modelo.juego.Spriteeable;
 
-public class Ladrillo extends BloqueBase implements Spriteeable {
+public class Ladrillo extends BloqueBase{
     private int vida = 3;
 
     public Ladrillo(Vector posicion, int tileSize) {
@@ -25,6 +23,4 @@ public class Ladrillo extends BloqueBase implements Spriteeable {
     }
 
     @Override public boolean esLadrillo() { return true; }
-
-    @Override public String spriteId() { return JuegoConfig.SPRITE_BRICK; }
 }

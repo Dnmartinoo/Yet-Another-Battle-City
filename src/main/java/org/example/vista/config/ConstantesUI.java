@@ -29,8 +29,8 @@ public final class ConstantesUI {
     public static final String XSD_NIVEL = "/niveles/schema/levelConfig.xsd";
     public static final List<String> NIVELES_XML = List.of(
             "/niveles/Level2.xml",
-            "/niveles/Level0.xml",
-            "/niveles/Level1.xml"
+            "/niveles/Level1.xml",
+            "/niveles/Level0.xml"
     );
 
     // Post Nivel
@@ -105,7 +105,7 @@ public final class ConstantesUI {
     public static final double HUD_OPACIDAD_FONDO  = 0.35;
     public static final String HUD_FONT_FAMILY     = "Consolas";
     public static final int    HUD_FONT_SIZE       = 18;
-    public static final String HUD_COLOR_TEXT      = "#F5F5F5"; // WHITESMOKE
-    public static final String HUD_COLOR_P2        = "#87CEFA"; // LIGHTSKYBLUE
+    public static final String HUD_COLOR_TEXT      = "#F5F5F5";
+    public static final String HUD_COLOR_P2        = "#87CEFA";
 
 }

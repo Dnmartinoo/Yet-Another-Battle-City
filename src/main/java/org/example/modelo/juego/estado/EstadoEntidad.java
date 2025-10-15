@@ -1,11 +1,12 @@
 package org.example.modelo.juego.estado;
 
 public record EstadoEntidad(
-        String spriteId,
+        String tipo,
         double x,
         double y,
         double ancho,
         double alto,
         boolean cascoActivo,
-        double rotacion
+        double direccionX,
+        double direccionY
 ) {}
