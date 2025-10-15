@@ -84,7 +84,5 @@ package "PowerUps" {
     }
 }
 
-Tanque <|-- Jugador
-Tanque <|-- Enemigo
 Proyectil --> Equipo
 @enduml
