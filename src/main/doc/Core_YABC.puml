@@ -1,0 +1,92 @@
+@startuml modelo_juego_core
+hide empty members
+
+!define INTERFACE_COLOR #E1F5FE
+!define CONCRETE_COLOR #E8F5E8
+!define ABSTRACT_COLOR #FFF3E0
+
+package "Juego Core" {
+
+    class MotorJuego CONCRETE_COLOR {
+        -nivelActual: Nivel
+        -campaña: List<NivelData>
+        -fase: Fase
+        +configurarCampaña(List<NivelData>, NivelFactory)
+        +tick(long, InputEstado, InputEstado)
+        +estado(): EstadoNivel
+        +nivel(): Nivel
+        +enVictoria(): boolean
+        +enDerrota(): boolean
+        +partidaFinalizada(): boolean
+    }
+
+    class Nivel CONCRETE_COLOR {
+        -bloques: List<Bloque>
+        -jugadores: List<Jugador>
+        -enemigos: List<Enemigo>
+        -proyectiles: List<Proyectil>
+        -poderes: List<PowerUp>
+        +tick(long, InputEstado, InputEstado)
+        +crearMundo(NivelData)
+        +estado(): EstadoNivel
+    }
+
+    class GestorBalas CONCRETE_COLOR {
+        +spawnBalaJugador(Jugador)
+        +spawnBalaEnemigo(Enemigo)
+        +actualizar(double)
+    }
+
+    class GestorPowerUps CONCRETE_COLOR {
+        +tick(List<PowerUp>, List<Jugador>, List<Enemigo>, Spawner)
+        +crearPoderRandom(Vector): PowerUp
+    }
+
+    class Spawner CONCRETE_COLOR {
+        +spawnearHastaCompletar(int, long, int): List<Enemigo>
+    }
+
+    class NivelData CONCRETE_COLOR {
+        +ancho(): int
+        +alto(): int
+        +jugador1X(): double
+        +jugador1Y(): double
+        +bloques(): List
+        +enemigos(): List
+    }
+
+    class ConstructorEntidades CONCRETE_COLOR {
+        +agregarBloques(List, List<Bloque>)
+        +agregarJugadores(List, List<Jugador>)
+        +agregarEnemigos(List, List<Enemigo>)
+        +agregarProyectiles(List, List<Proyectil>)
+        +agregarPowerUps(List, List<PowerUp>)
+    }
+
+    class EstadoNivel CONCRETE_COLOR {
+        +victoria(): boolean
+        +derrota(): boolean
+        +entidades(): List<EstadoEntidad>
+    }
+
+    class EstadoEntidad CONCRETE_COLOR {
+        +tipo: String
+        +x, y: double
+        +ancho, alto: double
+        +direccionX, direccionY: double
+        +cascoActivo: boolean
+    }
+}
+
+MotorJuego --> Nivel
+Nivel --> GestorBalas
+Nivel --> GestorPowerUps
+Nivel --> Spawner
+Nivel *-- Jugador
+Nivel *-- Enemigo
+Nivel *-- PowerUp
+Nivel *-- Proyectil
+Nivel *-- Bloque
+ConstructorEntidades --> EstadoEntidad
+EstadoNivel --> EstadoEntidad
+@enduml

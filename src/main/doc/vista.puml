@@ -1,0 +1,53 @@
+@startuml vista
+hide empty members
+!define CONCRETE_COLOR #E8F5E8
+
+package "Vista" {
+    class ManagerSprites CONCRETE_COLOR {
+        +get(): ManagerSprites
+        +spriteDesdeTipo(String): String
+    }
+
+    class ManagerSonido CONCRETE_COLOR {
+        +cargarEfecto(String, String)
+        +cargarMusica(String)
+        +playEfecto(String)
+        +playMusica()
+    }
+
+    class RenderizadorSprites CONCRETE_COLOR {
+        +render(EstadoNivel, Canvas)
+    }
+
+    class SpriteRenderer CONCRETE_COLOR {
+        +dibujarDosPasadas(Iterable<EstadoEntidad>, GraphicsContext)
+    }
+
+    class HudRenderer CONCRETE_COLOR {
+        +dibujar(EstadoNivel, Canvas, GraphicsContext)
+    }
+
+    class OverlayRenderer CONCRETE_COLOR {
+        +render(Canvas, String, Color)
+    }
+
+    class ControladorJuego CONCRETE_COLOR {
+        +iniciar(MotorJuego, int)
+    }
+
+    class AudioInitializer CONCRETE_COLOR {
+        +inicializar()
+    }
+
+    class CampaniaFactory CONCRETE_COLOR {
+        +crearMotorCampania(boolean, List<String>): MotorJuego
+    }
+}
+
+RenderizadorSprites --> SpriteRenderer
+RenderizadorSprites --> HudRenderer
+SpriteRenderer --> ManagerSprites
+AudioInitializer --> ManagerSonido
+ControladorJuego --> MotorJuego
+CampaniaFactory --> MotorJuego
+@enduml

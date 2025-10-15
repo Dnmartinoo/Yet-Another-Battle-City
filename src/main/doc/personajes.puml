@@ -1,0 +1,64 @@
+@startuml personajes
+hide empty members
+
+!define INTERFACE_COLOR #E1F5FE
+!define ABSTRACT_COLOR #FFF3E0
+!define CONCRETE_COLOR #E8F5E8
+!define ENUM_COLOR #FCE4EC
+
+interface Cuerpo <<interface>> INTERFACE_COLOR
+class Vector <<external>>
+class MundoFisico <<external>>
+interface Control <<interface>> INTERFACE_COLOR
+
+' ===== Personajes =====
+enum TipoPersonaje ENUM_COLOR {
+  JUGADOR
+  regularEnemy
+  fastEnemy
+  powerfulEnemy
+  heavyEnemy
+  --
+  +obtenerVelocidad(): double
+  +vidaBase(): int
+  +obtenerCadencia(): double
+  +esEnemigo(): boolean
+}
+
+abstract class Tanque ABSTRACT_COLOR implements Cuerpo {
+  +Tanque(tipo: TipoPersonaje, pos: Vector)
+  +estaVivo(): boolean
+  +recibirImpacto(dano: int): void
+  +mover(delta: Vector, mundo: MundoFisico): void
+  +ultimaDireccion(): Vector
+  +setVelocidad(v: Vector): void
+}
+
+class Jugador CONCRETE_COLOR extends Tanque {
+  +Jugador(pos: Vector, id: int)
+  +actualizarEstado(ahoraMs: long): void
+  +esInvulnerable(): boolean
+  +sinVidas(): boolean
+  --
+  +moverArriba(): void
+  +moverAbajo(): void
+  +moverDerecha(): void
+  +moverIzquierda(): void
+  +detener(): void
+  +disparar(): void
+  +hayDisparoPendiente(): boolean
+  +consumirDisparoPendiente(): void
+}
+
+class Enemigo CONCRETE_COLOR extends Tanque {
+  +Enemigo(tipo: TipoPersonaje, pos: Vector)
+  +actualizarIA(dt: double, mundo: MundoFisico): void
+  +getTipo(): TipoPersonaje
+}
+
+Jugador ..|> Control
+Tanque --> TipoPersonaje : usa
+Tanque --> Vector : usa
+Tanque --> MundoFisico : usa
+
+@enduml

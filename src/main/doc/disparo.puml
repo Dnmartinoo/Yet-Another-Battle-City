@@ -1,0 +1,35 @@
+@startuml Disparo_YABC
+hide empty members
+
+!define INTERFACE_COLOR #E1F5FE
+!define ABSTRACT_COLOR  #FFF3E0
+!define CONCRETE_COLOR  #E8F5E8
+!define ENUM_COLOR      #FCE4EC
+
+interface Cuerpo <<interface>> INTERFACE_COLOR
+class Vector <<external>>
+class Rectangulo <<external>>
+
+  enum Equipo ENUM_COLOR {
+    JUGADOR
+    ENEMIGO
+  }
+
+  class Proyectil CONCRETE_COLOR implements Cuerpo {
+    +Proyectil(pos: Vector, dir: Vector, vel: double, dano: int, eq: Equipo, potenciada: boolean)
+    +hitbox(): Rectangulo
+    +posicion(): Vector
+    +setPosicion(p: Vector): void
+    +velocidad(): Vector
+    +destruir(): void
+    +vivo(): boolean
+    +dano(): int
+    +equipo(): Equipo
+    +esPotenciada(): boolean
+  }
+
+Proyectil --> Equipo
+Proyectil --> Vector
+Proyectil --> Rectangulo
+
+@enduml

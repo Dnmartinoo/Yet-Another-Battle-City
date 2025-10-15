@@ -1,0 +1,90 @@
+@startuml modelo_personajes_disparo_powerups
+hide empty members
+
+
+!define INTERFACE_COLOR #E1F5FE
+!define ABSTRACT_COLOR #FFF3E0
+!define CONCRETE_COLOR #E8F5E8
+!define ENUM_COLOR #FCE4EC
+
+package "Personajes" {
+    enum TipoPersonaje ENUM_COLOR {
+        JUGADOR
+        regularEnemy
+        fastEnemy
+        powerfulEnemy
+        heavyEnemy
+    }
+
+    abstract class Tanque ABSTRACT_COLOR implements Cuerpo {
+        #tipo: TipoPersonaje
+        #vidaActual: int
+        #posicion: Vector
+        #velocidadActual: Vector
+        +mover(Vector, MundoFisico)
+        +recibirImpacto(int)
+        +estaVivo(): boolean
+        +ultimaDireccion(): Vector
+    }
+
+    class Jugador CONCRETE_COLOR extends Tanque {
+        -vidasRestantes: int
+        -inmovilizadoHastaMs: long
+        -visible: boolean
+        +inmovilizarPorMs(long, long)
+        +estaInmovilizado(long): boolean
+    }
+
+    class Enemigo CONCRETE_COLOR extends Tanque {
+        -direccionActual: Vector
+        -cooldownDisparoHasta: long
+        +actualizarIA(long, MundoFisico)
+    }
+}
+
+package "Disparo" {
+    enum Equipo ENUM_COLOR {
+        JUGADOR
+        ENEMIGO
+    }
+
+    class Proyectil CONCRETE_COLOR {
+        -pos: Vector
+        -dirUnit: Vector
+        -speed: double
+        -w, h: double
+        -vivo: boolean
+        -dano: int
+        -equipo: Equipo
+        +hitbox(): Rectangulo
+        +posicion(): Vector
+        +velocidad(): Vector
+    }
+}
+
+package "PowerUps" {
+    interface PowerUp <<interface>> INTERFACE_COLOR {
+        +aplicar(Jugador): ComandoPowerUp
+        +hitbox(): Rectangulo
+    }
+
+    abstract class PowerUpBase ABSTRACT_COLOR implements PowerUp {
+        #posicion: Vector
+        +hitbox(): Rectangulo
+        +posicion(): Vector
+    }
+
+    class Casco CONCRETE_COLOR extends PowerUpBase
+    class Estrella CONCRETE_COLOR extends PowerUpBase
+    class Granada CONCRETE_COLOR extends PowerUpBase
+
+    enum ComandoPowerUp ENUM_COLOR {
+        NONE
+        DESTRUIR_TODOS_ENEMIGOS
+    }
+}
+
+Tanque <|-- Jugador
+Tanque <|-- Enemigo
+Proyectil --> Equipo
+@enduml
