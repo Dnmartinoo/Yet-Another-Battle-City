@@ -36,6 +36,9 @@ package "Juego Core" {
         +spawnBalaEnemigo(Enemigo)
         +actualizar(double)
     }
+    class CreadorDeMundo CONCRETE_COLOR {
+        +Construir(NivelData)
+    }
 
     class GestorPowerUps CONCRETE_COLOR {
         +tick(List<PowerUp>, List<Jugador>, List<Enemigo>, Spawner)
@@ -78,7 +81,9 @@ package "Juego Core" {
     }
 }
 
+Nivel --> CreadorDeMundo : usa
 MotorJuego --> Nivel
+CreadorDeMundo --> NivelData : usa
 Nivel --> GestorBalas
 Nivel --> GestorPowerUps
 Nivel --> Spawner

@@ -6,10 +6,10 @@ hide empty members
 !define CONCRETE_COLOR #E8F5E8
 !define ENUM_COLOR #FCE4EC
 
-interface Cuerpo <<interface>> INTERFACE_COLOR
-class Vector <<external>>
-class MundoFisico <<external>>
-interface Control <<interface>> INTERFACE_COLOR
+interface Cuerpo INTERFACE_COLOR
+class Vector
+class MundoFisico
+interface Control  INTERFACE_COLOR
 
 ' ===== Personajes =====
 enum TipoPersonaje ENUM_COLOR {

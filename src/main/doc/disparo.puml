@@ -7,8 +7,8 @@ hide empty members
 !define ENUM_COLOR      #FCE4EC
 
 interface Cuerpo <<interface>> INTERFACE_COLOR
-class Vector <<external>>
-class Rectangulo <<external>>
+class Vector
+class Rectangulo
 
   enum Equipo ENUM_COLOR {
     JUGADOR

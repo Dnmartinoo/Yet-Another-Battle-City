@@ -27,7 +27,7 @@ package "Personajes" {
         +ultimaDireccion(): Vector
     }
 
-    class Jugador CONCRETE_COLOR extends Tanque {
+    class Jugador CONCRETE_COLOR extends Tanque implements TipoPersonaje {
         -vidasRestantes: int
         -inmovilizadoHastaMs: long
         -visible: boolean
@@ -35,7 +35,7 @@ package "Personajes" {
         +estaInmovilizado(long): boolean
     }
 
-    class Enemigo CONCRETE_COLOR extends Tanque {
+    class Enemigo CONCRETE_COLOR extends Tanque implements TipoPersonaje{
         -direccionActual: Vector
         -cooldownDisparoHasta: long
         +actualizarIA(long, MundoFisico)
@@ -74,9 +74,9 @@ package "PowerUps" {
         +posicion(): Vector
     }
 
-    class Casco CONCRETE_COLOR extends PowerUpBase
-    class Estrella CONCRETE_COLOR extends PowerUpBase
-    class Granada CONCRETE_COLOR extends PowerUpBase
+    class Casco CONCRETE_COLOR extends PowerUpBase implements ComandoPowerUp
+    class Estrella CONCRETE_COLOR extends PowerUpBase implements ComandoPowerUp
+    class Granada CONCRETE_COLOR extends PowerUpBase implements ComandoPowerUp
 
     enum ComandoPowerUp ENUM_COLOR {
         NONE
