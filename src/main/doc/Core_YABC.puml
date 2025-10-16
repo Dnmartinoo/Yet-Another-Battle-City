@@ -1,4 +1,4 @@
-@startuml modelo_juego_core
+@startuml core
 hide empty members
 
 !define INTERFACE_COLOR #E1F5FE

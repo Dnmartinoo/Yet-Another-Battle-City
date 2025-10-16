@@ -1,4 +1,4 @@
-@startuml Disparo_YABC
+@startuml disparo
 hide empty members
 
 !define INTERFACE_COLOR #E1F5FE
